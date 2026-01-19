@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\SarprasController;
 use Illuminate\Support\Facades\Route;
 
@@ -70,8 +71,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/peminjaman/{peminjaman}/handover', [PeminjamanController::class, 'handover'])->name('peminjaman.handover');
         Route::get('/peminjaman/{peminjaman}/cetak', [PeminjamanController::class, 'cetak'])->name('peminjaman.cetak');
         
-        // Pengembalian (akan ditambahkan nanti)
-        // Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
+        // Pengembalian Management
+        Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
+        Route::get('/pengembalian/scan', [PengembalianController::class, 'scanForm'])->name('pengembalian.scan');
+        Route::post('/pengembalian/scan', [PengembalianController::class, 'scanProcess'])->name('pengembalian.scan.process');
+        Route::get('/pengembalian/create/{peminjaman}', [PengembalianController::class, 'create'])->name('pengembalian.create');
+        Route::post('/pengembalian', [PengembalianController::class, 'store'])->name('pengembalian.store');
+        Route::get('/pengembalian/{pengembalian}', [PengembalianController::class, 'show'])->name('pengembalian.show');
+        
+        // Riwayat Kondisi per Sarpras
+        Route::get('/sarpras/{sarpras}/riwayat-kondisi', [PengembalianController::class, 'riwayatKondisi'])->name('sarpras.riwayat-kondisi');
+        
+        // Laporan Kerusakan
+        Route::get('/laporan/kerusakan', [PengembalianController::class, 'laporanKerusakan'])->name('laporan.kerusakan');
         
         // Pengaduan Management (akan ditambahkan nanti)
         // Route::get('/pengaduan', [PengaduanController::class, 'index'])->name('pengaduan.index');

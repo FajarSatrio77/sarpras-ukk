@@ -117,6 +117,14 @@
                             </form>
                             @endif
                             
+                            @if($item->status == 'dipinjam')
+                            <!-- Tombol Proses Pengembalian -->
+                            <a href="{{ route('pengembalian.create', $item) }}" class="btn btn-outline" 
+                               style="padding: 6px 10px; color: var(--success);" title="Proses Pengembalian">
+                                <i class="bi bi-box-arrow-in-left"></i>
+                            </a>
+                            @endif
+                            
                             @if(in_array($item->status, ['disetujui', 'dipinjam', 'dikembalikan']))
                             <a href="{{ route('peminjaman.cetak', $item) }}" class="btn btn-outline" style="padding: 6px 10px;" 
                                title="Cetak Bukti" target="_blank">

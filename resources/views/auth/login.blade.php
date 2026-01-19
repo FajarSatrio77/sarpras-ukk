@@ -303,23 +303,6 @@
                     <i class="bi bi-box-arrow-in-right"></i> Login
                 </button>
             </form>
-
-            <div class="demo-accounts">
-                <h4>Akun Demo</h4>
-                <div class="demo-account">
-                    <span>Admin</span>
-                    <span>admin@sarpras.test / password</span>
-                </div>
-                <div class="demo-account">
-                    <span>Petugas</span>
-                    <span>petugas@sarpras.test / password</span>
-                </div>
-                <div class="demo-account">
-                    <span>Pengguna</span>
-                    <span>pengguna@sarpras.test / password</span>
-                </div>
-            </div>
-
             <div style="text-align: center; margin-top: 24px; color: #64748b; font-size: 0.9rem;">
                 Belum punya akun? <a href="{{ route('register') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Daftar di sini</a>
             </div>

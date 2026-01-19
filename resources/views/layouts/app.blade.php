@@ -479,9 +479,9 @@
                 <span>Kelola Peminjaman</span>
             </a>
             
-            <a href="#" class="menu-item">
-                <i class="bi bi-box-arrow-in-left"></i>
-                <span>Pengembalian</span>
+            <a href="{{ route('pengembalian.scan') }}" class="menu-item {{ request()->routeIs('pengembalian.*') ? 'active' : '' }}">
+                <i class="bi bi-qr-code-scan"></i>
+                <span>Proses Pengembalian</span>
             </a>
             @endif
 
@@ -507,9 +507,9 @@
                 <span>Laporan Peminjaman</span>
             </a>
             
-            <a href="#" class="menu-item">
-                <i class="bi bi-file-earmark-medical"></i>
-                <span>Laporan Pengaduan</span>
+            <a href="{{ route('laporan.kerusakan') }}" class="menu-item {{ request()->routeIs('laporan.kerusakan') ? 'active' : '' }}">
+                <i class="bi bi-exclamation-octagon"></i>
+                <span>Laporan Kerusakan</span>
             </a>
             
             <a href="#" class="menu-item">
