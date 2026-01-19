@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - SARPRAS SMK</title>
+    <title>Login - SARPRAS SMK NEGERI 1 BOYOLANGU</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary: #22c55e;
+            --primary-dark: #16a34a;
+            --secondary: #3b82f6;
             --dark: #1e293b;
         }
 
@@ -26,7 +27,7 @@
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
         }
 
         .login-container {
@@ -47,9 +48,16 @@
         }
 
         .login-left h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .login-left h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
             margin-bottom: 20px;
+            opacity: 0.95;
         }
 
         .login-left p {
@@ -59,10 +67,15 @@
             line-height: 1.7;
         }
 
-        .login-icon {
-            font-size: 5rem;
+        .login-logo {
+            width: 180px;
+            height: 180px;
             margin-bottom: 30px;
-            opacity: 0.9;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            background: white;
+            padding: 10px;
         }
 
         .login-right {
@@ -114,7 +127,7 @@
         .form-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
         }
 
         .form-input.error {
@@ -170,7 +183,7 @@
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
         }
 
         .error-message {
@@ -246,8 +259,9 @@
 <body>
     <div class="login-container">
         <div class="login-left">
-            <i class="bi bi-box-seam login-icon"></i>
+            <img src="{{ asset('images/logo-smkn1boyolangu.jpg') }}" alt="Logo SMKN 1 Boyolangu" class="login-logo">
             <h1>SARPRAS SMK</h1>
+            <h2>SMKN 1 BOYOLANGU</h2>
             <p>Sistem Manajemen Peminjaman dan Pengaduan Sarana Prasarana Sekolah Berbasis Web</p>
         </div>
         

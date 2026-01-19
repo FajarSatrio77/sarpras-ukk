@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
+use App\Http\Controllers\PengaduanController;
 use App\Http\Controllers\SarprasController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,8 +51,8 @@ Route::middleware('auth')->group(function () {
     // Admin Only Routes
     // =============================================
     Route::middleware('role:admin')->prefix('admin')->group(function () {
-        // User Management (akan ditambahkan nanti)
-        // Route::resource('users', UserController::class);
+        // User Management
+        Route::resource('users', \App\Http\Controllers\UserController::class);
     });
     
     // =============================================
@@ -62,7 +63,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('kategori', KategoriController::class)->except(['show']);
         
         // Sarpras Management
-        Route::resource('sarpras', SarprasController::class);
+        Route::resource('sarpras', SarprasController::class)->parameters(['sarpras' => 'sarpras']);
         
         // Peminjaman Management (Admin/Petugas)
         Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
@@ -85,8 +86,9 @@ Route::middleware('auth')->group(function () {
         // Laporan Kerusakan
         Route::get('/laporan/kerusakan', [PengembalianController::class, 'laporanKerusakan'])->name('laporan.kerusakan');
         
-        // Pengaduan Management (akan ditambahkan nanti)
-        // Route::get('/pengaduan', [PengaduanController::class, 'index'])->name('pengaduan.index');
+        // Pengaduan Management (Admin/Petugas - bisa update status)
+        Route::patch('/pengaduan/{pengaduan}/status', [PengaduanController::class, 'updateStatus'])->name('pengaduan.update-status');
+        Route::post('/pengaduan/{pengaduan}/catatan', [PengaduanController::class, 'addCatatan'])->name('pengaduan.add-catatan');
     });
     
     // =============================================
@@ -103,11 +105,18 @@ Route::middleware('auth')->group(function () {
         // Riwayat Peminjaman
         Route::get('/riwayat-peminjaman', [PeminjamanController::class, 'riwayat'])->name('peminjaman.riwayat');
         
-        // Buat Pengaduan (akan ditambahkan nanti)
-        // Route::get('/pengaduan/create', [PengaduanController::class, 'create'])->name('user.pengaduan.create');
+        // Buat Pengaduan (Pengguna only)
+        Route::get('/pengaduan/create', [PengaduanController::class, 'create'])->name('pengaduan.create');
+        Route::post('/pengaduan', [PengaduanController::class, 'store'])->name('pengaduan.store');
     });
+    
+    // =============================================
+    // Pengaduan (Semua role bisa akses daftar dan detail)
+    // =============================================
+    Route::get('/pengaduan', [PengaduanController::class, 'index'])->name('pengaduan.index');
+    Route::get('/pengaduan/{pengaduan}', [PengaduanController::class, 'show'])->name('pengaduan.show');
+    Route::delete('/pengaduan/{pengaduan}', [PengaduanController::class, 'destroy'])->name('pengaduan.destroy');
     
     // Detail peminjaman (semua role bisa akses)
     Route::get('/peminjaman/{peminjaman}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 });
-

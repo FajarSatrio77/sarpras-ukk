@@ -418,6 +418,115 @@
             background: #e2e8f0;
             margin: 8px 0;
         }
+
+        /* Pagination */
+        nav[role="navigation"] {
+            display: flex;
+            justify-content: center;
+        }
+
+        nav[role="navigation"] > div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav[role="navigation"] > div > div:first-child {
+            display: none;
+        }
+
+        nav[role="navigation"] span[aria-current="page"] span,
+        nav[role="navigation"] a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        nav[role="navigation"] span[aria-current="page"] span {
+            background: var(--primary);
+            color: white;
+        }
+
+        nav[role="navigation"] a {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+        }
+
+        nav[role="navigation"] a:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        nav[role="navigation"] svg {
+            width: 16px !important;
+            height: 16px !important;
+        }
+
+        /* Simple pagination for older Laravel */
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .pagination li {
+            display: inline-block;
+        }
+
+        .pagination li a,
+        .pagination li span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--secondary);
+            border: 1px solid #e2e8f0;
+        }
+
+        .pagination li.active span {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .pagination li a:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .pagination li.disabled span {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination svg,
+        .pagination i {
+            width: 16px !important;
+            height: 16px !important;
+            font-size: 16px !important;
+        }
     </style>
     @stack('styles')
 </head>
@@ -443,7 +552,7 @@
                 <span class="menu-label">Kelola Data</span>
                 
                 @if(auth()->user()->isAdmin())
-                <a href="#" class="menu-item">
+                <a href="{{ route('users.index') }}" class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i>
                     <span>Kelola User</span>
                 </a>
@@ -488,16 +597,17 @@
             <span class="menu-label">Pengaduan</span>
             
             @if(auth()->user()->isPengguna())
-            <a href="#" class="menu-item">
+            <a href="{{ route('pengaduan.create') }}" class="menu-item {{ request()->routeIs('pengaduan.create') ? 'active' : '' }}">
                 <i class="bi bi-megaphone"></i>
                 <span>Buat Pengaduan</span>
             </a>
             @endif
             
-            <a href="#" class="menu-item">
+            <a href="{{ route('pengaduan.index') }}" class="menu-item {{ request()->routeIs('pengaduan.index', 'pengaduan.show') ? 'active' : '' }}">
                 <i class="bi bi-chat-square-text"></i>
                 <span>{{ auth()->user()->canManage() ? 'Kelola Pengaduan' : 'Riwayat Pengaduan' }}</span>
             </a>
+
 
             @if(auth()->user()->isAdmin())
             <span class="menu-label">Laporan</span>
