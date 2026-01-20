@@ -58,22 +58,26 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'nisn' => 'required|string|max:20|unique:users,nisn',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:admin,petugas,pengguna',
         ], [
             'name.required' => 'Nama wajib diisi',
-            'email.required' => 'Email wajib diisi',
-            'email.unique' => 'Email sudah terdaftar',
+            'nisn.required' => 'NISN wajib diisi',
+            'nisn.unique' => 'NISN sudah terdaftar',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 6 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
             'role.required' => 'Role wajib dipilih',
         ]);
 
+        // Auto-generate email dari NISN
+        $email = strtolower($request->nisn) . '@smkn1boyolangu.sch.id';
+
         User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'nisn' => $request->nisn,
+            'email' => $email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);

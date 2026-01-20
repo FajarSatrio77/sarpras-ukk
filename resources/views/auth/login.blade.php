@@ -27,7 +27,7 @@
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
-            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+            background: #f8fafc;
         }
 
         .login-container {
@@ -43,7 +43,7 @@
             justify-content: center;
             align-items: center;
             padding: 40px;
-            color: white;
+            background: #f8fafc;
             text-align: center;
         }
 
@@ -68,24 +68,45 @@
         }
 
         .login-logo {
-            width: 180px;
-            height: 180px;
-            margin-bottom: 30px;
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            background: white;
-            padding: 10px;
+            width: 150px;
+            height: 150px;
+            margin-bottom: 24px;
+            object-fit: contain;
+        }
+
+        .login-box {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .login-box h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .login-box p {
+            font-size: 1rem;
+            color: #64748b;
+            line-height: 1.7;
         }
 
         .login-right {
-            width: 500px;
+            width: 550px;
             background: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 60px;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+            padding: 50px;
+            box-shadow: -20px 0 60px rgba(0, 0, 0, 0.15);
         }
 
         .login-header {
@@ -100,6 +121,11 @@
 
         .login-header p {
             color: #64748b;
+        }
+
+        .login-form-card {
+            background: transparent;
+            padding: 0;
         }
 
         .form-group {
@@ -122,12 +148,14 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             font-family: inherit;
+            background: #f8fafc;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+            background: white;
         }
 
         .form-input.error {
@@ -170,7 +198,7 @@
         .btn-login {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
             color: white;
             border: none;
             border-radius: 12px;
@@ -179,6 +207,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
         }
 
         .btn-login:hover {
@@ -259,10 +293,12 @@
 <body>
     <div class="login-container">
         <div class="login-left">
-            <img src="{{ asset('images/logo-smkn1boyolangu.jpg') }}" alt="Logo SMKN 1 Boyolangu" class="login-logo">
-            <h1>SARPRAS SMK</h1>
-            <h2>SMKN 1 BOYOLANGU</h2>
-            <p>Sistem Manajemen Peminjaman dan Pengaduan Sarana Prasarana Sekolah Berbasis Web</p>
+            <div class="login-box">
+                <img src="{{ asset('images/logo-smkn1boyolangu.jpeg') }}" alt="Logo SMKN 1 Boyolangu" class="login-logo">
+                <h1>SARPRAS</h1>
+                <h2>SMKN 1 BOYOLANGU</h2>
+                <p>Sistem Manajemen Peminjaman dan Pengaduan Sarana Prasarana Sekolah Berbasis Web</p>
+            </div>
         </div>
         
         <div class="login-right">
@@ -285,40 +321,39 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-                
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <div class="input-icon-wrapper">
-                        <i class="bi bi-envelope"></i>
-                        <input type="email" name="email" class="form-input @error('email') error @enderror" 
-                               value="{{ old('email') }}" placeholder="nama@email.com" required autofocus>
+            <div class="login-form-card">
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+                    
+                    <div class="form-group">
+                        <label class="form-label">NISN</label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-person-badge"></i>
+                            <input type="text" name="nisn" class="form-input @error('nisn') error @enderror" 
+                                   value="{{ old('nisn') }}" placeholder="Masukkan NISN" required autofocus>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <div class="input-icon-wrapper">
-                        <i class="bi bi-lock"></i>
-                        <input type="password" name="password" class="form-input" 
-                               placeholder="Masukkan password" required>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-icon-wrapper">
+                            <i class="bi bi-lock"></i>
+                            <input type="password" name="password" class="form-input" 
+                                   placeholder="Masukkan password" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <div class="form-checkbox">
-                        <input type="checkbox" name="remember" id="remember">
-                        <label for="remember">Ingat saya</label>
+                    <div class="form-group">
+                        <div class="form-checkbox">
+                            <input type="checkbox" name="remember" id="remember">
+                            <label for="remember">Ingat saya</label>
+                        </div>
                     </div>
-                </div>
 
-                <button type="submit" class="btn-login">
-                    <i class="bi bi-box-arrow-in-right"></i> Login
-                </button>
-            </form>
-            <div style="text-align: center; margin-top: 24px; color: #64748b; font-size: 0.9rem;">
-                Belum punya akun? <a href="{{ route('register') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Daftar di sini</a>
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </button>
+                </form>
             </div>
         </div>
     </div>

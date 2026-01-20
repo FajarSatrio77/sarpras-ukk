@@ -26,10 +26,18 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        $request->validate([
+            'nisn' => 'required|string',
             'password' => 'required',
+        ], [
+            'nisn.required' => 'NISN wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
         ]);
+
+        $credentials = [
+            'nisn' => $request->nisn,
+            'password' => $request->password,
+        ];
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
@@ -42,8 +50,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+            'nisn' => 'NISN atau password salah.',
+        ])->onlyInput('nisn');
     }
 
     /**

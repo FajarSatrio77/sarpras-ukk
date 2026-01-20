@@ -32,12 +32,12 @@
                 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                        Email <span style="color: var(--danger);">*</span>
+                        NISN <span style="color: var(--danger);">*</span>
                     </label>
-                    <input type="email" name="email" value="{{ old('email') }}"
+                    <input type="text" name="nisn" value="{{ old('nisn') }}"
                         style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                        placeholder="Contoh: budi@email.com" required>
-                    @error('email')
+                        placeholder="Contoh: 0012345678" required>
+                    @error('nisn')
                         <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
                     @enderror
                 </div>
