@@ -126,4 +126,43 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const tglPinjam = document.querySelector('input[name="tgl_pinjam"]');
+        const tglKembali = document.querySelector('input[name="tgl_kembali_rencana"]');
+        
+        // Set minimum dates
+        tglPinjam.setAttribute('min', today);
+        
+        // Validate tanggal pinjam
+        tglPinjam.addEventListener('change', function() {
+            if (this.value < today) {
+                alert('Tanggal pinjam tidak boleh kurang dari hari ini!');
+                this.value = today;
+            }
+            // Update min tanggal kembali
+            const nextDay = new Date(this.value);
+            nextDay.setDate(nextDay.getDate() + 1);
+            tglKembali.setAttribute('min', nextDay.toISOString().split('T')[0]);
+            
+            // Reset tanggal kembali jika lebih kecil dari tanggal pinjam
+            if (tglKembali.value && tglKembali.value <= this.value) {
+                tglKembali.value = '';
+            }
+        });
+        
+        // Validate tanggal kembali
+        tglKembali.addEventListener('change', function() {
+            if (this.value <= tglPinjam.value) {
+                alert('Tanggal kembali harus setelah tanggal pinjam!');
+                this.value = '';
+            }
+        });
+    });
+</script>
+@endpush
 @endsection
+

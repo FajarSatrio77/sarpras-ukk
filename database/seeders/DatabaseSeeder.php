@@ -114,12 +114,5 @@ class DatabaseSeeder extends Seeder
         foreach ($sarpras as $s) {
             Sarpras::create($s);
         }
-
-        $this->command->info('✅ Database seeded successfully!');
-        $this->command->info('');
-        $this->command->info('📧 Akun Demo:');
-        $this->command->info('   Admin   : admin@sarpras.test / password');
-        $this->command->info('   Petugas : petugas@sarpras.test / password');
-        $this->command->info('   Pengguna: pengguna@sarpras.test / password');
     }
 }

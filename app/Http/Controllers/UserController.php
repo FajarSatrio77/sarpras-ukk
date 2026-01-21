@@ -26,11 +26,27 @@ class UserController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('nisn', 'like', "%{$search}%");
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+        // Sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $sortOrder = $request->get('order', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['name', 'email', 'nisn', 'role', 'created_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort order
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+
+        $users = $query->orderBy($sortBy, $sortOrder)->paginate(15);
 
         // Statistik
         $statistik = [

@@ -63,17 +63,36 @@
             <div style="flex: 1; min-width: 200px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Cari</label>
                 <input type="text" name="search" value="{{ request('search') }}" 
-                    placeholder="Cari nama atau email..." 
+                    placeholder="Cari nama, email, atau NISN..." 
                     style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
             </div>
             
-            <div style="min-width: 150px;">
+            <div style="min-width: 130px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Role</label>
                 <select name="role" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="">Semua Role</option>
                     <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                     <option value="petugas" {{ request('role') == 'petugas' ? 'selected' : '' }}>Petugas</option>
                     <option value="pengguna" {{ request('role') == 'pengguna' ? 'selected' : '' }}>Pengguna</option>
+                </select>
+            </div>
+            
+            <div style="min-width: 130px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Urutkan</label>
+                <select name="sort" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                    <option value="created_at" {{ request('sort') == 'created_at' ? 'selected' : '' }}>Tgl Daftar</option>
+                    <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Nama</option>
+                    <option value="nisn" {{ request('sort') == 'nisn' ? 'selected' : '' }}>NISN</option>
+                    <option value="email" {{ request('sort') == 'email' ? 'selected' : '' }}>Email</option>
+                    <option value="role" {{ request('sort') == 'role' ? 'selected' : '' }}>Role</option>
+                </select>
+            </div>
+            
+            <div style="min-width: 100px;">
+                <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Urutan</label>
+                <select name="order" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                    <option value="desc" {{ request('order', 'desc') == 'desc' ? 'selected' : '' }}>Z-A / Terbaru</option>
+                    <option value="asc" {{ request('order') == 'asc' ? 'selected' : '' }}>A-Z / Terlama</option>
                 </select>
             </div>
             
@@ -87,6 +106,7 @@
     </div>
 </div>
 
+
 <!-- Tabel User -->
 <div class="card">
     <div class="card-body" style="padding: 0;">
@@ -94,6 +114,7 @@
             <thead>
                 <tr>
                     <th>User</th>
+                    <th>NISN</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Terdaftar</th>
@@ -115,6 +136,9 @@
                                 @endif
                             </div>
                         </div>
+                    </td>
+                    <td>
+                        <code style="background: var(--gray-100); padding: 4px 8px; border-radius: 6px; font-size: 0.85rem;">{{ $user->nisn ?? '-' }}</code>
                     </td>
                     <td>{{ $user->email }}</td>
                     <td>

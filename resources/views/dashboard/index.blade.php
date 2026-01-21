@@ -26,7 +26,7 @@
         </div>
         <div class="stat-content">
             <h3>{{ $stats['total_sarpras'] }}</h3>
-            <p>Total Sarpras</p>
+            <p>Total Barang</p>
         </div>
     </div>
 
@@ -36,7 +36,7 @@
         </div>
         <div class="stat-content">
             <h3>{{ $stats['sarpras_tersedia'] }}</h3>
-            <p>Sarpras Tersedia</p>
+            <p>Barang Tersedia</p>
         </div>
     </div>
 
@@ -150,7 +150,7 @@
                 <i class="bi bi-clipboard-data" style="margin-right: 8px;"></i>
                 Peminjaman Terbaru
             </h5>
-            <a href="#" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;">
+            <a href="{{ auth()->user()->canManage() ? route('peminjaman.index') : route('peminjaman.riwayat') }}" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;">
                 Lihat Semua
             </a>
         </div>
@@ -210,7 +210,7 @@
                 <i class="bi bi-chat-square-text" style="margin-right: 8px;"></i>
                 Pengaduan Terbaru
             </h5>
-            <a href="#" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;">
+            <a href="{{ route('pengaduan.index') }}" class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;">
                 Lihat Semua
             </a>
         </div>

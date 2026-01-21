@@ -7,6 +7,7 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\PengaduanController;
 use App\Http\Controllers\SarprasController;
+use App\Http\Controllers\ActivityLogController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,6 +44,10 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    // Profile
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    
     // Change Password
     Route::get('/password/change', [AuthController::class, 'showChangePassword'])->name('password.change');
     Route::post('/password/change', [AuthController::class, 'changePassword'])->name('password.update');
@@ -53,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         // User Management
         Route::resource('users', \App\Http\Controllers\UserController::class);
+        
+        // Activity Log
+        Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.index');
     });
     
     // =============================================
