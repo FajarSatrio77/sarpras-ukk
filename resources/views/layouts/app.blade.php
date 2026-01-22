@@ -803,9 +803,9 @@
 <body>
     <!-- Top Navigation -->
     <nav class="top-nav">
-        <a href="{{ route('dashboard') }}" class="nav-brand">
+        <a href="{{ auth()->user()->isPengguna() ? route('peminjaman.daftar') : route('dashboard') }}" class="nav-brand">
             <img src="{{ asset('images/logosmea.png') }}" alt="Logo">
-            <span class="nav-brand-text">SARPRASKITA</span>
+            <span class="nav-brand-text">SARPRAS</span>
         </a>
 
         <button class="mobile-toggle" onclick="toggleMobileMenu()">
@@ -813,10 +813,12 @@
         </button>
 
         <div class="nav-menu" id="navMenu">
+            @if(auth()->user()->canManage())
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="bi bi-grid-1x2"></i>
                 Dashboard
             </a>
+            @endif
 
             @if(auth()->user()->canManage())
             <div class="nav-dropdown">
@@ -902,6 +904,10 @@
                     <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
                 </a>
                 <div class="nav-dropdown-menu">
+                    <a href="{{ route('laporan.asset-health') }}" class="nav-dropdown-item {{ request()->routeIs('laporan.asset-health') ? 'active' : '' }}">
+                        <i class="bi bi-heart-pulse"></i>
+                        Asset Health
+                    </a>
                     <a href="{{ route('laporan.kerusakan') }}" class="nav-dropdown-item {{ request()->routeIs('laporan.kerusakan') ? 'active' : '' }}">
                         <i class="bi bi-exclamation-octagon"></i>
                         Laporan Kerusakan

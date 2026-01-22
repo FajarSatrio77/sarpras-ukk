@@ -33,13 +33,23 @@
                 @csrf
                 @method('PUT')
                 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                        Nama Kategori <span style="color: var(--danger);">*</span>
-                    </label>
-                    <input type="text" name="nama" value="{{ old('nama', $kategori->nama) }}"
-                           style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                           placeholder="Contoh: Perangkat TIK" required>
+                <div style="display: grid; grid-template-columns: 1fr 120px; gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                            Nama Kategori <span style="color: var(--danger);">*</span>
+                        </label>
+                        <input type="text" name="nama" value="{{ old('nama', $kategori->nama) }}"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                               placeholder="Contoh: Perangkat TIK" required>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                            Singkatan <span style="color: var(--danger);">*</span>
+                        </label>
+                        <input type="text" name="kode" value="{{ old('kode', $kategori->kode) }}" maxlength="10"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; text-transform: uppercase;"
+                               placeholder="TIK" required>
+                    </div>
                 </div>
 
                 <div style="margin-bottom: 24px;">

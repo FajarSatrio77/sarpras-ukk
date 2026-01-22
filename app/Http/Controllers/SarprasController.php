@@ -51,6 +51,15 @@ class SarprasController extends Controller
     }
 
     /**
+     * Generate kode sarpras otomatis (AJAX)
+     */
+    public function generateKode(KategoriSarpras $kategori)
+    {
+        $kode = Sarpras::generateKode($kategori->id);
+        return response()->json(['kode' => $kode]);
+    }
+
+    /**
      * Simpan sarpras baru
      */
     public function store(Request $request)

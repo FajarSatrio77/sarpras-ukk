@@ -16,14 +16,16 @@
 <!-- Filter & Search -->
 <div class="card" style="margin-bottom: 20px;">
     <div class="card-body" style="padding: 16px 20px;">
-        <form method="GET" action="{{ route('sarpras.index') }}" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
-            <div style="flex: 1; min-width: 200px;">
-                <input type="text" name="search" value="{{ request('search') }}" 
+        <form id="filterForm" method="GET" action="{{ route('sarpras.index') }}" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 200px; position: relative;">
+                <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
                        placeholder="Cari kode atau nama sarpras..."
-                       style="width: 100%; padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px;">
+                       autocomplete="off"
+                       style="width: 100%; padding: 10px 16px; padding-right: 40px; border: 2px solid #e2e8f0; border-radius: 10px;">
+                <i class="bi bi-search" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--secondary);"></i>
             </div>
             <div>
-                <select name="kategori" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 160px;">
+                <select id="kategoriFilter" name="kategori" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 160px;">
                     <option value="">Semua Kategori</option>
                     @foreach($kategori as $kat)
                         <option value="{{ $kat->id }}" {{ request('kategori') == $kat->id ? 'selected' : '' }}>
@@ -33,21 +35,16 @@
                 </select>
             </div>
             <div>
-                <select name="kondisi" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 140px;">
+                <select id="kondisiFilter" name="kondisi" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 140px;">
                     <option value="">Semua Kondisi</option>
                     <option value="baik" {{ request('kondisi') == 'baik' ? 'selected' : '' }}>Baik</option>
                     <option value="rusak_ringan" {{ request('kondisi') == 'rusak_ringan' ? 'selected' : '' }}>Rusak Ringan</option>
                     <option value="rusak_berat" {{ request('kondisi') == 'rusak_berat' ? 'selected' : '' }}>Rusak Berat</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
-                <i class="bi bi-search"></i> Filter
-            </button>
-            @if(request()->hasAny(['search', 'kategori', 'kondisi']))
-            <a href="{{ route('sarpras.index') }}" class="btn btn-outline" style="padding: 10px 20px;">
+            <button type="button" id="resetBtn" class="btn btn-outline" style="padding: 10px 20px; {{ request()->hasAny(['search', 'kategori', 'kondisi']) ? '' : 'display: none;' }}">
                 <i class="bi bi-x-lg"></i> Reset
-            </a>
-            @endif
+            </button>
         </form>
     </div>
 </div>
@@ -142,4 +139,76 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const kategoriFilter = document.getElementById('kategoriFilter');
+    const kondisiFilter = document.getElementById('kondisiFilter');
+    const resetBtn = document.getElementById('resetBtn');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Submit form
+    function submitForm() {
+        filterForm.submit();
+    }
+    
+    // Update reset button visibility
+    function updateResetBtn() {
+        if (searchInput.value !== '' || kategoriFilter.value !== '' || kondisiFilter.value !== '') {
+            resetBtn.style.display = 'inline-flex';
+        } else {
+            resetBtn.style.display = 'none';
+        }
+    }
+    
+    // Event listeners
+    const debouncedSubmit = debounce(submitForm, 400);
+    searchInput.addEventListener('input', function() {
+        updateResetBtn();
+        debouncedSubmit();
+    });
+    
+    kategoriFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    kondisiFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        kategoriFilter.value = '';
+        kondisiFilter.value = '';
+        submitForm();
+    });
+});
+</script>
+
+<style>
+#searchInput:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
+@endpush
 @endsection
+

@@ -16,6 +16,10 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
+            // Redirect berdasarkan role
+            if (Auth::user()->isPengguna()) {
+                return redirect()->route('peminjaman.daftar');
+            }
             return redirect()->route('dashboard');
         }
         return view('auth.login');
@@ -45,7 +49,10 @@ class AuthController extends Controller
             // Catat aktivitas login
             ActivityLog::log('login', 'User ' . Auth::user()->name . ' berhasil login');
 
-            return redirect()->intended(route('dashboard'))
+            // Redirect berdasarkan role
+            $redirectRoute = Auth::user()->isPengguna() ? 'peminjaman.daftar' : 'dashboard';
+
+            return redirect()->intended(route($redirectRoute))
                 ->with('success', 'Selamat datang, ' . Auth::user()->name . '!');
         }
 
@@ -111,6 +118,10 @@ class AuthController extends Controller
     public function showRegister()
     {
         if (Auth::check()) {
+            // Redirect berdasarkan role
+            if (Auth::user()->isPengguna()) {
+                return redirect()->route('peminjaman.daftar');
+            }
             return redirect()->route('dashboard');
         }
         return view('auth.register');
@@ -149,7 +160,8 @@ class AuthController extends Controller
         // Auto login setelah registrasi
         Auth::login($user);
 
-        return redirect()->route('dashboard')
+        // Pengguna baru selalu redirect ke halaman ajukan peminjaman
+        return redirect()->route('peminjaman.daftar')
             ->with('success', 'Selamat datang, ' . $user->name . '! Akun Anda berhasil dibuat.');
     }
 }

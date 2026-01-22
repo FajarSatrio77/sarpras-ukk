@@ -6,7 +6,7 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <div>
         <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">Daftar Pengembalian</h1>
-        <p style="color: var(--secondary);">Riwayat pengembalian sarpras dan kondisi alat</p>
+        <p style="color: var(--secondary);">Riwayat pengembalian barang dan kondisi alat</p>
     </div>
     <a href="{{ route('pengembalian.scan') }}" class="btn btn-primary">
         <i class="bi bi-qr-code-scan"></i> Proses Pengembalian Baru
@@ -59,16 +59,18 @@
 <!-- Filter -->
 <div class="card mb-4" style="margin-bottom: 24px;">
     <div class="card-body">
-        <form action="{{ route('pengembalian.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
-            <div style="flex: 1; min-width: 200px;">
+        <form id="filterForm" action="{{ route('pengembalian.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 1; min-width: 200px; position: relative;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Cari</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Kode peminjaman atau nama sarpras..." 
-                    style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <input type="text" id="searchInput" name="search" value="{{ request('search') }}" placeholder="Kode peminjaman atau nama barang..." 
+                    autocomplete="off"
+                    style="width: 100%; padding: 10px 14px; padding-right: 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <i class="bi bi-search" style="position: absolute; right: 14px; bottom: 12px; color: var(--secondary);"></i>
             </div>
             
             <div style="min-width: 150px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Kondisi</label>
-                <select name="kondisi" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <select id="kondisiFilter" name="kondisi" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="">Semua Kondisi</option>
                     <option value="baik" {{ request('kondisi') == 'baik' ? 'selected' : '' }}>Baik</option>
                     <option value="rusak_ringan" {{ request('kondisi') == 'rusak_ringan' ? 'selected' : '' }}>Rusak Ringan</option>
@@ -79,21 +81,18 @@
             
             <div style="min-width: 140px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Dari Tanggal</label>
-                <input type="date" name="tanggal_dari" value="{{ request('tanggal_dari') }}" 
+                <input type="date" id="tanggalDari" name="tanggal_dari" value="{{ request('tanggal_dari') }}" 
                     style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
             </div>
             
             <div style="min-width: 140px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Sampai Tanggal</label>
-                <input type="date" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}" 
+                <input type="date" id="tanggalSampai" name="tanggal_sampai" value="{{ request('tanggal_sampai') }}" 
                     style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
             </div>
             
             <div style="display: flex; gap: 8px;">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Filter
-                </button>
-                <a href="{{ route('pengembalian.index') }}" class="btn btn-outline">Reset</a>
+                <button type="button" id="resetBtn" class="btn btn-outline" style="{{ request()->hasAny(['search', 'kondisi', 'tanggal_dari', 'tanggal_sampai']) ? '' : 'display: none;' }}">Reset</button>
             </div>
         </form>
     </div>
@@ -113,7 +112,7 @@
                 <tr>
                     <th>Tanggal</th>
                     <th>Kode Pinjaman</th>
-                    <th>Sarpras</th>
+                    <th>Barang</th>
                     <th>Peminjam</th>
                     <th>Kondisi</th>
                     <th>Diterima Oleh</th>
@@ -179,4 +178,83 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const kondisiFilter = document.getElementById('kondisiFilter');
+    const tanggalDari = document.getElementById('tanggalDari');
+    const tanggalSampai = document.getElementById('tanggalSampai');
+    const resetBtn = document.getElementById('resetBtn');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Submit form
+    function submitForm() {
+        filterForm.submit();
+    }
+    
+    // Update reset button visibility
+    function updateResetBtn() {
+        if (searchInput.value !== '' || kondisiFilter.value !== '' || tanggalDari.value !== '' || tanggalSampai.value !== '') {
+            resetBtn.style.display = 'inline-flex';
+        } else {
+            resetBtn.style.display = 'none';
+        }
+    }
+    
+    // Event listeners
+    const debouncedSubmit = debounce(submitForm, 400);
+    searchInput.addEventListener('input', function() {
+        updateResetBtn();
+        debouncedSubmit();
+    });
+    
+    kondisiFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    tanggalDari.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    tanggalSampai.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        kondisiFilter.value = '';
+        tanggalDari.value = '';
+        tanggalSampai.value = '';
+        submitForm();
+    });
+});
+</script>
+
+<style>
+#searchInput:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
+@endpush
 @endsection
+

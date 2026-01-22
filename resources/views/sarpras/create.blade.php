@@ -35,28 +35,9 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                            Kode Sarpras <span style="color: var(--danger);">*</span>
-                        </label>
-                        <input type="text" name="kode" value="{{ old('kode') }}"
-                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                               placeholder="Contoh: TIK-001" required>
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                            Nama Sarpras <span style="color: var(--danger);">*</span>
-                        </label>
-                        <input type="text" name="nama" value="{{ old('nama') }}"
-                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                               placeholder="Contoh: Proyektor Epson" required>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                             Kategori <span style="color: var(--danger);">*</span>
                         </label>
-                        <select name="kategori_id" required
+                        <select name="kategori_id" id="kategori_id" required
                                 style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;">
                             <option value="">Pilih Kategori</option>
                             @foreach($kategori as $kat)
@@ -65,6 +46,36 @@
                                 </option>
                             @endforeach
                         </select>
+                        <p style="font-size: 0.8rem; color: var(--secondary); margin-top: 6px;">
+                            Pilih kategori untuk generate kode otomatis
+                        </p>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                            Kode Sarpras <span style="color: var(--danger);">*</span>
+                        </label>
+                        <div style="position: relative;">
+                            <input type="text" name="kode" id="kode_sarpras" value="{{ old('kode') }}"
+                                   style="width: 100%; padding: 12px 16px; padding-right: 45px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; background-color: #f8fafc;"
+                                   placeholder="Pilih kategori dulu..." readonly required>
+                            <span id="kode_loading" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);">
+                                <i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i>
+                            </span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--info); margin-top: 6px;">
+                            <i class="bi bi-info-circle"></i> Kode akan terisi otomatis berdasarkan kategori
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                            Nama Sarpras <span style="color: var(--danger);">*</span>
+                        </label>
+                        <input type="text" name="nama" value="{{ old('nama') }}"
+                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                               placeholder="Contoh: Proyektor Epson" required>
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
@@ -130,4 +141,52 @@
         </div>
     </div>
 </div>
+
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const kategoriSelect = document.getElementById('kategori_id');
+    const kodeInput = document.getElementById('kode_sarpras');
+    const kodeLoading = document.getElementById('kode_loading');
+
+    kategoriSelect.addEventListener('change', function() {
+        const kategoriId = this.value;
+        
+        if (!kategoriId) {
+            kodeInput.value = '';
+            kodeInput.placeholder = 'Pilih kategori dulu...';
+            return;
+        }
+
+        // Show loading
+        kodeLoading.style.display = 'inline';
+        kodeInput.placeholder = 'Generating...';
+
+        // Fetch kode from server
+        fetch(`/sarpras/generate-kode/${kategoriId}`)
+            .then(response => response.json())
+            .then(data => {
+                kodeInput.value = data.kode;
+                kodeLoading.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                kodeInput.placeholder = 'Error generating kode';
+                kodeLoading.style.display = 'none';
+            });
+    });
+
+    // If there's an old kategori_id value, trigger the change event
+    if (kategoriSelect.value) {
+        kategoriSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
 @endsection
+

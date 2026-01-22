@@ -56,10 +56,10 @@
 <!-- Filter -->
 <div class="card mb-4" style="margin-bottom: 24px;">
     <div class="card-body">
-        <form action="{{ route('activity.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+        <form id="filterForm" action="{{ route('activity.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
             <div style="min-width: 150px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Jenis Aksi</label>
-                <select name="aksi" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <select id="aksiFilter" name="aksi" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="">Semua Aksi</option>
                     @foreach($aksiList as $aksi)
                     <option value="{{ $aksi }}" {{ request('aksi') == $aksi ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $aksi)) }}</option>
@@ -69,7 +69,7 @@
             
             <div style="min-width: 150px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">User</label>
-                <select name="user_id" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <select id="userFilter" name="user_id" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="">Semua User</option>
                     @foreach($users as $user)
                     <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
@@ -79,28 +79,27 @@
             
             <div style="min-width: 140px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Dari Tanggal</label>
-                <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}" 
+                <input type="date" id="dariTanggal" name="dari_tanggal" value="{{ request('dari_tanggal') }}" 
                     style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
             </div>
             
             <div style="min-width: 140px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Sampai Tanggal</label>
-                <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" 
+                <input type="date" id="sampaiTanggal" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" 
                     style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
             </div>
             
-            <div style="flex: 1; min-width: 200px;">
+            <div style="flex: 1; min-width: 200px; position: relative;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Cari</label>
-                <input type="text" name="search" value="{{ request('search') }}" 
+                <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
                     placeholder="Cari deskripsi..." 
-                    style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                    autocomplete="off"
+                    style="width: 100%; padding: 10px 14px; padding-right: 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <i class="bi bi-search" style="position: absolute; right: 14px; bottom: 12px; color: var(--secondary);"></i>
             </div>
             
             <div style="display: flex; gap: 8px;">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Filter
-                </button>
-                <a href="{{ route('activity.index') }}" class="btn btn-outline">Reset</a>
+                <button type="button" id="resetBtn" class="btn btn-outline" style="{{ request()->hasAny(['search', 'aksi', 'user_id', 'dari_tanggal', 'sampai_tanggal']) ? '' : 'display: none;' }}">Reset</button>
             </div>
         </form>
     </div>
@@ -176,4 +175,90 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const aksiFilter = document.getElementById('aksiFilter');
+    const userFilter = document.getElementById('userFilter');
+    const dariTanggal = document.getElementById('dariTanggal');
+    const sampaiTanggal = document.getElementById('sampaiTanggal');
+    const resetBtn = document.getElementById('resetBtn');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Submit form
+    function submitForm() {
+        filterForm.submit();
+    }
+    
+    // Update reset button visibility
+    function updateResetBtn() {
+        if (searchInput.value !== '' || aksiFilter.value !== '' || userFilter.value !== '' || dariTanggal.value !== '' || sampaiTanggal.value !== '') {
+            resetBtn.style.display = 'inline-flex';
+        } else {
+            resetBtn.style.display = 'none';
+        }
+    }
+    
+    // Event listeners
+    const debouncedSubmit = debounce(submitForm, 400);
+    searchInput.addEventListener('input', function() {
+        updateResetBtn();
+        debouncedSubmit();
+    });
+    
+    aksiFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    userFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    dariTanggal.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    sampaiTanggal.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        aksiFilter.value = '';
+        userFilter.value = '';
+        dariTanggal.value = '';
+        sampaiTanggal.value = '';
+        submitForm();
+    });
+});
+</script>
+
+<style>
+#searchInput:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
+@endpush
 @endsection
+

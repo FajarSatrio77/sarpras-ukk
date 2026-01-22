@@ -12,6 +12,7 @@ class KategoriSarpras extends Model
     protected $table = 'kategori_sarpras';
 
     protected $fillable = [
+        'kode',
         'nama',
         'deskripsi',
     ];

@@ -19,6 +19,11 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
+        // Pengguna tidak bisa akses dashboard, redirect ke ajukan peminjaman
+        if ($user->isPengguna()) {
+            return redirect()->route('peminjaman.daftar');
+        }
+        
         // Statistik umum
         $stats = [
             'total_sarpras' => Sarpras::count(),

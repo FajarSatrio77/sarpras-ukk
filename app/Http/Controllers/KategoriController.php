@@ -31,14 +31,18 @@ class KategoriController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'kode' => 'required|string|max:10|unique:kategori_sarpras,kode',
             'nama' => 'required|string|max:255|unique:kategori_sarpras,nama',
             'deskripsi' => 'nullable|string',
         ], [
+            'kode.required' => 'Singkatan kategori wajib diisi.',
+            'kode.unique' => 'Singkatan sudah digunakan.',
             'nama.required' => 'Nama kategori wajib diisi.',
             'nama.unique' => 'Nama kategori sudah ada.',
         ]);
 
         $kategori = KategoriSarpras::create([
+            'kode' => strtoupper($request->kode),
             'nama' => $request->nama,
             'deskripsi' => $request->deskripsi,
         ]);
@@ -63,14 +67,18 @@ class KategoriController extends Controller
     public function update(Request $request, KategoriSarpras $kategori)
     {
         $request->validate([
+            'kode' => 'required|string|max:10|unique:kategori_sarpras,kode,' . $kategori->id,
             'nama' => 'required|string|max:255|unique:kategori_sarpras,nama,' . $kategori->id,
             'deskripsi' => 'nullable|string',
         ], [
+            'kode.required' => 'Singkatan kategori wajib diisi.',
+            'kode.unique' => 'Singkatan sudah digunakan.',
             'nama.required' => 'Nama kategori wajib diisi.',
             'nama.unique' => 'Nama kategori sudah ada.',
         ]);
 
         $kategori->update([
+            'kode' => strtoupper($request->kode),
             'nama' => $request->nama,
             'deskripsi' => $request->deskripsi,
         ]);

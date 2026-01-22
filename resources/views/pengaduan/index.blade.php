@@ -9,7 +9,7 @@
             {{ Auth::user()->canManage() ? 'Kelola Pengaduan' : 'Riwayat Pengaduan Saya' }}
         </h1>
         <p style="color: var(--secondary);">
-            {{ Auth::user()->canManage() ? 'Daftar pengaduan kerusakan sarpras dari pengguna' : 'Daftar pengaduan yang sudah Anda laporkan' }}
+            {{ Auth::user()->canManage() ? 'Daftar pengaduan kerusakan barang dari pengguna' : 'Daftar pengaduan yang sudah Anda laporkan' }}
         </p>
     </div>
     @if(Auth::user()->isPengguna())
@@ -65,17 +65,19 @@
 <!-- Filter -->
 <div class="card mb-4" style="margin-bottom: 24px;">
     <div class="card-body">
-        <form action="{{ route('pengaduan.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
-            <div style="flex: 1; min-width: 200px;">
+        <form id="filterForm" action="{{ route('pengaduan.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 1; min-width: 200px; position: relative;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Cari</label>
-                <input type="text" name="search" value="{{ request('search') }}" 
-                    placeholder="Cari judul, lokasi, atau jenis sarpras..." 
-                    style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
+                    placeholder="Cari judul, lokasi, atau jenis barang..." 
+                    autocomplete="off"
+                    style="width: 100%; padding: 10px 14px; padding-right: 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <i class="bi bi-search" style="position: absolute; right: 14px; bottom: 12px; color: var(--secondary);"></i>
             </div>
             
             <div style="min-width: 150px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Status</label>
-                <select name="status" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <select id="statusFilter" name="status" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="">Semua Status</option>
                     <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Belum Ditindaklanjuti</option>
                     <option value="diproses" {{ request('status') == 'diproses' ? 'selected' : '' }}>Sedang Diproses</option>
@@ -85,10 +87,7 @@
             </div>
             
             <div style="display: flex; gap: 8px;">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Filter
-                </button>
-                <a href="{{ route('pengaduan.index') }}" class="btn btn-outline">Reset</a>
+                <button type="button" id="resetBtn" class="btn btn-outline" style="{{ request()->hasAny(['search', 'status']) ? '' : 'display: none;' }}">Reset</button>
             </div>
         </form>
     </div>
@@ -187,4 +186,69 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const resetBtn = document.getElementById('resetBtn');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Submit form
+    function submitForm() {
+        filterForm.submit();
+    }
+    
+    // Update reset button visibility
+    function updateResetBtn() {
+        if (searchInput.value !== '' || statusFilter.value !== '') {
+            resetBtn.style.display = 'inline-flex';
+        } else {
+            resetBtn.style.display = 'none';
+        }
+    }
+    
+    // Event listeners
+    const debouncedSubmit = debounce(submitForm, 400);
+    searchInput.addEventListener('input', function() {
+        updateResetBtn();
+        debouncedSubmit();
+    });
+    
+    statusFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        statusFilter.value = '';
+        submitForm();
+    });
+});
+</script>
+
+<style>
+#searchInput:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
+@endpush
 @endsection
+

@@ -53,4 +53,43 @@ class Sarpras extends Model
     {
         return $query->where('kondisi', $kondisi);
     }
+
+    /**
+     * Generate kode barang otomatis berdasarkan kategori
+     * Format: singkatan kategori (dari field kode) + 3 angka urut
+     * Contoh: ELK-001, KOM-002, OLR-003
+     */
+    public static function generateKode($kategoriId)
+    {
+        $kategori = \App\Models\KategoriSarpras::find($kategoriId);
+        
+        if (!$kategori) {
+            return null;
+        }
+
+        // Gunakan kode/singkatan dari kategori, atau fallback ke 3 huruf pertama nama
+        $prefix = $kategori->kode 
+            ? strtoupper($kategori->kode)
+            : strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $kategori->nama), 0, 3));
+        
+        // Jika kurang dari 3 huruf, pad dengan 'X'
+        $prefix = str_pad($prefix, 3, 'X');
+
+        // Cari nomor urut terakhir untuk kategori ini
+        $lastKode = self::where('kategori_id', $kategoriId)
+            ->where('kode', 'like', $prefix . '-%')
+            ->orderBy('kode', 'desc')
+            ->value('kode');
+
+        if ($lastKode) {
+            // Extract angka dari kode terakhir
+            $lastNumber = (int) substr($lastKode, -3);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        // Format: XXX-001
+        return $prefix . '-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+    }
 }

@@ -44,7 +44,7 @@ class PeminjamanController extends Controller
         // Pastikan sarpras tersedia
         if ($sarpras->jumlah_stok <= 0) {
             return redirect()->route('peminjaman.daftar')
-                ->with('error', 'Sarpras tidak tersedia untuk dipinjam.');
+                ->with('error', 'Barang tidak tersedia untuk dipinjam.');
         }
 
         return view('peminjaman.create', compact('sarpras'));

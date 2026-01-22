@@ -19,9 +19,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Redirect root ke login atau dashboard
+// Redirect root ke halaman sesuai role
 Route::get('/', function () {
     if (auth()->check()) {
+        // Pengguna redirect ke ajukan peminjaman
+        if (auth()->user()->isPengguna()) {
+            return redirect()->route('peminjaman.daftar');
+        }
         return redirect()->route('dashboard');
     }
     return redirect()->route('login');
@@ -73,6 +77,9 @@ Route::middleware('auth')->group(function () {
         // Sarpras Management
         Route::resource('sarpras', SarprasController::class)->parameters(['sarpras' => 'sarpras']);
         
+        // Generate Kode Sarpras (AJAX)
+        Route::get('/sarpras/generate-kode/{kategori}', [SarprasController::class, 'generateKode'])->name('sarpras.generate-kode');
+        
         // Peminjaman Management (Admin/Petugas)
         Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
         Route::post('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
@@ -93,6 +100,9 @@ Route::middleware('auth')->group(function () {
         
         // Laporan Kerusakan
         Route::get('/laporan/kerusakan', [PengembalianController::class, 'laporanKerusakan'])->name('laporan.kerusakan');
+        
+        // Laporan Asset Health
+        Route::get('/laporan/asset-health', [\App\Http\Controllers\LaporanController::class, 'assetHealth'])->name('laporan.asset-health');
         
         // Pengaduan Management (Admin/Petugas - bisa update status)
         Route::patch('/pengaduan/{pengaduan}/status', [PengaduanController::class, 'updateStatus'])->name('pengaduan.update-status');

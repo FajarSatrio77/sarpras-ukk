@@ -156,25 +156,27 @@ class PengembalianController extends Controller
             $sarpras = $peminjaman->sarpras;
             $kondisiAlat = $request->kondisi_alat;
             
+            // SELALU kembalikan stok apapun kondisinya
+            $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
+            
+            // Update kondisi sarpras berdasarkan kondisi alat saat dikembalikan
             switch ($kondisiAlat) {
                 case 'baik':
-                    // Kembalikan stok, kondisi tetap baik
-                    $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
+                    // Kondisi tetap baik, tidak perlu update
                     break;
                     
                 case 'rusak_ringan':
-                    // Kembalikan stok, update kondisi jadi butuh_maintenance
-                    $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
+                    // Update kondisi jadi butuh_maintenance
                     $sarpras->update(['kondisi' => 'butuh_maintenance']);
                     break;
                     
                 case 'rusak_berat':
-                    // TIDAK kembalikan ke stok, update kondisi jadi rusak_berat
+                    // Update kondisi jadi rusak_berat
                     $sarpras->update(['kondisi' => 'rusak_berat']);
                     break;
                     
                 case 'hilang':
-                    // TIDAK kembalikan ke stok, buat pengaduan otomatis
+                    // Buat pengaduan otomatis untuk tracking
                     $this->createPengaduanOtomatis($peminjaman, $pengembalian);
                     break;
             }

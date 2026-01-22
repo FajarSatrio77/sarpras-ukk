@@ -5,7 +5,7 @@
 @section('content')
 <div style="margin-bottom: 24px;">
     <a href="{{ route('peminjaman.daftar') }}" style="color: var(--secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-        <i class="bi bi-arrow-left"></i> Kembali ke Daftar Sarpras
+        <i class="bi bi-arrow-left"></i> Kembali ke Daftar Barang
     </a>
 </div>
 
@@ -15,7 +15,7 @@
         <div class="card-header">
             <h5 class="card-title">
                 <i class="bi bi-box" style="margin-right: 8px;"></i>
-                Detail Sarpras
+                Detail Barang
             </h5>
         </div>
         <div class="card-body">
@@ -108,7 +108,7 @@
                     </label>
                     <textarea name="tujuan" rows="4"
                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; resize: vertical;"
-                              placeholder="Jelaskan untuk apa sarpras ini akan digunakan..." required>{{ old('tujuan') }}</textarea>
+                              placeholder="Jelaskan untuk apa barang ini akan digunakan..." required>{{ old('tujuan') }}</textarea>
                     <p style="font-size: 0.8rem; color: var(--secondary); margin-top: 6px;">
                         Minimal 10 karakter
                     </p>
@@ -165,4 +165,3 @@
 </script>
 @endpush
 @endsection
-

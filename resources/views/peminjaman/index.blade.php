@@ -6,21 +6,23 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <div>
         <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">Kelola Peminjaman</h2>
-        <p style="color: var(--secondary);">Daftar semua pengajuan peminjaman sarpras</p>
+        <p style="color: var(--secondary);">Daftar semua pengajuan peminjaman barang</p>
     </div>
 </div>
 
 <!-- Filter & Search -->
 <div class="card" style="margin-bottom: 20px;">
     <div class="card-body" style="padding: 16px 20px;">
-        <form method="GET" action="{{ route('peminjaman.index') }}" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
-            <div style="flex: 1; min-width: 200px;">
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari kode, nama peminjam, atau sarpras..."
-                       style="width: 100%; padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px;">
+        <form id="filterForm" method="GET" action="{{ route('peminjaman.index') }}" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 200px; position: relative;">
+                <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
+                       placeholder="Cari kode, nama peminjam, atau barang..."
+                       autocomplete="off"
+                       style="width: 100%; padding: 10px 16px; padding-right: 40px; border: 2px solid #e2e8f0; border-radius: 10px;">
+                <i class="bi bi-search" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--secondary);"></i>
             </div>
             <div>
-                <select name="status" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 160px;">
+                <select id="statusFilter" name="status" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 160px;">
                     <option value="">Semua Status</option>
                     <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
                     <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
@@ -29,14 +31,9 @@
                     <option value="dikembalikan" {{ request('status') == 'dikembalikan' ? 'selected' : '' }}>Dikembalikan</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
-                <i class="bi bi-filter"></i> Filter
-            </button>
-            @if(request()->hasAny(['search', 'status']))
-            <a href="{{ route('peminjaman.index') }}" class="btn btn-outline" style="padding: 10px 20px;">
+            <button type="button" id="resetBtn" class="btn btn-outline" style="padding: 10px 20px; {{ request()->hasAny(['search', 'status']) ? '' : 'display: none;' }}">
                 <i class="bi bi-x-lg"></i> Reset
-            </a>
-            @endif
+            </button>
         </form>
     </div>
 </div>
@@ -49,7 +46,7 @@
                 <tr>
                     <th>Kode</th>
                     <th>Peminjam</th>
-                    <th>Sarpras</th>
+                    <th>Barang</th>
                     <th>Jumlah</th>
                     <th>Tgl Pinjam</th>
                     <th>Status</th>
@@ -186,6 +183,68 @@ function hideRejectModal() {
 document.getElementById('rejectModal').addEventListener('click', function(e) {
     if (e.target === this) hideRejectModal();
 });
+
+// Live Search
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const resetBtn = document.getElementById('resetBtn');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Submit form
+    function submitForm() {
+        filterForm.submit();
+    }
+    
+    // Update reset button visibility
+    function updateResetBtn() {
+        if (searchInput.value !== '' || statusFilter.value !== '') {
+            resetBtn.style.display = 'inline-flex';
+        } else {
+            resetBtn.style.display = 'none';
+        }
+    }
+    
+    // Event listeners
+    const debouncedSubmit = debounce(submitForm, 400);
+    searchInput.addEventListener('input', function() {
+        updateResetBtn();
+        debouncedSubmit();
+    });
+    
+    statusFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        statusFilter.value = '';
+        submitForm();
+    });
+});
 </script>
+
+<style>
+#searchInput:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
 @endpush
 @endsection
+

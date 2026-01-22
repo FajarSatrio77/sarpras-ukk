@@ -59,17 +59,19 @@
 <!-- Filter -->
 <div class="card mb-4" style="margin-bottom: 24px;">
     <div class="card-body">
-        <form action="{{ route('users.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
-            <div style="flex: 1; min-width: 200px;">
+        <form id="filterForm" action="{{ route('users.index') }}" method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 1; min-width: 200px; position: relative;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Cari</label>
-                <input type="text" name="search" value="{{ request('search') }}" 
+                <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
                     placeholder="Cari nama, email, atau NISN..." 
-                    style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                    autocomplete="off"
+                    style="width: 100%; padding: 10px 14px; padding-right: 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <i class="bi bi-search" style="position: absolute; right: 14px; bottom: 12px; color: var(--secondary);"></i>
             </div>
             
             <div style="min-width: 130px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Role</label>
-                <select name="role" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <select id="roleFilter" name="role" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="">Semua Role</option>
                     <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                     <option value="petugas" {{ request('role') == 'petugas' ? 'selected' : '' }}>Petugas</option>
@@ -79,7 +81,7 @@
             
             <div style="min-width: 130px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Urutkan</label>
-                <select name="sort" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <select id="sortFilter" name="sort" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="created_at" {{ request('sort') == 'created_at' ? 'selected' : '' }}>Tgl Daftar</option>
                     <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Nama</option>
                     <option value="nisn" {{ request('sort') == 'nisn' ? 'selected' : '' }}>NISN</option>
@@ -90,17 +92,14 @@
             
             <div style="min-width: 100px;">
                 <label style="display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500;">Urutan</label>
-                <select name="order" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
+                <select id="orderFilter" name="order" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem;">
                     <option value="desc" {{ request('order', 'desc') == 'desc' ? 'selected' : '' }}>Z-A / Terbaru</option>
                     <option value="asc" {{ request('order') == 'asc' ? 'selected' : '' }}>A-Z / Terlama</option>
                 </select>
             </div>
             
             <div style="display: flex; gap: 8px;">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Filter
-                </button>
-                <a href="{{ route('users.index') }}" class="btn btn-outline">Reset</a>
+                <button type="button" id="resetBtn" class="btn btn-outline" style="{{ request()->hasAny(['search', 'role']) ? '' : 'display: none;' }}">Reset</button>
             </div>
         </form>
     </div>
@@ -194,4 +193,74 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const roleFilter = document.getElementById('roleFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const orderFilter = document.getElementById('orderFilter');
+    const resetBtn = document.getElementById('resetBtn');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Submit form
+    function submitForm() {
+        filterForm.submit();
+    }
+    
+    // Update reset button visibility
+    function updateResetBtn() {
+        if (searchInput.value !== '' || roleFilter.value !== '') {
+            resetBtn.style.display = 'inline-flex';
+        } else {
+            resetBtn.style.display = 'none';
+        }
+    }
+    
+    // Event listeners
+    const debouncedSubmit = debounce(submitForm, 400);
+    searchInput.addEventListener('input', function() {
+        updateResetBtn();
+        debouncedSubmit();
+    });
+    
+    roleFilter.addEventListener('change', function() {
+        updateResetBtn();
+        submitForm();
+    });
+    
+    sortFilter.addEventListener('change', submitForm);
+    orderFilter.addEventListener('change', submitForm);
+    
+    resetBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        roleFilter.value = '';
+        submitForm();
+    });
+});
+</script>
+
+<style>
+#searchInput:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
+@endpush
 @endsection
+
