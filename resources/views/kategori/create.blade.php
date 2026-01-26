@@ -51,6 +51,21 @@
                     </div>
                 </div>
 
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                        Periode Maintenance Rutin <span style="font-size: 0.8rem; color: var(--secondary);">(Opsional)</span>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="number" name="maintenance_period" value="{{ old('maintenance_period') }}" min="1"
+                               style="width: 100px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                               placeholder="Bulan">
+                        <span style="color: var(--secondary);">Bulan sekali</span>
+                    </div>
+                    <small style="display: block; margin-top: 6px; color: var(--secondary); font-size: 0.8rem;">
+                        Jika diisi, sistem akan otomatis menjadwalkan maintenance berikutnya setiap selesai service.
+                    </small>
+                </div>
+
                 <div style="margin-bottom: 24px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Deskripsi

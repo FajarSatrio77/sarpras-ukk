@@ -452,6 +452,68 @@
             background: rgba(99, 102, 241, 0.04);
         }
 
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--gray-300);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--gray-800);
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+        }
+
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: var(--danger);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linecap='round' d='M5.8 3.6h.4L6 6.5zM6 8.2af.6.6 0 110-1.2.6.6 0 010 1.2z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px 16px;
+            padding-right: 40px;
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--danger);
+        }
+
+        .required {
+            color: var(--danger);
+            margin-left: 2px;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
         /* Alerts */
         .alert {
             padding: 16px 20px;
@@ -611,13 +673,14 @@
                 bottom: 0;
                 background: white;
                 flex-direction: column;
-                padding: 20px;
-                gap: 8px;
+                padding: 16px;
+                gap: 4px;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
                 overflow-y: auto;
                 z-index: 999;
                 align-items: stretch;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.1);
             }
 
             .nav-menu.active {
@@ -625,29 +688,62 @@
             }
 
             .mobile-toggle {
-                display: block;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .nav-item {
                 width: 100%;
                 justify-content: flex-start;
+                padding: 14px 16px;
+                font-size: 1rem;
             }
 
             .nav-dropdown {
                 width: 100%;
             }
 
+            /* Dropdown menu hidden by default on mobile */
             .nav-dropdown-menu {
                 position: static;
-                opacity: 1;
-                visibility: visible;
+                opacity: 0;
+                visibility: hidden;
+                max-height: 0;
+                overflow: hidden;
                 transform: none;
                 box-shadow: none;
                 border: none;
-                padding-left: 20px;
+                padding: 0;
                 background: var(--gray-50);
                 border-radius: 12px;
-                margin-top: 4px;
+                margin-top: 0;
+                transition: all 0.3s ease;
+            }
+
+            /* Show dropdown when parent has .open class */
+            .nav-dropdown.open .nav-dropdown-menu {
+                opacity: 1;
+                visibility: visible;
+                max-height: 500px;
+                padding: 8px;
+                padding-left: 20px;
+                margin-top: 8px;
+            }
+
+            .nav-dropdown .nav-item::after {
+                content: '▼';
+                font-size: 0.6rem;
+                margin-left: auto;
+                transition: transform 0.3s ease;
+            }
+
+            .nav-dropdown.open .nav-item::after {
+                transform: rotate(180deg);
+            }
+
+            .nav-dropdown-item {
+                padding: 12px 14px;
             }
 
             .nav-brand {
@@ -679,6 +775,31 @@
 
             .content-wrapper {
                 padding: 16px;
+            }
+
+            /* Mobile menu close area */
+            .mobile-menu-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-bottom: 12px;
+                margin-bottom: 8px;
+                border-bottom: 1px solid var(--gray-200);
+            }
+
+            .mobile-menu-title {
+                font-weight: 600;
+                color: var(--dark);
+            }
+
+            .mobile-menu-close {
+                padding: 8px;
+                background: var(--gray-100);
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.2rem;
+                color: var(--gray-600);
             }
         }
 
@@ -797,167 +918,610 @@
                 align-items: flex-start;
             }
         }
+
+        /* Table responsive wrapper */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                margin: 0 -16px;
+                padding: 0 16px;
+                width: calc(100% + 32px);
+            }
+
+            .table {
+                min-width: 600px;
+            }
+
+            /* Form improvements for mobile */
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .form-control,
+            .form-select,
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="date"],
+            input[type="file"],
+            textarea,
+            select {
+                font-size: 16px !important; /* Prevents iOS zoom */
+                padding: 12px 14px;
+            }
+
+            /* Better card header on mobile */
+            .card-header {
+                padding: 14px 16px;
+                flex-wrap: wrap;
+            }
+
+            .card-title {
+                font-size: 0.95rem;
+            }
+
+            /* Fix alerts for mobile */
+            .alert {
+                padding: 12px 14px;
+                font-size: 0.85rem;
+                flex-wrap: wrap;
+            }
+
+            /* Footer buttons stack on mobile */
+            .btn-group,
+            .action-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+
+            /* Modal improvements */
+            .modal-content {
+                margin: 10px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            /* Page titles */
+            .page-title {
+                font-size: 1.25rem;
+            }
+
+            /* Better spacing */
+            .mb-4 {
+                margin-bottom: 16px !important;
+            }
+
+            .mb-3 {
+                margin-bottom: 12px !important;
+            }
+        }
+
+        /* Ultra small phones (320px) */
+        @media (max-width: 360px) {
+            .top-nav {
+                padding: 0 8px;
+            }
+
+            .nav-brand img {
+                width: 36px;
+                height: 36px;
+            }
+
+            .mobile-toggle {
+                padding: 8px 10px;
+                font-size: 1.3rem;
+            }
+
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 0.7rem;
+            }
+
+            .content-wrapper {
+                padding: 8px;
+            }
+
+            .card-body {
+                padding: 12px;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+        }
     </style>
     @stack('styles')
+<style>
+    /* Sidebar Navigation Modern */
+    :root {
+        --sidebar-width: 260px;
+        --header-height: 60px;
+    }
+
+    body {
+        background-color: #f3f4f6;
+    }
+
+    /* Layout Structure */
+    .app-container {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: var(--sidebar-width);
+        background: white;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-header {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+    }
+
+    .brand-logo img {
+        height: 32px;
+        width: auto;
+    }
+
+    .brand-text {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--primary);
+        letter-spacing: -0.5px;
+    }
+
+    .sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 16px;
+    }
+
+    .menu-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--gray-400);
+        margin: 0 0 12px 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: var(--gray-600);
+        text-decoration: none;
+        border-radius: 12px;
+        margin-bottom: 4px;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+
+    .nav-item:hover {
+        background: var(--gray-50);
+        color: var(--primary);
+        transform: translateX(4px);
+    }
+
+    .nav-item.active {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .nav-item i {
+        font-size: 1.25rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--gray-50);
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .user-profile:hover {
+        background: var(--gray-100);
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .user-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-role {
+        font-size: 0.75rem;
+        color: var(--secondary);
+    }
+
+    /* Main Content Area */
+    .main-wrapper {
+        flex: 1;
+        margin-left: var(--sidebar-width);
+        min-height: 100vh;
+        width: calc(100% - var(--sidebar-width));
+        display: flex;
+        flex-direction: column;
+    }
+
+    .top-header {
+        display: none; /* Desktop uses sidebar only */
+    }
+
+    .content-wrapper {
+        padding: 0 25px 25px 25px; /* Top padding removed completely */
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+        body {
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .main-wrapper {
+            margin-left: 0;
+            width: 100%;
+            padding-top: var(--header-height);
+        }
+
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center logo */
+            height: var(--header-height);
+            background: white;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 990;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .mobile-toggle {
+            display: none; /* Hide hamburger, use bottom nav menu */
+        }
+
+        .content-wrapper {
+            padding: 20px 16px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 995;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            height: 70px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08); /* Softer shadow */
+            z-index: 1000;
+            padding: 0 16px;
+            align-items: center;
+            justify-content: space-around;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            border-top: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--gray-400);
+            font-size: 0.75rem;
+            gap: 4px;
+            padding: 8px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 60px;
+        }
+
+        .bottom-nav-item i {
+            font-size: 1.4rem;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--primary);
+        }
+
+        .bottom-nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        /* Floating Scale Effect for center button (Scan) */
+        .bottom-nav-item.scan-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin-bottom: 35px; /* Float above bar */
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            border: 4px solid #fff; /* White ring */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bottom-nav-item.scan-btn i {
+            font-size: 1.6rem;
+        }
+    }
+    
+    @media (min-width: 1025px) {
+        .bottom-nav {
+            display: none;
+        }
+    }
+</style>
 </head>
 <body>
-    <!-- Top Navigation -->
-    <nav class="top-nav">
-        <a href="{{ auth()->user()->isPengguna() ? route('peminjaman.daftar') : route('dashboard') }}" class="nav-brand">
-            <img src="{{ asset('images/logosmea.png') }}" alt="Logo">
-            <span class="nav-brand-text">SARPRAS</span>
+    <!-- Mobile Overlay -->
+    <div class="overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="{{ auth()->user()->isPengguna() ? route('peminjaman.daftar') : route('dashboard') }}" 
+           class="bottom-nav-item {{ request()->routeIs('dashboard', 'peminjaman.daftar') ? 'active' : '' }}">
+            <i class="bi bi-grid-1x2"></i>
+            <span>Beranda</span>
         </a>
-
-        <button class="mobile-toggle" onclick="toggleMobileMenu()">
+        
+        <a href="{{ route('pengembalian.scan') }}" class="bottom-nav-item scan-btn">
+            <i class="bi bi-qr-code-scan"></i>
+        </a>
+        
+        <a href="#" class="bottom-nav-item" onclick="toggleSidebar(); return false;">
             <i class="bi bi-list"></i>
-        </button>
+            <span>Menu</span>
+        </a>
+    </nav>
 
-        <div class="nav-menu" id="navMenu">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <a href="{{ route('dashboard') }}" class="brand-logo">
+                <img src="{{ asset('images/logosmea.png') }}" alt="Logo">
+                <span class="brand-text">SARPRAS</span>
+            </a>
+        </div>
+
+        <!-- Sidebar Content -->
+        <div class="sidebar-content">
             @if(auth()->user()->canManage())
+            <div class="menu-label">Main Menu</div>
             <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="bi bi-grid-1x2"></i>
-                Dashboard
+                <span>Dashboard</span>
+            </a>
+            @endif
+
+            @if(auth()->user()->isPengguna())
+            <div class="menu-label">Peminjaman</div>
+            <a href="{{ route('peminjaman.daftar') }}" class="nav-item {{ request()->routeIs('peminjaman.daftar', 'peminjaman.create') ? 'active' : '' }}">
+                <i class="bi bi-cart-plus"></i>
+                <span>Ajukan Peminjaman</span>
+            </a>
+            <a href="{{ route('peminjaman.riwayat') }}" class="nav-item {{ request()->routeIs('peminjaman.riwayat') ? 'active' : '' }}">
+                <i class="bi bi-clock-history"></i>
+                <span>Riwayat Saya</span>
             </a>
             @endif
 
             @if(auth()->user()->canManage())
-            <div class="nav-dropdown">
-                <a href="#" class="nav-item {{ request()->routeIs('users.*', 'kategori.*', 'sarpras.*') ? 'active' : '' }}">
-                    <i class="bi bi-database"></i>
-                    Data Barang
-                    <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
-                </a>
-                <div class="nav-dropdown-menu">
-                    @if(auth()->user()->isAdmin())
-                    <a href="{{ route('users.index') }}" class="nav-dropdown-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                        <i class="bi bi-people"></i>
-                        Kelola User
-                    </a>
-                    @endif
-                    <a href="{{ route('kategori.index') }}" class="nav-dropdown-item {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
-                        <i class="bi bi-folder"></i>
-                        Kategori Barang
-                    </a>
-                    <a href="{{ route('sarpras.index') }}" class="nav-dropdown-item {{ request()->routeIs('sarpras.*') ? 'active' : '' }}">
-                        <i class="bi bi-box"></i>
-                        Data Barang
-                    </a>
-                </div>
-            </div>
+            <div class="menu-label">Transaksi</div>
+            <a href="{{ route('peminjaman.index') }}" class="nav-item {{ request()->routeIs('peminjaman.index', 'peminjaman.show') ? 'active' : '' }}">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Data Peminjaman</span>
+            </a>
+            <a href="{{ route('pengembalian.scan') }}" class="nav-item {{ request()->routeIs('pengembalian.*') ? 'active' : '' }}">
+                <i class="bi bi-qr-code-scan"></i>
+                <span>Scan Pengembalian</span>
+            </a>
             @endif
 
-            <div class="nav-dropdown">
-                <a href="#" class="nav-item {{ request()->routeIs('peminjaman.*', 'pengembalian.*') ? 'active' : '' }}">
-                    <i class="bi bi-arrow-left-right"></i>
-                    Transaksi
-                    <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
-                </a>
-                <div class="nav-dropdown-menu">
-                    @if(auth()->user()->isPengguna())
-                    <a href="{{ route('peminjaman.daftar') }}" class="nav-dropdown-item {{ request()->routeIs('peminjaman.daftar', 'peminjaman.create') ? 'active' : '' }}">
-                        <i class="bi bi-cart-plus"></i>
-                        Ajukan Peminjaman
-                    </a>
-                    <a href="{{ route('peminjaman.riwayat') }}" class="nav-dropdown-item {{ request()->routeIs('peminjaman.riwayat') ? 'active' : '' }}">
-                        <i class="bi bi-clock-history"></i>
-                        Riwayat Peminjaman
-                    </a>
-                    @endif
-                    @if(auth()->user()->canManage())
-                    <a href="{{ route('peminjaman.index') }}" class="nav-dropdown-item {{ request()->routeIs('peminjaman.index', 'peminjaman.show') ? 'active' : '' }}">
-                        <i class="bi bi-clipboard-check"></i>
-                        Kelola Peminjaman
-                    </a>
-                    <a href="{{ route('pengembalian.scan') }}" class="nav-dropdown-item {{ request()->routeIs('pengembalian.*') ? 'active' : '' }}">
-                        <i class="bi bi-qr-code-scan"></i>
-                        Proses Pengembalian
-                    </a>
-                    @endif
-                </div>
-            </div>
+            <div class="menu-label">Layanan</div>
+            @if(auth()->user()->isPengguna())
+            <a href="{{ route('pengaduan.create') }}" class="nav-item {{ request()->routeIs('pengaduan.create') ? 'active' : '' }}">
+                <i class="bi bi-megaphone"></i>
+                <span>Buat Pengaduan</span>
+            </a>
+            <a href="{{ route('pengaduan.index') }}" class="nav-item {{ request()->routeIs('pengaduan.index', 'pengaduan.show') ? 'active' : '' }}">
+                <i class="bi bi-list-ul"></i>
+                <span>Riwayat Pengaduan</span>
+            </a>
+            @endif
+            @if(auth()->user()->canManage())
+            <a href="{{ route('pengaduan.index') }}" class="nav-item {{ request()->routeIs('pengaduan.index', 'pengaduan.show') ? 'active' : '' }}">
+                <i class="bi bi-list-ul"></i>
+                <span>Data Pengaduan</span>
+            </a>
+            @endif
 
-            <div class="nav-dropdown">
-                <a href="#" class="nav-item {{ request()->routeIs('pengaduan.*') ? 'active' : '' }}">
-                    <i class="bi bi-chat-square-text"></i>
-                    Pengaduan
-                    <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
-                </a>
-                <div class="nav-dropdown-menu">
-                    @if(auth()->user()->isPengguna())
-                    <a href="{{ route('pengaduan.create') }}" class="nav-dropdown-item {{ request()->routeIs('pengaduan.create') ? 'active' : '' }}">
-                        <i class="bi bi-megaphone"></i>
-                        Buat Pengaduan
-                    </a>
-                    @endif
-                    <a href="{{ route('pengaduan.index') }}" class="nav-dropdown-item {{ request()->routeIs('pengaduan.index', 'pengaduan.show') ? 'active' : '' }}">
-                        <i class="bi bi-list-ul"></i>
-                        {{ auth()->user()->canManage() ? 'Kelola Pengaduan' : 'Riwayat Pengaduan' }}
-                    </a>
-                </div>
-            </div>
+            @if(auth()->user()->canManage())
+            <div class="menu-label">Kelola Data</div>
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <i class="bi bi-people"></i>
+                <span>Kelola User</span>
+            </a>
+            @endif
+            <a href="{{ route('sarpras.index') }}" class="nav-item {{ request()->routeIs('sarpras.*') ? 'active' : '' }}">
+                <i class="bi bi-box"></i>
+                <span>Data Barang</span>
+            </a>
+            <a href="{{ route('kategori.index') }}" class="nav-item {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
+                <i class="bi bi-folder"></i>
+                <span>Kategori</span>
+            </a>
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('checklist.index') }}" class="nav-item {{ request()->routeIs('checklist.*') ? 'active' : '' }}">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Template Checklist</span>
+            </a>
+            @endif
+            @endif
 
             @if(auth()->user()->isAdmin())
-            <div class="nav-dropdown">
-                <a href="#" class="nav-item {{ request()->routeIs('laporan.*', 'activity.*') ? 'active' : '' }}">
-                    <i class="bi bi-bar-chart"></i>
-                    Laporan
-                    <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
-                </a>
-                <div class="nav-dropdown-menu">
-                    <a href="{{ route('laporan.asset-health') }}" class="nav-dropdown-item {{ request()->routeIs('laporan.asset-health') ? 'active' : '' }}">
-                        <i class="bi bi-heart-pulse"></i>
-                        Asset Health
-                    </a>
-                    <a href="{{ route('laporan.kerusakan') }}" class="nav-dropdown-item {{ request()->routeIs('laporan.kerusakan') ? 'active' : '' }}">
-                        <i class="bi bi-exclamation-octagon"></i>
-                        Laporan Kerusakan
-                    </a>
-                    <a href="{{ route('activity.index') }}" class="nav-dropdown-item {{ request()->routeIs('activity.*') ? 'active' : '' }}">
-                        <i class="bi bi-activity"></i>
-                        Activity Log
-                    </a>
-                </div>
-            </div>
+            <div class="menu-label">Laporan</div>
+            <a href="{{ route('laporan.asset-health') }}" class="nav-item {{ request()->routeIs('laporan.asset-health') ? 'active' : '' }}">
+                <i class="bi bi-heart-pulse"></i>
+                <span>Asset Health</span>
+            </a>
+            <a href="{{ route('laporan.kerusakan') }}" class="nav-item {{ request()->routeIs('laporan.kerusakan') ? 'active' : '' }}">
+                <i class="bi bi-exclamation-octagon"></i>
+                <span>Lap. Kerusakan</span>
+            </a>
+            <a href="{{ route('activity.index') }}" class="nav-item {{ request()->routeIs('activity.*') ? 'active' : '' }}">
+                <i class="bi bi-activity"></i>
+                <span>Activity Log</span>
+            </a>
             @endif
         </div>
 
-        <div class="nav-user">
-            <div class="user-dropdown">
-                <div class="user-btn">
-                    <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
-                    <div class="user-info">
-                        <div class="user-name">{{ auth()->user()->name }}</div>
-                        <div class="user-role">{{ auth()->user()->role }}</div>
-                    </div>
-                    <i class="bi bi-chevron-down" style="color: var(--gray-400); font-size: 0.75rem;"></i>
+        <!-- Sidebar Footer (User Profile) -->
+        <div class="sidebar-footer">
+            <a href="{{ route('profile.index') }}" class="user-profile">
+                <div class="user-avatar">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
-                <div class="user-dropdown-menu">
-                    <a href="{{ route('profile.index') }}" class="nav-dropdown-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-                        <i class="bi bi-person"></i>
-                        Profil Saya
-                    </a>
-                    <a href="{{ route('password.change') }}" class="nav-dropdown-item">
-                        <i class="bi bi-key"></i>
-                        Ubah Password
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="nav-dropdown-item" style="width: 100%; border: none; background: none; cursor: pointer; color: var(--danger);">
-                            <i class="bi bi-box-arrow-right"></i>
-                            Logout
-                        </button>
-                    </form>
+                <div class="user-info">
+                    <div class="user-name">{{ auth()->user()->name }}</div>
+                    <div class="user-role">{{ ucfirst(auth()->user()->role) }}</div>
                 </div>
+                {{-- <i class="bi bi-chevron-right" style="font-size: 0.8rem; color: var(--gray-400);"></i> --}}
+            </a>
+            <div style="margin-top: 12px; display: flex; gap: 8px;">
+                <form action="{{ route('logout') }}" method="POST" style="flex: 1;">
+                    @csrf
+                    <button type="submit" class="btn btn-outline" style="width: 100%; border-color: var(--gray-200); color: var(--danger); font-size: 0.8rem; padding: 8px;">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </form>
             </div>
         </div>
-    </nav>
+    </aside>
 
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+    <!-- App Main Container -->
+    <div class="main-wrapper">
+        <!-- Mobile Header (Visible only on mobile) -->
+        <header class="top-header">
+            <div class="brand-logo">
+                <img src="{{ asset('images/logosmea.png') }}" alt="Logo">
+                <span class="brand-text">SARPRAS</span>
+            </div>
+            <!-- Hamburger Removed (Now in Bottom Nav) -->
+        </header>
 
-    <!-- Main Content -->
-    <main class="main-wrapper">
+        <!-- Main Content -->
         <div class="content-wrapper">
             @if(session('success'))
             <div class="alert alert-success">
@@ -975,34 +1539,28 @@
 
             @yield('content')
         </div>
-    </main>
+    </div>
 
+    <!-- Script -->
     <script>
-        function toggleMobileMenu() {
-            const navMenu = document.getElementById('navMenu');
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobileOverlay');
-            navMenu.classList.toggle('active');
+            sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-            document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
-        }
-
-        function closeMobileMenu() {
-            document.getElementById('navMenu').classList.remove('active');
-            document.getElementById('mobileOverlay').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.nav-menu') && !e.target.closest('.mobile-toggle')) {
-                closeMobileMenu();
+            
+            // Prevent body scroll when menu is open on mobile
+            if (window.innerWidth <= 1024) {
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
             }
-        });
+        }
 
-        // Close mobile menu on window resize to desktop
+        // Close sidebar when resizing to desktop
         window.addEventListener('resize', function() {
             if (window.innerWidth > 1024) {
-                closeMobileMenu();
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('mobileOverlay').classList.remove('active');
+                document.body.style.overflow = '';
             }
         });
     </script>

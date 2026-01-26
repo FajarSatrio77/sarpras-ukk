@@ -77,6 +77,7 @@ class UserController extends Controller
             'nisn' => 'required|string|max:20|unique:users,nisn',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:admin,petugas,pengguna',
+            'kelas' => 'nullable|string|max:50',
         ], [
             'name.required' => 'Nama wajib diisi',
             'nisn.required' => 'NISN wajib diisi',
@@ -96,6 +97,7 @@ class UserController extends Controller
             'email' => $email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'kelas' => $request->kelas,
         ]);
 
         return redirect()->route('users.index')
@@ -139,6 +141,7 @@ class UserController extends Controller
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|in:admin,petugas,pengguna',
+            'kelas' => 'nullable|string|max:50',
         ], [
             'name.required' => 'Nama wajib diisi',
             'email.required' => 'Email wajib diisi',
@@ -152,6 +155,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
+            'kelas' => $request->kelas,
         ];
 
         // Update password jika diisi

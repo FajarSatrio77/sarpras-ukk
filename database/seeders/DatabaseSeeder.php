@@ -16,45 +16,50 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // =============================================
-        // SEED USERS (3 AKUN DEMO)
+        // SEED USERS (AKUN DEMO DENGAN NISN)
         // =============================================
         
         // Admin
         User::create([
             'name' => 'Administrator',
+            'nisn' => '1111111111',
             'email' => 'admin@sarpras.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('admin123'),
             'role' => 'admin',
         ]);
 
         // Petugas
         User::create([
             'name' => 'Petugas Sarpras',
+            'nisn' => '2222222222',
             'email' => 'petugas@sarpras.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('petugas123'),
             'role' => 'petugas',
         ]);
 
         // Pengguna
         User::create([
             'name' => 'Budi Santoso',
+            'nisn' => '3333333333',
             'email' => 'pengguna@sarpras.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('pengguna123'),
             'role' => 'pengguna',
         ]);
 
         // Tambah beberapa pengguna lagi untuk demo
         User::create([
             'name' => 'Siti Rahayu',
+            'nisn' => '4444444444',
             'email' => 'siti@sarpras.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('pengguna123'),
             'role' => 'pengguna',
         ]);
 
         User::create([
             'name' => 'Ahmad Fauzi',
+            'nisn' => '5555555555',
             'email' => 'ahmad@sarpras.test',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('pengguna123'),
             'role' => 'pengguna',
         ]);
 

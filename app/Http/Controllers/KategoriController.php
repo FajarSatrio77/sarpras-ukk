@@ -34,6 +34,7 @@ class KategoriController extends Controller
             'kode' => 'required|string|max:10|unique:kategori_sarpras,kode',
             'nama' => 'required|string|max:255|unique:kategori_sarpras,nama',
             'deskripsi' => 'nullable|string',
+            'maintenance_period' => 'nullable|integer|min:1',
         ], [
             'kode.required' => 'Singkatan kategori wajib diisi.',
             'kode.unique' => 'Singkatan sudah digunakan.',
@@ -45,6 +46,7 @@ class KategoriController extends Controller
             'kode' => strtoupper($request->kode),
             'nama' => $request->nama,
             'deskripsi' => $request->deskripsi,
+            'maintenance_period' => $request->maintenance_period,
         ]);
 
         ActivityLog::log('tambah_kategori', 'Menambah kategori: ' . $kategori->nama);
@@ -70,6 +72,7 @@ class KategoriController extends Controller
             'kode' => 'required|string|max:10|unique:kategori_sarpras,kode,' . $kategori->id,
             'nama' => 'required|string|max:255|unique:kategori_sarpras,nama,' . $kategori->id,
             'deskripsi' => 'nullable|string',
+            'maintenance_period' => 'nullable|integer|min:1',
         ], [
             'kode.required' => 'Singkatan kategori wajib diisi.',
             'kode.unique' => 'Singkatan sudah digunakan.',
@@ -81,6 +84,7 @@ class KategoriController extends Controller
             'kode' => strtoupper($request->kode),
             'nama' => $request->nama,
             'deskripsi' => $request->deskripsi,
+            'maintenance_period' => $request->maintenance_period,
         ]);
 
         ActivityLog::log('ubah_kategori', 'Mengubah kategori: ' . $kategori->nama);

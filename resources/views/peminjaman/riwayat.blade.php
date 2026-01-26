@@ -56,9 +56,16 @@
                         @endswitch
                     </td>
                     <td>
-                        <a href="{{ route('peminjaman.show', $item) }}" class="btn btn-outline" style="padding: 6px 12px;">
-                            <i class="bi bi-eye"></i> Detail
-                        </a>
+                        <div style="display: flex; gap: 4px;">
+                            <a href="{{ route('peminjaman.show', $item) }}" class="btn btn-outline" style="padding: 6px 12px;">
+                                <i class="bi bi-eye"></i> Detail
+                            </a>
+                            @if($item->status == 'disetujui' || $item->status == 'dipinjam')
+                            <a href="{{ route('peminjaman.cetak', $item) }}" class="btn btn-primary" style="padding: 6px 12px;" target="_blank">
+                                <i class="bi bi-qr-code"></i> Tiket
+                            </a>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @endforeach

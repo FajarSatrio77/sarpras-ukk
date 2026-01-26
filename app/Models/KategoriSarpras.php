@@ -15,6 +15,7 @@ class KategoriSarpras extends Model
         'kode',
         'nama',
         'deskripsi',
+        'maintenance_period',
     ];
 
     /**

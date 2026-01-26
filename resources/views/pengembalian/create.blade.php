@@ -177,6 +177,71 @@
         color: #b91c1c;
         font-size: 0.85rem;
     }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            width: 100%;
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .info-value {
+            font-size: 0.95rem;
+        }
+        
+        .info-box {
+            padding: 16px;
+        }
+        
+        .kondisi-option {
+            padding: 12px;
+            gap: 12px;
+        }
+        
+        .kondisi-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+        
+        .kondisi-text h4 {
+            font-size: 0.9rem;
+        }
+        
+        .kondisi-text p {
+            font-size: 0.75rem;
+        }
+        
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 8px;
+        }
+        
+        .late-warning {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .damage-fields {
+            padding: 16px;
+        }
+        
+        .btn {
+            padding: 14px 20px;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 @endpush
 

@@ -16,6 +16,7 @@
 <div class="card">
     <div class="card-body" style="padding: 0;">
         @if($kategori->count() > 0)
+        <div class="table-responsive">
         <table class="table">
             <thead>
                 <tr>
@@ -54,6 +55,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
         
         <!-- Pagination -->
         <div style="padding: 16px 20px; border-top: 1px solid #e2e8f0;">

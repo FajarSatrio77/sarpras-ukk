@@ -88,4 +88,28 @@ class Peminjaman extends Model
     {
         return $query->whereIn('status', ['disetujui', 'dipinjam']);
     }
+
+    /**
+     * Relasi: Peminjaman memiliki banyak inspeksi
+     */
+    public function inspections()
+    {
+        return $this->hasMany(Inspection::class);
+    }
+
+    /**
+     * Cek apakah sudah ada inspeksi pre-borrow
+     */
+    public function hasPreBorrowInspection()
+    {
+        return $this->inspections()->where('tipe', 'pre_borrow')->exists();
+    }
+
+    /**
+     * Cek apakah sudah ada inspeksi post-return
+     */
+    public function hasPostReturnInspection()
+    {
+        return $this->inspections()->where('tipe', 'post_return')->exists();
+    }
 }

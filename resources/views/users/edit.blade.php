@@ -42,6 +42,18 @@
                         <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
                     @enderror
                 </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                        Kelas <span style="font-size: 0.8rem; color: var(--gray-500);">(Opsional)</span>
+                    </label>
+                    <input type="text" name="kelas" value="{{ old('kelas', $user->kelas) }}"
+                        style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                        placeholder="Contoh: X RPL 1">
+                    @error('kelas')
+                        <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
+                    @enderror
+                </div>
                 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">

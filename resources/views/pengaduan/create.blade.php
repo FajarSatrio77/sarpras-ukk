@@ -114,10 +114,10 @@
                     
                     <div class="form-group">
                         <label class="form-label">
-                            Jenis Sarpras <span class="required">*</span>
+                            Jenis Barang <span class="required">*</span>
                         </label>
                         <select name="jenis_sarpras" class="form-control" required id="jenisSarpras">
-                            <option value="">-- Pilih Jenis Sarpras --</option>
+                            <option value="">-- Pilih Jenis Barang --</option>
                             @foreach($kategori as $kat)
                             <optgroup label="{{ $kat->nama }}">
                                 @foreach($sarpras->where('kategori_id', $kat->id) as $item)

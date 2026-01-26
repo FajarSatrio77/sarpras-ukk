@@ -166,8 +166,8 @@
 <body>
     <div class="receipt">
         <div class="receipt-header">
-            <h1>BUKTI PEMINJAMAN</h1>
-            <p>SARPRAS SMK</p>
+            <h1>QR CODE</h1>
+            <p>TIKET PEMINJAMAN</p>
         </div>
 
         <div class="receipt-body">
@@ -177,71 +177,15 @@
             </div>
 
             <div class="info-section">
-                <h3>Informasi Peminjam</h3>
                 <div class="info-row">
-                    <span class="label">Nama</span>
+                    <span class="label">Nama Peminjam</span>
                     <span class="value">{{ $peminjaman->user->name }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Email</span>
-                    <span class="value">{{ $peminjaman->user->email }}</span>
+                    <span class="label">Kelas</span>
+                    <span class="value">{{ $peminjaman->user->kelas ?? '-' }}</span>
                 </div>
             </div>
-
-            <div class="info-section">
-                <h3>Detail Peminjaman</h3>
-                <div class="info-row">
-                    <span class="label">Sarpras</span>
-                    <span class="value">{{ $peminjaman->sarpras->nama }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Kode Sarpras</span>
-                    <span class="value">{{ $peminjaman->sarpras->kode }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Jumlah</span>
-                    <span class="value">{{ $peminjaman->jumlah }} unit</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Tanggal Pinjam</span>
-                    <span class="value">{{ $peminjaman->tgl_pinjam->format('d M Y') }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Tanggal Kembali</span>
-                    <span class="value">{{ $peminjaman->tgl_kembali_rencana->format('d M Y') }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Status</span>
-                    <span class="value">
-                        @switch($peminjaman->status)
-                            @case('disetujui')
-                                <span class="status-badge status-disetujui">Disetujui</span>
-                                @break
-                            @case('dipinjam')
-                                <span class="status-badge status-dipinjam">Dipinjam</span>
-                                @break
-                            @case('dikembalikan')
-                                <span class="status-badge status-dikembalikan">Dikembalikan</span>
-                                @break
-                        @endswitch
-                    </span>
-                </div>
-            </div>
-
-            <div class="info-section">
-                <h3>Tujuan Peminjaman</h3>
-                <p style="font-size: 0.9rem; color: #374151; line-height: 1.6;">{{ $peminjaman->tujuan }}</p>
-            </div>
-
-            @if($peminjaman->approver)
-            <div class="info-section">
-                <h3>Disetujui Oleh</h3>
-                <div class="info-row">
-                    <span class="label">Nama Petugas</span>
-                    <span class="value">{{ $peminjaman->approver->name }}</span>
-                </div>
-            </div>
-            @endif
         </div>
 
         <div class="receipt-footer">
@@ -259,7 +203,7 @@
         var qr = qrcode(0, 'M');
         qr.addData('{{ $peminjaman->kode_peminjaman }}');
         qr.make();
-        document.getElementById('qrcode').innerHTML = qr.createImgTag(5);
+        document.getElementById('qrcode').innerHTML = qr.createImgTag(8);
     </script>
 </body>
 </html>

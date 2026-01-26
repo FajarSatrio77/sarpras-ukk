@@ -156,6 +156,7 @@
         </div>
         <div class="card-body" style="padding: 0;">
             @if($peminjaman_terbaru->count() > 0)
+            <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
@@ -194,6 +195,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
             @else
             <div style="padding: 40px; text-align: center; color: var(--secondary);">
                 <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
@@ -216,6 +218,7 @@
         </div>
         <div class="card-body" style="padding: 0;">
             @if($pengaduan_terbaru->count() > 0)
+            <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
@@ -248,6 +251,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
             @else
             <div style="padding: 40px; text-align: center; color: var(--secondary);">
                 <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>

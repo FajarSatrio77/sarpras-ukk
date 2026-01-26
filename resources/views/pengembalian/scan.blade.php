@@ -185,6 +185,79 @@
         font-size: 0.8rem;
         color: var(--secondary);
     }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .scan-container {
+            padding: 0 8px;
+        }
+        
+        .scan-box {
+            padding: 24px 16px;
+            border-radius: 16px;
+        }
+        
+        .scan-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+        }
+        
+        .scan-title {
+            font-size: 1.25rem;
+        }
+        
+        .scan-subtitle {
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+        
+        .scan-input {
+            padding: 14px 16px;
+            font-size: 0.95rem;
+        }
+        
+        .scan-btn {
+            padding: 14px;
+        }
+        
+        .divider {
+            margin: 24px 0;
+        }
+        
+        .qr-section {
+            padding: 16px;
+        }
+        
+        #qr-reader {
+            max-width: 100%;
+        }
+        
+        .recent-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px;
+        }
+        
+        .recent-item .badge {
+            align-self: flex-start;
+        }
+        
+        .recent-icon {
+            width: 36px;
+            height: 36px;
+        }
+        
+        .recent-text h5 {
+            font-size: 0.85rem;
+        }
+        
+        .recent-text p {
+            font-size: 0.75rem;
+        }
+    }
 </style>
 @endpush
 
@@ -275,39 +348,68 @@
 @push('scripts')
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-let html5QrcodeScanner = null;
+let html5Qrcode = null;
 
-function startScanner() {
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.clear();
+async function startScanner() {
+    const qrReaderElement = document.getElementById('qr-reader');
+    qrReaderElement.innerHTML = '<p style="text-align: center; padding: 20px;">Memuat kamera...</p>';
+    
+    if (html5Qrcode) {
+        try {
+            await html5Qrcode.stop();
+        } catch (e) {}
     }
     
-    html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", 
-        { fps: 10, qrbox: 250 }
-    );
+    html5Qrcode = new Html5Qrcode("qr-reader");
     
-    html5QrcodeScanner.render((decodedText, decodedResult) => {
-        // Submit form with decoded QR code
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{{ route("pengembalian.scan.process") }}';
-        
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = '{{ csrf_token() }}';
-        form.appendChild(csrfInput);
-        
-        const kodeInput = document.createElement('input');
-        kodeInput.type = 'hidden';
-        kodeInput.name = 'kode_peminjaman';
-        kodeInput.value = decodedText;
-        form.appendChild(kodeInput);
-        
-        document.body.appendChild(form);
-        form.submit();
-    });
+    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+        // Stop scanner
+        html5Qrcode.stop().then(() => {
+            // Submit form with decoded QR code
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("pengembalian.scan.process") }}';
+            
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+            
+            const kodeInput = document.createElement('input');
+            kodeInput.type = 'hidden';
+            kodeInput.name = 'kode_peminjaman';
+            kodeInput.value = decodedText;
+            form.appendChild(kodeInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        });
+    };
+    
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    
+    // Coba kamera belakang dulu
+    try {
+        await html5Qrcode.start(
+            { facingMode: "environment" }, 
+            config, 
+            qrCodeSuccessCallback
+        );
+    } catch (err) {
+        console.log("Kamera belakang gagal, mencoba kamera depan...", err);
+        // Fallback ke kamera apapun yang tersedia
+        try {
+            await html5Qrcode.start(
+                { facingMode: "user" }, 
+                config, 
+                qrCodeSuccessCallback
+            );
+        } catch (err2) {
+            qrReaderElement.innerHTML = '<p style="color: red; text-align: center; padding: 20px;">Gagal mengakses kamera. Pastikan izin kamera diaktifkan.</p>';
+            console.error("Gagal mengakses kamera:", err2);
+        }
+    }
 }
 </script>
 @endpush

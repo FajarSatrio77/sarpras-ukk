@@ -145,6 +145,7 @@
     <!-- Tab Content: Alat Rusak -->
     <div id="tab-alat-rusak" class="tab-content">
         <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
@@ -192,6 +193,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 
@@ -202,6 +204,7 @@
                 <i class="bi bi-info-circle" style="color: var(--warning);"></i>
                 <span style="color: var(--gray-700);">Top 10 alat dengan jumlah kerusakan terbanyak dalam periode yang dipilih.</span>
             </div>
+            <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
@@ -247,12 +250,14 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 
     <!-- Tab Content: Hilang -->
     <div id="tab-hilang" class="tab-content">
         <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
@@ -293,6 +298,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 

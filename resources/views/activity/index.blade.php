@@ -108,6 +108,7 @@
 <!-- Tabel Activity Log -->
 <div class="card">
     <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
         <table class="table">
             <thead>
                 <tr>
@@ -167,6 +168,7 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
     </div>
     
     @if($logs->hasPages())

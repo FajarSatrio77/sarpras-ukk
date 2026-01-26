@@ -65,6 +65,10 @@ Route::middleware('auth')->group(function () {
         
         // Activity Log
         Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.index');
+        
+        // Checklist Template Management
+        Route::resource('checklist', \App\Http\Controllers\ChecklistTemplateController::class)->except(['show']);
+        Route::patch('/checklist/{checklist}/toggle', [\App\Http\Controllers\ChecklistTemplateController::class, 'toggleStatus'])->name('checklist.toggle');
     });
     
     // =============================================
@@ -85,7 +89,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
         Route::post('/peminjaman/{peminjaman}/reject', [PeminjamanController::class, 'reject'])->name('peminjaman.reject');
         Route::post('/peminjaman/{peminjaman}/handover', [PeminjamanController::class, 'handover'])->name('peminjaman.handover');
-        Route::get('/peminjaman/{peminjaman}/cetak', [PeminjamanController::class, 'cetak'])->name('peminjaman.cetak');
+
         
         // Pengembalian Management
         Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
@@ -94,6 +98,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengembalian/create/{peminjaman}', [PengembalianController::class, 'create'])->name('pengembalian.create');
         Route::post('/pengembalian', [PengembalianController::class, 'store'])->name('pengembalian.store');
         Route::get('/pengembalian/{pengembalian}', [PengembalianController::class, 'show'])->name('pengembalian.show');
+
+        // Maintenance Management
+        Route::resource('maintenance', \App\Http\Controllers\MaintenanceController::class);
         
         // Riwayat Kondisi per Sarpras
         Route::get('/sarpras/{sarpras}/riwayat-kondisi', [PengembalianController::class, 'riwayatKondisi'])->name('sarpras.riwayat-kondisi');
@@ -107,6 +114,13 @@ Route::middleware('auth')->group(function () {
         // Pengaduan Management (Admin/Petugas - bisa update status)
         Route::patch('/pengaduan/{pengaduan}/status', [PengaduanController::class, 'updateStatus'])->name('pengaduan.update-status');
         Route::post('/pengaduan/{pengaduan}/catatan', [PengaduanController::class, 'addCatatan'])->name('pengaduan.add-catatan');
+        
+        // Inspection Routes
+        Route::get('/peminjaman/{peminjaman}/inspect/pre-borrow', [\App\Http\Controllers\InspectionController::class, 'createPreBorrow'])->name('inspection.pre-borrow');
+        Route::post('/peminjaman/{peminjaman}/inspect/pre-borrow', [\App\Http\Controllers\InspectionController::class, 'storePreBorrow'])->name('inspection.pre-borrow.store');
+        Route::get('/peminjaman/{peminjaman}/inspect/post-return', [\App\Http\Controllers\InspectionController::class, 'createPostReturn'])->name('inspection.post-return');
+        Route::post('/peminjaman/{peminjaman}/inspect/post-return', [\App\Http\Controllers\InspectionController::class, 'storePostReturn'])->name('inspection.post-return.store');
+        Route::get('/peminjaman/{peminjaman}/inspect/compare', [\App\Http\Controllers\InspectionController::class, 'compare'])->name('inspection.compare');
     });
     
     // =============================================
@@ -137,4 +151,5 @@ Route::middleware('auth')->group(function () {
     
     // Detail peminjaman (semua role bisa akses)
     Route::get('/peminjaman/{peminjaman}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+    Route::get('/peminjaman/{peminjaman}/cetak', [PeminjamanController::class, 'cetak'])->name('peminjaman.cetak');
 });
