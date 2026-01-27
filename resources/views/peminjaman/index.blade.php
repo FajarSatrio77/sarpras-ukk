@@ -13,16 +13,16 @@
 <!-- Filter & Search -->
 <div class="card" style="margin-bottom: 20px;">
     <div class="card-body" style="padding: 16px 20px;">
-        <form id="filterForm" method="GET" action="{{ route('peminjaman.index') }}" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+        <form id="filterForm" method="GET" action="{{ route('peminjaman.index') }}" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
             <div style="flex: 1; min-width: 200px; position: relative;">
                 <input type="text" id="searchInput" name="search" value="{{ request('search') }}" 
-                       placeholder="Cari kode, nama peminjam, atau barang..."
+                       placeholder="Cari kode, nama, kelas, atau barang..."
                        autocomplete="off"
                        style="width: 100%; padding: 10px 16px; padding-right: 40px; border: 2px solid #e2e8f0; border-radius: 10px;">
                 <i class="bi bi-search" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--secondary);"></i>
             </div>
             <div>
-                <select id="statusFilter" name="status" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 160px;">
+                <select id="statusFilter" name="status" style="padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 10px; min-width: 140px;">
                     <option value="">Semua Status</option>
                     <option value="menunggu" {{ request('status') == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
                     <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
@@ -31,9 +31,23 @@
                     <option value="dikembalikan" {{ request('status') == 'dikembalikan' ? 'selected' : '' }}>Dikembalikan</option>
                 </select>
             </div>
-            <button type="button" id="resetBtn" class="btn btn-outline" style="padding: 10px 20px; {{ request()->hasAny(['search', 'status']) ? '' : 'display: none;' }}">
-                <i class="bi bi-x-lg"></i> Reset
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}" 
+                       style="padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px;" 
+                       title="Dari Tanggal">
+                <span style="color: var(--secondary);">-</span>
+                <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" 
+                       style="padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px;" 
+                       title="Sampai Tanggal">
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">
+                <i class="bi bi-funnel"></i> Filter
             </button>
+            @if(request()->hasAny(['search', 'status', 'dari_tanggal', 'sampai_tanggal']))
+            <a href="{{ route('peminjaman.index') }}" class="btn btn-outline" style="padding: 10px 20px;">
+                <i class="bi bi-x-lg"></i> Reset
+            </a>
+            @endif
         </form>
     </div>
 </div>

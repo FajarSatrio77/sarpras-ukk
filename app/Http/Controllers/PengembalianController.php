@@ -97,15 +97,129 @@ class PengembalianController extends Controller
                 ->with('error', 'Peminjaman ini tidak dalam status dipinjam.');
         }
 
-        $peminjaman->load(['user', 'sarpras']);
+        $peminjaman->load(['user', 'sarpras', 'peminjamanUnits.sarprasUnit']);
         
-        return view('pengembalian.create', compact('peminjaman'));
+        // Cek apakah peminjaman memiliki unit tracking
+        $hasUnits = $peminjaman->peminjamanUnits->isNotEmpty();
+        
+        return view('pengembalian.create', compact('peminjaman', 'hasUnits'));
     }
 
     /**
      * Proses pengembalian
      */
     public function store(Request $request)
+    {
+        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
+        
+        // Pastikan status adalah 'dipinjam'
+        if ($peminjaman->status !== 'dipinjam') {
+            return back()->with('error', 'Peminjaman ini tidak dalam status dipinjam.');
+        }
+
+        // Cek apakah peminjaman memiliki unit tracking
+        $hasUnits = $peminjaman->peminjamanUnits()->exists();
+
+        if ($hasUnits) {
+            return $this->storeWithUnits($request, $peminjaman);
+        } else {
+            return $this->storeLegacy($request, $peminjaman);
+        }
+    }
+
+    /**
+     * Proses pengembalian dengan tracking per-unit
+     */
+    private function storeWithUnits(Request $request, Peminjaman $peminjaman)
+    {
+        $request->validate([
+            'peminjaman_id' => 'required|exists:peminjaman,id',
+            'tgl_pengembalian' => 'required|date',
+            'unit_kondisi' => 'required|array',
+            'unit_kondisi.*' => 'required|in:baik,rusak_ringan,rusak_berat,hilang',
+            'unit_catatan' => 'nullable|array',
+            'foto' => 'nullable|image|max:2048',
+            'catatan_petugas' => 'nullable|string',
+        ], [
+            'tgl_pengembalian.required' => 'Tanggal pengembalian wajib diisi',
+            'unit_kondisi.required' => 'Kondisi setiap unit wajib dipilih',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Handle upload foto
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('pengembalian', 'public');
+            }
+
+            // Determine overall condition based on worst unit condition
+            $conditions = array_values($request->unit_kondisi);
+            $overallCondition = $this->getWorstCondition($conditions);
+
+            // Buat record pengembalian
+            $pengembalian = Pengembalian::create([
+                'peminjaman_id' => $peminjaman->id,
+                'tgl_pengembalian' => $request->tgl_pengembalian,
+                'kondisi_alat' => $overallCondition,
+                'deskripsi_kerusakan' => $this->generateUnitDescription($request, $peminjaman),
+                'foto' => $fotoPath,
+                'catatan_petugas' => $request->catatan_petugas,
+                'diterima_oleh' => Auth::id(),
+            ]);
+
+            // Update setiap unit
+            $peminjamanUnits = $peminjaman->peminjamanUnits()->with('sarprasUnit')->get();
+            
+            foreach ($peminjamanUnits as $pu) {
+                $unitId = $pu->sarpras_unit_id;
+                $kondisi = $request->unit_kondisi[$unitId] ?? 'baik';
+                $catatan = $request->unit_catatan[$unitId] ?? null;
+
+                // Update peminjaman_unit record
+                $pu->update([
+                    'kondisi_kembali' => $kondisi,
+                    'catatan_kembali' => $catatan,
+                ]);
+
+                // Update sarpras_unit record
+                $pu->sarprasUnit->update([
+                    'status' => 'tersedia',
+                    'kondisi' => $kondisi,
+                    'catatan' => $catatan,
+                ]);
+            }
+
+            // Update status peminjaman
+            $peminjaman->update([
+                'status' => 'dikembalikan',
+                'tgl_kembali_aktual' => $request->tgl_pengembalian,
+            ]);
+
+            // Kembalikan stok sarpras
+            $sarpras = $peminjaman->sarpras;
+            $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
+
+            // Buat pengaduan otomatis jika ada unit hilang
+            if (in_array('hilang', $conditions)) {
+                $this->createPengaduanOtomatis($peminjaman, $pengembalian);
+            }
+
+            DB::commit();
+
+            return redirect()->route('pengembalian.index')
+                ->with('success', "Pengembalian berhasil diproses. {$peminjamanUnits->count()} unit telah dikembalikan.");
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Proses pengembalian legacy (tanpa unit tracking)
+     */
+    private function storeLegacy(Request $request, Peminjaman $peminjaman)
     {
         $request->validate([
             'peminjaman_id' => 'required|exists:peminjaman,id',
@@ -119,13 +233,6 @@ class PengembalianController extends Controller
             'tgl_pengembalian.required' => 'Tanggal pengembalian wajib diisi',
             'deskripsi_kerusakan.required_if' => 'Deskripsi kerusakan wajib diisi jika kondisi alat tidak baik',
         ]);
-
-        $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
-        
-        // Pastikan status adalah 'dipinjam'
-        if ($peminjaman->status !== 'dipinjam') {
-            return back()->with('error', 'Peminjaman ini tidak dalam status dipinjam.');
-        }
 
         DB::beginTransaction();
         try {
@@ -198,6 +305,57 @@ class PengembalianController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Get kondisi terburuk dari array kondisi
+     */
+    private function getWorstCondition(array $conditions): string
+    {
+        $priority = ['hilang' => 4, 'rusak_berat' => 3, 'rusak_ringan' => 2, 'baik' => 1];
+        $worst = 'baik';
+        $worstPriority = 1;
+
+        foreach ($conditions as $condition) {
+            if (isset($priority[$condition]) && $priority[$condition] > $worstPriority) {
+                $worst = $condition;
+                $worstPriority = $priority[$condition];
+            }
+        }
+
+        return $worst;
+    }
+
+    /**
+     * Generate deskripsi kondisi per-unit
+     */
+    private function generateUnitDescription(Request $request, Peminjaman $peminjaman): string
+    {
+        $descriptions = [];
+        $peminjamanUnits = $peminjaman->peminjamanUnits()->with('sarprasUnit')->get();
+
+        foreach ($peminjamanUnits as $pu) {
+            $unitId = $pu->sarpras_unit_id;
+            $kode = $pu->sarprasUnit->kode_unit;
+            $kondisi = $request->unit_kondisi[$unitId] ?? 'baik';
+            $catatan = $request->unit_catatan[$unitId] ?? '';
+
+            $kondisiLabel = match($kondisi) {
+                'baik' => 'Baik',
+                'rusak_ringan' => 'Rusak Ringan',
+                'rusak_berat' => 'Rusak Berat',
+                'hilang' => 'HILANG',
+            };
+
+            $desc = "{$kode}: {$kondisiLabel}";
+            if ($catatan) {
+                $desc .= " - {$catatan}";
+            }
+            $descriptions[] = $desc;
+        }
+
+        return implode("\n", $descriptions);
+    }
+
 
     /**
      * Buat pengaduan otomatis untuk alat hilang

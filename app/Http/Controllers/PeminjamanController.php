@@ -163,15 +163,25 @@ class PeminjamanController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filter date range
+        if ($request->filled('dari_tanggal')) {
+            $query->whereDate('tgl_pinjam', '>=', $request->dari_tanggal);
+        }
+        if ($request->filled('sampai_tanggal')) {
+            $query->whereDate('tgl_pinjam', '<=', $request->sampai_tanggal);
+        }
+
         // Search user atau sarpras
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('kode_peminjaman', 'like', '%' . $request->search . '%')
                   ->orWhereHas('user', function ($q2) use ($request) {
-                      $q2->where('name', 'like', '%' . $request->search . '%');
+                      $q2->where('name', 'like', '%' . $request->search . '%')
+                         ->orWhere('kelas', 'like', '%' . $request->search . '%');
                   })
                   ->orWhereHas('sarpras', function ($q2) use ($request) {
-                      $q2->where('nama', 'like', '%' . $request->search . '%');
+                      $q2->where('nama', 'like', '%' . $request->search . '%')
+                         ->orWhere('kode', 'like', '%' . $request->search . '%');
                   });
             });
         }
@@ -229,7 +239,7 @@ class PeminjamanController extends Controller
     }
 
     /**
-     * Tandai sebagai dipinjam / serahkan barang (Admin/Petugas)
+     * Form pemilihan unit untuk handover (Admin/Petugas)
      */
     public function handover(Peminjaman $peminjaman)
     {
@@ -237,6 +247,90 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Peminjaman belum disetujui atau sudah dalam proses lain.');
         }
 
+        $peminjaman->load(['sarpras.units' => function($query) {
+            $query->tersedia()->orderBy('kode_unit');
+        }, 'user']);
+
+        $unitsTersedia = $peminjaman->sarpras->units()->tersedia()->get();
+
+        // Jika tidak ada unit, fallback ke sistem lama (tanpa unit tracking)
+        if ($unitsTersedia->isEmpty()) {
+            return $this->handoverLegacy($peminjaman);
+        }
+
+        return view('peminjaman.handover', compact('peminjaman', 'unitsTersedia'));
+    }
+
+    /**
+     * Proses handover dengan unit yang dipilih (Admin/Petugas)
+     */
+    public function storeHandover(Request $request, Peminjaman $peminjaman)
+    {
+        if ($peminjaman->status !== 'disetujui') {
+            return back()->with('error', 'Peminjaman belum disetujui atau sudah dalam proses lain.');
+        }
+
+        $request->validate([
+            'unit_ids' => 'required|array|min:1',
+            'unit_ids.*' => 'required|exists:sarpras_unit,id',
+        ], [
+            'unit_ids.required' => 'Pilih minimal 1 unit untuk diserahkan.',
+            'unit_ids.min' => 'Pilih minimal 1 unit untuk diserahkan.',
+        ]);
+
+        // Validasi jumlah unit harus sesuai dengan jumlah peminjaman
+        if (count($request->unit_ids) != $peminjaman->jumlah) {
+            return back()->with('error', "Jumlah unit yang dipilih harus sesuai dengan jumlah peminjaman ({$peminjaman->jumlah} unit).");
+        }
+
+        // Validasi semua unit adalah milik sarpras yang sama dan tersedia
+        $units = \App\Models\SarprasUnit::whereIn('id', $request->unit_ids)
+            ->where('sarpras_id', $peminjaman->sarpras_id)
+            ->tersedia()
+            ->get();
+
+        if ($units->count() != count($request->unit_ids)) {
+            return back()->with('error', 'Beberapa unit tidak valid atau sudah dipinjam.');
+        }
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            // Buat record peminjaman_unit untuk setiap unit
+            foreach ($units as $unit) {
+                \App\Models\PeminjamanUnit::create([
+                    'peminjaman_id' => $peminjaman->id,
+                    'sarpras_unit_id' => $unit->id,
+                    'kondisi_pinjam' => $unit->kondisi,
+                ]);
+
+                // Update status unit menjadi dipinjam
+                $unit->update(['status' => 'dipinjam']);
+            }
+
+            // Kurangi stok sarpras
+            $peminjaman->sarpras->decrement('jumlah_stok', $peminjaman->jumlah);
+
+            // Update status peminjaman
+            $peminjaman->update(['status' => 'dipinjam']);
+
+            ActivityLog::log('serahkan_barang', 'Menyerahkan barang peminjaman: ' . $peminjaman->kode_peminjaman . ' (Unit: ' . $units->pluck('kode_unit')->join(', ') . ')');
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return redirect()->route('peminjaman.show', $peminjaman)
+                ->with('success', 'Barang telah diserahkan. Unit: ' . $units->pluck('kode_unit')->join(', '));
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handover legacy (tanpa unit tracking) untuk backward compatibility
+     */
+    private function handoverLegacy(Peminjaman $peminjaman)
+    {
         // Kurangi stok
         $sarpras = $peminjaman->sarpras;
         $sarpras->decrement('jumlah_stok', $peminjaman->jumlah);
@@ -247,7 +341,8 @@ class PeminjamanController extends Controller
 
         ActivityLog::log('serahkan_barang', 'Menyerahkan barang peminjaman: ' . $peminjaman->kode_peminjaman);
 
-        return back()->with('success', 'Barang telah diserahkan. Status diubah menjadi "Dipinjam".');
+        return redirect()->route('peminjaman.show', $peminjaman)
+            ->with('success', 'Barang telah diserahkan. Status diubah menjadi "Dipinjam".');
     }
 
     /**
@@ -259,7 +354,7 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Bukti hanya bisa dicetak untuk peminjaman yang sudah disetujui.');
         }
 
-        $peminjaman->load(['sarpras', 'user', 'approver']);
+        $peminjaman->load(['sarpras', 'user', 'approver', 'peminjamanUnits.sarprasUnit']);
         return view('peminjaman.cetak', compact('peminjaman'));
     }
 }

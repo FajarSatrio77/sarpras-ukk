@@ -53,12 +53,56 @@
                     @endswitch
                 </div>
                 
-                @if($pengembalian->deskripsi_kerusakan)
-                <div style="background: #fef3c7; padding: 16px; border-radius: 10px; border: 1px solid #fcd34d; margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 8px; color: #92400e; font-size: 0.9rem;">
-                        <i class="bi bi-exclamation-circle"></i> Deskripsi Kerusakan
+                @if($pengembalian->deskripsi_kerusakan || ($pengembalian->peminjaman->peminjamanUnits->isNotEmpty() ?? false))
+                <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 20px; border-radius: 14px; border: 1px solid #fbbf24; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 16px; color: #92400e; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="bi bi-clipboard-data"></i> Detail Kondisi Per-Unit
                     </h4>
-                    <p style="margin: 0; color: #78350f;">{{ $pengembalian->deskripsi_kerusakan }}</p>
+                    
+                    @if($pengembalian->peminjaman->peminjamanUnits->isNotEmpty())
+                    <div style="display: grid; gap: 10px;">
+                        @foreach($pengembalian->peminjaman->peminjamanUnits as $pu)
+                        <div style="background: white; padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <code style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 6px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                                    {{ $pu->sarprasUnit->kode_unit }}
+                                </code>
+                                <div>
+                                    <span style="color: #374151; font-size: 0.85rem;">Saat pinjam:</span>
+                                    {!! $pu->kondisi_pinjam_label !!}
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-arrow-right" style="color: #9ca3af;"></i>
+                                @php
+                                    $kondisiKembali = $pu->kondisi_kembali ?? $pu->sarprasUnit->kondisi;
+                                    $kondisiConfig = [
+                                        'baik' => ['bg' => '#dcfce7', 'color' => '#16a34a', 'icon' => 'check-circle-fill', 'text' => 'Baik'],
+                                        'rusak_ringan' => ['bg' => '#fef3c7', 'color' => '#d97706', 'icon' => 'exclamation-triangle-fill', 'text' => 'Rusak Ringan'],
+                                        'rusak_berat' => ['bg' => '#fee2e2', 'color' => '#dc2626', 'icon' => 'x-circle-fill', 'text' => 'Rusak Berat'],
+                                        'hilang' => ['bg' => '#f3f4f6', 'color' => '#374151', 'icon' => 'question-circle-fill', 'text' => 'Hilang'],
+                                    ];
+                                    $config = $kondisiConfig[$kondisiKembali] ?? $kondisiConfig['baik'];
+                                @endphp
+                                <span style="background: {{ $config['bg'] }}; color: {{ $config['color'] }}; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="bi bi-{{ $config['icon'] }}"></i>
+                                    {{ $config['text'] }}
+                                </span>
+                            </div>
+                        </div>
+                        @if($pu->catatan_kembali)
+                        <div style="background: rgba(255,255,255,0.7); padding: 8px 16px; border-radius: 8px; margin-top: -6px; margin-left: 20px; font-size: 0.85rem; color: #6b7280;">
+                            <i class="bi bi-chat-left-text" style="margin-right: 6px;"></i>
+                            {{ $pu->catatan_kembali }}
+                        </div>
+                        @endif
+                        @endforeach
+                    </div>
+                    @elseif($pengembalian->deskripsi_kerusakan)
+                    <p style="margin: 0; color: #78350f; background: white; padding: 12px 16px; border-radius: 10px;">
+                        {{ $pengembalian->deskripsi_kerusakan }}
+                    </p>
+                    @endif
                 </div>
                 @endif
                 

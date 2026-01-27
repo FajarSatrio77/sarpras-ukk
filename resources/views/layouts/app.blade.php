@@ -44,9 +44,26 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #fdf4ff 100%);
+            background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 50%, #fff5f7 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             color: var(--gray-700);
+            position: relative;
+        }
+
+        /* Subtle grid pattern overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* Top Navigation */
@@ -56,14 +73,14 @@
             left: 0;
             right: 0;
             height: var(--nav-height);
-            background: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.98));
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.12);
             z-index: 1000;
             display: flex;
             align-items: center;
             padding: 0 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 30px rgba(99, 102, 241, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .nav-brand {
@@ -278,19 +295,39 @@
 
         /* Cards */
         .card {
-            background: white;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
             overflow: hidden;
-            border: 1px solid rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            z-index: 1;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), #a855f7, var(--info));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
         }
 
         .card-header {
             padding: 20px 24px;
-            border-bottom: 1px solid var(--gray-100);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.06);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: linear-gradient(180deg, rgba(248, 250, 255, 0.5), transparent);
         }
 
         .card-title {
@@ -305,20 +342,35 @@
 
         /* Stat Cards */
         .stat-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 24px;
             display: flex;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.06);
             transition: all 0.3s ease;
-            border: 1px solid rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 70%);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
         }
 
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.12);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
             border-color: rgba(99, 102, 241, 0.15);
         }
 
@@ -372,29 +424,34 @@
         .table {
             width: 100%;
             border-collapse: collapse;
+            border-spacing: 0;
         }
 
         .table th, .table td {
             padding: 14px 20px;
             text-align: left;
-            border-bottom: 1px solid var(--gray-100);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.06);
         }
 
         .table th {
             font-weight: 600;
-            color: var(--gray-500);
+            color: var(--gray-600);
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            background: var(--gray-50);
+            background: linear-gradient(180deg, rgba(248, 250, 255, 0.8), rgba(241, 245, 249, 0.5));
         }
 
         .table tbody tr {
-            transition: background 0.2s;
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: rgba(99, 102, 241, 0.015);
         }
 
         .table tbody tr:hover {
-            background: var(--gray-50);
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.02));
         }
 
         /* Badges */
@@ -1390,7 +1447,7 @@
         <div class="sidebar-header">
             <a href="{{ route('dashboard') }}" class="brand-logo">
                 <img src="{{ asset('images/logosmea.png') }}" alt="Logo">
-                <span class="brand-text">SARPRAS</span>
+                <span class="brand-text">SARPRASKITA</span>
             </a>
         </div>
 
@@ -1475,6 +1532,10 @@
             <a href="{{ route('laporan.asset-health') }}" class="nav-item {{ request()->routeIs('laporan.asset-health') ? 'active' : '' }}">
                 <i class="bi bi-heart-pulse"></i>
                 <span>Asset Health</span>
+            </a>
+            <a href="{{ route('laporan.damage-analytics') }}" class="nav-item {{ request()->routeIs('laporan.damage-analytics') ? 'active' : '' }}">
+                <i class="bi bi-graph-down-arrow"></i>
+                <span>Damage Analytics</span>
             </a>
             <a href="{{ route('laporan.kerusakan') }}" class="nav-item {{ request()->routeIs('laporan.kerusakan') ? 'active' : '' }}">
                 <i class="bi bi-exclamation-octagon"></i>

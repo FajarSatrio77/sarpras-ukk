@@ -112,4 +112,33 @@ class Peminjaman extends Model
     {
         return $this->inspections()->where('tipe', 'post_return')->exists();
     }
+
+    /**
+     * Relasi: Peminjaman memiliki banyak unit yang dipinjam
+     */
+    public function peminjamanUnits()
+    {
+        return $this->hasMany(PeminjamanUnit::class);
+    }
+
+    /**
+     * Get kode-kode unit yang dipinjam
+     */
+    public function getKodeUnitsAttribute()
+    {
+        return $this->peminjamanUnits()
+            ->with('sarprasUnit')
+            ->get()
+            ->pluck('sarprasUnit.kode_unit')
+            ->filter()
+            ->toArray();
+    }
+
+    /**
+     * Cek apakah peminjaman sudah memiliki unit assignment
+     */
+    public function hasUnitAssignment()
+    {
+        return $this->peminjamanUnits()->exists();
+    }
 }

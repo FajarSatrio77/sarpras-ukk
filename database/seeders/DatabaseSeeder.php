@@ -37,43 +37,70 @@ class DatabaseSeeder extends Seeder
             'role' => 'petugas',
         ]);
 
-        // Pengguna
-        User::create([
-            'name' => 'Budi Santoso',
-            'nisn' => '3333333333',
-            'email' => 'pengguna@sarpras.test',
-            'password' => Hash::make('pengguna123'),
-            'role' => 'pengguna',
-        ]);
+        // =============================================
+        // SISWA XII RPL 1 (Password = NISN)
+        // =============================================
+        $siswa = [
+            ['nisn' => '0078320930', 'name' => 'Abdul Hafizh Aziz', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0077584240', 'name' => 'Aditya Hermana Putra', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0075132987', 'name' => 'Ahmad Yoga Setiawan', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0073908882', 'name' => 'Aksel Delvino Radinka Pratama', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0079696120', 'name' => 'Aprilia Dwi Lestari', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0083395255', 'name' => 'Arka Pangestu Wibowo', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0081887843', 'name' => 'Binti Dzuriatus Sholihah', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0071734863', 'name' => 'Cahya Buana Indah', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0076875404', 'name' => 'Cahya Langit Atmawinata', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0079331565', 'name' => 'Chafid Nouval Putra', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0074303390', 'name' => 'Chaisya Dwi Septa Rahmadhani', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0075931489', 'name' => 'Cheyril Athiyya Devrilia', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0072159818', 'name' => 'Daffa Abiyyu Asyqar', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0078169533', 'name' => 'Daffa Fadillilah Nur Iskandar', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0071358932', 'name' => 'Dimas Setia Pratama', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0075840594', 'name' => 'Dion Farado', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0085852668', 'name' => 'Diva Ananda Kartika', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0076018561', 'name' => 'Diva Livia Purbasari', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0076451181', 'name' => 'Fahriz Alghifari', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0081984121', 'name' => 'Febriana Andra Sari', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0071628194', 'name' => 'Ilham Frido Bagaskara', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0071412781', 'name' => 'Indira Faza Rahmadhani', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0073470159', 'name' => 'Intania Cahya Kirani', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0071551815', 'name' => 'Irsyad Arif', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0076645687', 'name' => 'Jovian Helga Kumara', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0075497995', 'name' => 'Kevin Juliano Arvarean', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0079715820', 'name' => 'Khairunnizam', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0072761653', 'name' => 'Luvita Anggraini', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0074801967', 'name' => 'Moch Dany Maulana', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0079611907', 'name' => 'Moh Fajar Satrio Utomo', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0081347058', 'name' => 'Muhammad Andrean Alfarizki', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0072242351', 'name' => 'Muhammad Fahri Irvandi', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0073286738', 'name' => 'Muhammad Firzatullah Aqila Risfayadi', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0083900604', 'name' => 'Muhammad Habib Al Kindy', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0079704456', 'name' => 'Muhammad Nur Rizqi', 'kelas' => 'XII RPL 1'],
+            ['nisn' => '0072952904', 'name' => 'Muhammad Rangga Nur Ridwan', 'kelas' => 'XII RPL 1'],
+        ];
 
-        // Tambah beberapa pengguna lagi untuk demo
-        User::create([
-            'name' => 'Siti Rahayu',
-            'nisn' => '4444444444',
-            'email' => 'siti@sarpras.test',
-            'password' => Hash::make('pengguna123'),
-            'role' => 'pengguna',
-        ]);
-
-        User::create([
-            'name' => 'Ahmad Fauzi',
-            'nisn' => '5555555555',
-            'email' => 'ahmad@sarpras.test',
-            'password' => Hash::make('pengguna123'),
-            'role' => 'pengguna',
-        ]);
+        foreach ($siswa as $s) {
+            User::create([
+                'name' => $s['name'],
+                'nisn' => $s['nisn'],
+                'email' => strtolower(str_replace(' ', '.', $s['name'])) . '@siswa.smkn1boyolangu.sch.id',
+                'password' => Hash::make($s['nisn']), // Password = NISN
+                'role' => 'pengguna',
+                'kelas' => $s['kelas'],
+            ]);
+        }
 
         // =============================================
         // SEED KATEGORI SARPRAS
         // =============================================
 
         $kategori = [
-            ['nama' => 'Perangkat TIK', 'deskripsi' => 'Komputer, laptop, proyektor, dan perangkat IT lainnya'],
-            ['nama' => 'Alat Laboratorium', 'deskripsi' => 'Alat-alat untuk praktikum lab IPA, Fisika, Kimia'],
-            ['nama' => 'Buku & Referensi', 'deskripsi' => 'Buku pelajaran, referensi, dan koleksi perpustakaan'],
-            ['nama' => 'Furniture', 'deskripsi' => 'Meja, kursi, lemari, dan perlengkapan ruangan'],
-            ['nama' => 'Alat Olahraga', 'deskripsi' => 'Bola, raket, matras, dan perlengkapan olahraga'],
-            ['nama' => 'Peralatan Audio Visual', 'deskripsi' => 'Sound system, microphone, speaker, layar proyektor'],
+            ['nama' => 'Perangkat TIK', 'kode' => 'TIK', 'deskripsi' => 'Komputer, laptop, proyektor, dan perangkat IT lainnya'],
+            ['nama' => 'Alat Laboratorium', 'kode' => 'LAB', 'deskripsi' => 'Alat-alat untuk praktikum lab IPA, Fisika, Kimia'],
+            ['nama' => 'Buku & Referensi', 'kode' => 'BUK', 'deskripsi' => 'Buku pelajaran, referensi, dan koleksi perpustakaan'],
+            ['nama' => 'Furniture', 'kode' => 'FRN', 'deskripsi' => 'Meja, kursi, lemari, dan perlengkapan ruangan'],
+            ['nama' => 'Alat Olahraga', 'kode' => 'OLR', 'deskripsi' => 'Bola, raket, matras, dan perlengkapan olahraga'],
+            ['nama' => 'Peralatan Audio Visual', 'kode' => 'AVS', 'deskripsi' => 'Sound system, microphone, speaker, layar proyektor'],
         ];
 
         foreach ($kategori as $k) {
@@ -117,7 +144,48 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($sarpras as $s) {
-            Sarpras::create($s);
+            $createdSarpras = Sarpras::create($s);
+            
+            // Generate unit untuk setiap sarpras sesuai jumlah stok
+            $this->generateUnitsForSarpras($createdSarpras);
+        }
+    }
+
+    /**
+     * Generate unit individual untuk sarpras
+     */
+    private function generateUnitsForSarpras(Sarpras $sarpras): void
+    {
+        $kategori = $sarpras->kategori;
+        
+        // Gunakan kode kategori sebagai prefix, atau fallback ke 3 huruf pertama nama
+        $prefix = $kategori && $kategori->kode 
+            ? strtoupper($kategori->kode) 
+            : strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $kategori->nama ?? 'XXX'), 0, 3));
+        
+        $prefix = str_pad($prefix, 3, 'X');
+
+        // Cari nomor urut terakhir untuk prefix ini
+        $lastKode = \App\Models\SarprasUnit::where('kode_unit', 'like', $prefix . '-%')
+            ->orderBy('kode_unit', 'desc')
+            ->value('kode_unit');
+
+        $startNumber = 1;
+        if ($lastKode) {
+            $startNumber = (int) substr($lastKode, -3) + 1;
+        }
+
+        // Generate units sesuai jumlah stok
+        for ($i = 0; $i < $sarpras->jumlah_stok; $i++) {
+            $kodeUnit = $prefix . '-' . str_pad($startNumber + $i, 3, '0', STR_PAD_LEFT);
+            
+            \App\Models\SarprasUnit::create([
+                'sarpras_id' => $sarpras->id,
+                'kode_unit' => $kodeUnit,
+                'kondisi' => $sarpras->kondisi === 'rusak_berat' ? 'rusak_berat' : 
+                           ($sarpras->kondisi === 'rusak_ringan' ? 'rusak_ringan' : 'baik'),
+                'status' => 'tersedia',
+            ]);
         }
     }
 }

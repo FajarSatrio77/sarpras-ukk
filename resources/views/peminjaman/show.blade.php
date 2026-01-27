@@ -212,4 +212,25 @@ document.getElementById('rejectModal').addEventListener('click', function(e) {
 </script>
 @endpush
 @endif
+
+{{-- Tombol Serahkan Barang untuk status Disetujui --}}
+@if(auth()->user()->canManage() && $peminjaman->status == 'disetujui')
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+        <h5 class="card-title">
+            <i class="bi bi-hand-index" style="margin-right: 8px;"></i>
+            Serah Terima Barang
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-success" style="margin-bottom: 16px;">
+            <i class="bi bi-check-circle-fill" style="margin-right: 8px;"></i>
+            Peminjaman sudah disetujui. Silakan serahkan barang kepada peminjam.
+        </div>
+        <a href="{{ route('peminjaman.handover', $peminjaman) }}" class="btn btn-primary">
+            <i class="bi bi-box-arrow-right"></i> Serahkan Barang ({{ $peminjaman->jumlah }} unit)
+        </a>
+    </div>
+</div>
+@endif
 @endsection

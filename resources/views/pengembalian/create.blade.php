@@ -338,75 +338,57 @@
                             <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
                         @enderror
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Status Kondisi Alat *</label>
-                        
-                        <label class="kondisi-option" onclick="selectKondisi('baik', this)">
-                            <input type="radio" name="kondisi_alat" value="baik" id="kondisi_baik" {{ old('kondisi_alat') == 'baik' ? 'checked' : '' }} required>
-                            <div class="kondisi-icon baik">
-                                <i class="bi bi-check-circle"></i>
-                            </div>
-                            <div class="kondisi-text">
-                                <h4>✓ Baik</h4>
-                                <p>Tidak ada kerusakan, dapat digunakan kembali</p>
-                            </div>
-                        </label>
-                        
-                        <label class="kondisi-option" onclick="selectKondisi('rusak_ringan', this)">
-                            <input type="radio" name="kondisi_alat" value="rusak_ringan" id="kondisi_rusak_ringan" {{ old('kondisi_alat') == 'rusak_ringan' ? 'checked' : '' }}>
-                            <div class="kondisi-icon rusak-ringan">
-                                <i class="bi bi-exclamation-triangle"></i>
-                            </div>
-                            <div class="kondisi-text">
-                                <h4>⚠️ Rusak Ringan</h4>
-                                <p>Masih bisa pakai, tapi ada cacat minor → Status: Butuh Maintenance</p>
-                            </div>
-                        </label>
-                        
-                        <label class="kondisi-option" onclick="selectKondisi('rusak_berat', this)">
-                            <input type="radio" name="kondisi_alat" value="rusak_berat" id="kondisi_rusak_berat" {{ old('kondisi_alat') == 'rusak_berat' ? 'checked' : '' }}>
-                            <div class="kondisi-icon rusak-berat">
-                                <i class="bi bi-x-octagon"></i>
-                            </div>
-                            <div class="kondisi-text">
-                                <h4>❌ Rusak Berat</h4>
-                                <p>Tidak bisa dipakai, perlu perbaikan serius</p>
-                            </div>
-                        </label>
-                        
-                        <label class="kondisi-option" onclick="selectKondisi('hilang', this)">
-                            <input type="radio" name="kondisi_alat" value="hilang" id="kondisi_hilang" {{ old('kondisi_alat') == 'hilang' ? 'checked' : '' }}>
-                            <div class="kondisi-icon hilang">
-                                <i class="bi bi-question-circle"></i>
-                            </div>
-                            <div class="kondisi-text">
-                                <h4>❓ Hilang</h4>
-                                <p>Alat tidak dikembalikan → Pengaduan otomatis dibuat</p>
-                            </div>
-                        </label>
-                        
-                        @error('kondisi_alat')
-                            <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    
-                    <!-- Fields untuk kerusakan/hilang -->
-                    <div class="damage-fields" id="damageFields">
-                        <h4 style="margin-bottom: 16px; color: #92400e;">
-                            <i class="bi bi-exclamation-circle"></i> Catatan / Deskripsi Kerusakan
-                        </h4>
-                        
+
+                    @if(isset($hasUnits) && $hasUnits && $peminjaman->peminjamanUnits->isNotEmpty())
+                        {{-- Per-Unit Condition Form - Simplified --}}
                         <div class="form-group">
-                            <label class="form-label">Deskripsi Kerusakan *</label>
-                            <textarea name="deskripsi_kerusakan" class="form-control" 
-                                placeholder="Contoh: Layar retak, Tombol tidak berfungsi, Kabel putus, Lensa berdebu...">{{ old('deskripsi_kerusakan') }}</textarea>
-                            <small style="color: var(--secondary);">Jelaskan kondisi kerusakan secara detail</small>
-                            @error('deskripsi_kerusakan')
-                                <span style="color: var(--danger); font-size: 0.8rem; display: block;">{{ $message }}</span>
+                            <label class="form-label">Kondisi Per-Unit *</label>
+                            
+                            <div class="table-responsive" style="border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+                                <table class="table" style="margin: 0;">
+                                    <thead>
+                                        <tr style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+                                            <th style="width: 120px; font-size: 0.75rem;">KODE UNIT</th>
+                                            <th style="width: 100px; font-size: 0.75rem;">SAAT PINJAM</th>
+                                            <th style="font-size: 0.75rem;">KONDISI SEKARANG</th>
+                                            <th style="font-size: 0.75rem;">CATATAN</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($peminjaman->peminjamanUnits as $pu)
+                                        <tr>
+                                            <td>
+                                                <code style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: 600;">
+                                                    {{ $pu->sarprasUnit->kode_unit }}
+                                                </code>
+                                            </td>
+                                            <td>{!! $pu->kondisi_pinjam_label !!}</td>
+                                            <td>
+                                                <select name="unit_kondisi[{{ $pu->sarpras_unit_id }}]" class="form-control" style="padding: 8px 12px; font-size: 0.85rem;" required>
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="baik" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'baik' ? 'selected' : '' }}>✅ Baik</option>
+                                                    <option value="rusak_ringan" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_ringan' ? 'selected' : '' }}>⚠️ Rusak Ringan</option>
+                                                    <option value="rusak_berat" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_berat' ? 'selected' : '' }}>❌ Rusak Berat</option>
+                                                    <option value="hilang" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'hilang' ? 'selected' : '' }}>❓ Hilang</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="unit_catatan[{{ $pu->sarpras_unit_id }}]" 
+                                                       class="form-control" style="padding: 8px 12px; font-size: 0.85rem;"
+                                                       placeholder="Opsional..."
+                                                       value="{{ old("unit_catatan.{$pu->sarpras_unit_id}") }}">
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            @error('unit_kondisi')
+                                <span style="color: var(--danger); font-size: 0.8rem; display: block; margin-top: 8px;">{{ $message }}</span>
                             @enderror
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="form-label">Foto Dokumentasi Pengembalian</label>
                             <input type="file" name="foto" class="form-control" accept="image/*" onchange="previewPhoto(this)">
@@ -415,7 +397,86 @@
                                 <img id="previewImg" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
                             </div>
                         </div>
-                    </div>
+                    @else
+                        {{-- Legacy Single Condition Form --}}
+                        <div class="form-group">
+                            <label class="form-label">Status Kondisi Alat *</label>
+                            
+                            <label class="kondisi-option" onclick="selectKondisi('baik', this)">
+                                <input type="radio" name="kondisi_alat" value="baik" id="kondisi_baik" {{ old('kondisi_alat') == 'baik' ? 'checked' : '' }} required>
+                                <div class="kondisi-icon baik">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="kondisi-text">
+                                    <h4>✓ Baik</h4>
+                                    <p>Tidak ada kerusakan, dapat digunakan kembali</p>
+                                </div>
+                            </label>
+                            
+                            <label class="kondisi-option" onclick="selectKondisi('rusak_ringan', this)">
+                                <input type="radio" name="kondisi_alat" value="rusak_ringan" id="kondisi_rusak_ringan" {{ old('kondisi_alat') == 'rusak_ringan' ? 'checked' : '' }}>
+                                <div class="kondisi-icon rusak-ringan">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="kondisi-text">
+                                    <h4>⚠️ Rusak Ringan</h4>
+                                    <p>Masih bisa pakai, tapi ada cacat minor → Status: Butuh Maintenance</p>
+                                </div>
+                            </label>
+                            
+                            <label class="kondisi-option" onclick="selectKondisi('rusak_berat', this)">
+                                <input type="radio" name="kondisi_alat" value="rusak_berat" id="kondisi_rusak_berat" {{ old('kondisi_alat') == 'rusak_berat' ? 'checked' : '' }}>
+                                <div class="kondisi-icon rusak-berat">
+                                    <i class="bi bi-x-octagon"></i>
+                                </div>
+                                <div class="kondisi-text">
+                                    <h4>❌ Rusak Berat</h4>
+                                    <p>Tidak bisa dipakai, perlu perbaikan serius</p>
+                                </div>
+                            </label>
+                            
+                            <label class="kondisi-option" onclick="selectKondisi('hilang', this)">
+                                <input type="radio" name="kondisi_alat" value="hilang" id="kondisi_hilang" {{ old('kondisi_alat') == 'hilang' ? 'checked' : '' }}>
+                                <div class="kondisi-icon hilang">
+                                    <i class="bi bi-question-circle"></i>
+                                </div>
+                                <div class="kondisi-text">
+                                    <h4>❓ Hilang</h4>
+                                    <p>Alat tidak dikembalikan → Pengaduan otomatis dibuat</p>
+                                </div>
+                            </label>
+                            
+                            @error('kondisi_alat')
+                                <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        
+                        <!-- Fields untuk kerusakan/hilang -->
+                        <div class="damage-fields" id="damageFields">
+                            <h4 style="margin-bottom: 16px; color: #92400e;">
+                                <i class="bi bi-exclamation-circle"></i> Catatan / Deskripsi Kerusakan
+                            </h4>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Deskripsi Kerusakan *</label>
+                                <textarea name="deskripsi_kerusakan" class="form-control" 
+                                    placeholder="Contoh: Layar retak, Tombol tidak berfungsi, Kabel putus, Lensa berdebu...">{{ old('deskripsi_kerusakan') }}</textarea>
+                                <small style="color: var(--secondary);">Jelaskan kondisi kerusakan secara detail</small>
+                                @error('deskripsi_kerusakan')
+                                    <span style="color: var(--danger); font-size: 0.8rem; display: block;">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Foto Dokumentasi Pengembalian</label>
+                                <input type="file" name="foto" class="form-control" accept="image/*" onchange="previewPhoto(this)">
+                                <small style="color: var(--secondary);">Format: JPG, PNG (max 2MB) - Untuk bukti visual kondisi alat</small>
+                                <div id="photoPreview" style="margin-top: 12px; display: none;">
+                                    <img id="previewImg" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     
                     <div class="form-group">
                         <label class="form-label">Catatan Petugas</label>

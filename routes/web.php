@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
         
         // Activity Log
         Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.index');
+        Route::get('/activity-log/export', [ActivityLogController::class, 'export'])->name('activity.export');
         
         // Checklist Template Management
         Route::resource('checklist', \App\Http\Controllers\ChecklistTemplateController::class)->except(['show']);
@@ -88,7 +89,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
         Route::post('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
         Route::post('/peminjaman/{peminjaman}/reject', [PeminjamanController::class, 'reject'])->name('peminjaman.reject');
-        Route::post('/peminjaman/{peminjaman}/handover', [PeminjamanController::class, 'handover'])->name('peminjaman.handover');
+        Route::get('/peminjaman/{peminjaman}/handover', [PeminjamanController::class, 'handover'])->name('peminjaman.handover');
+        Route::post('/peminjaman/{peminjaman}/handover', [PeminjamanController::class, 'storeHandover'])->name('peminjaman.handover.store');
 
         
         // Pengembalian Management
@@ -110,6 +112,10 @@ Route::middleware('auth')->group(function () {
         
         // Laporan Asset Health
         Route::get('/laporan/asset-health', [\App\Http\Controllers\LaporanController::class, 'assetHealth'])->name('laporan.asset-health');
+        
+        // Advanced Analytics (Admin only)
+        Route::get('/laporan/damage-analytics', [\App\Http\Controllers\LaporanController::class, 'damageAnalytics'])->name('laporan.damage-analytics');
+        Route::get('/laporan/asset-lifecycle', [\App\Http\Controllers\LaporanController::class, 'assetLifecycle'])->name('laporan.asset-lifecycle');
         
         // Pengaduan Management (Admin/Petugas - bisa update status)
         Route::patch('/pengaduan/{pengaduan}/status', [PengaduanController::class, 'updateStatus'])->name('pengaduan.update-status');

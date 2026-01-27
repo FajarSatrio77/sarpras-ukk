@@ -8,6 +8,9 @@
         <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">Activity Log</h1>
         <p style="color: var(--secondary);">Riwayat aktivitas pengguna dalam sistem</p>
     </div>
+    <a href="{{ route('activity.export', request()->query()) }}" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px;">
+        <i class="bi bi-download"></i> Export CSV
+    </a>
 </div>
 
 <!-- Statistik -->

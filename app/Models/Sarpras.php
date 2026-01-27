@@ -92,4 +92,28 @@ class Sarpras extends Model
         // Format: XXX-001
         return $prefix . '-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
     }
+
+    /**
+     * Relasi: Sarpras memiliki banyak unit individual
+     */
+    public function units()
+    {
+        return $this->hasMany(SarprasUnit::class);
+    }
+
+    /**
+     * Get unit yang tersedia untuk dipinjam
+     */
+    public function unitsTersedia()
+    {
+        return $this->units()->tersedia();
+    }
+
+    /**
+     * Get jumlah unit tersedia
+     */
+    public function getJumlahUnitTersediaAttribute()
+    {
+        return $this->units()->tersedia()->count();
+    }
 }
