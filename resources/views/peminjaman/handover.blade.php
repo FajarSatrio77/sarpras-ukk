@@ -158,13 +158,18 @@
     transition: all 0.2s ease;
     border: 2px solid #dee2e6;
 }
-.unit-card:hover {
+.unit-card:hover:not(.disabled) {
     border-color: #0d6efd;
     background-color: #f8f9ff;
 }
 .unit-card.selected {
     border-color: #198754;
     background-color: #d1e7dd;
+}
+.unit-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
 }
 .unit-card .form-check-input:checked ~ .form-check-label {
     font-weight: 500;
@@ -184,20 +189,30 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedCount.textContent = checked;
         
         const percentage = (checked / requiredCount) * 100;
-        progressBar.style.width = percentage + '%';
+        progressBar.style.width = Math.min(percentage, 100) + '%';
         
         if (checked === requiredCount) {
-            progressBar.classList.remove('bg-warning');
+            progressBar.classList.remove('bg-warning', 'bg-danger');
             progressBar.classList.add('bg-success');
             submitBtn.disabled = false;
-        } else if (checked > requiredCount) {
-            progressBar.classList.remove('bg-success');
-            progressBar.classList.add('bg-danger');
-            submitBtn.disabled = true;
+            
+            // Disable unchecked checkboxes
+            checkboxes.forEach(function(cb) {
+                if (!cb.checked) {
+                    cb.disabled = true;
+                    cb.closest('.unit-card').classList.add('disabled');
+                }
+            });
         } else {
             progressBar.classList.remove('bg-success', 'bg-danger');
             progressBar.classList.add('bg-warning');
             submitBtn.disabled = true;
+            
+            // Enable all checkboxes
+            checkboxes.forEach(function(cb) {
+                cb.disabled = false;
+                cb.closest('.unit-card').classList.remove('disabled');
+            });
         }
     }
 
@@ -215,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Click on card to toggle checkbox
         const card = checkbox.closest('.unit-card');
         card.addEventListener('click', function(e) {
-            if (e.target.type !== 'checkbox') {
+            if (e.target.type !== 'checkbox' && !checkbox.disabled) {
                 checkbox.checked = !checkbox.checked;
                 checkbox.dispatchEvent(new Event('change'));
             }

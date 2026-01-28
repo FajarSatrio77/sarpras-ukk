@@ -119,14 +119,11 @@
                             @endif
                             
                             @if($item->status == 'disetujui')
-                            <!-- Tombol Serahkan Barang -->
-                            <form action="{{ route('peminjaman.handover', $item) }}" method="POST" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="btn btn-outline" style="padding: 6px 10px; color: var(--info);" 
-                                        title="Serahkan Barang" onclick="return confirm('Serahkan barang ke peminjam?')">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                </button>
-                            </form>
+                            {{-- Tombol Serahkan Barang - menuju form pemilihan unit --}}
+                            <a href="{{ route('peminjaman.handover', $item) }}" class="btn btn-outline" 
+                               style="padding: 6px 10px; color: var(--info);" title="Serahkan Barang">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </a>
                             @endif
                             
                             @if($item->status == 'dipinjam')

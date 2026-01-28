@@ -104,10 +104,30 @@ class SarprasController extends Controller
 
         $sarpras = Sarpras::create($data);
 
-        ActivityLog::log('tambah_sarpras', 'Menambah sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ')');
+        // Generate sarpras_unit records berdasarkan jumlah_stok
+        if ($request->jumlah_stok > 0) {
+            $this->generateUnits($sarpras, $request->jumlah_stok, $request->kondisi);
+        }
+
+        ActivityLog::log('tambah_sarpras', 'Menambah sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ') dengan ' . $request->jumlah_stok . ' unit');
 
         return redirect()->route('sarpras.index')
-            ->with('success', 'Sarpras berhasil ditambahkan.');
+            ->with('success', 'Sarpras berhasil ditambahkan dengan ' . $request->jumlah_stok . ' unit.');
+    }
+
+    /**
+     * Generate sarpras_unit records
+     */
+    private function generateUnits(Sarpras $sarpras, int $count, string $kondisi = 'baik')
+    {
+        for ($i = 1; $i <= $count; $i++) {
+            \App\Models\SarprasUnit::create([
+                'sarpras_id' => $sarpras->id,
+                'kode_unit' => \App\Models\SarprasUnit::generateKodeUnit($sarpras->id),
+                'kondisi' => $kondisi,
+                'status' => 'tersedia',
+            ]);
+        }
     }
 
     /**
@@ -115,7 +135,9 @@ class SarprasController extends Controller
      */
     public function show(Sarpras $sarpras)
     {
-        $sarpras->load('kategori');
+        $sarpras->load(['kategori', 'units' => function($query) {
+            $query->orderBy('kode_unit');
+        }]);
         return view('sarpras.show', compact('sarpras'));
     }
 
@@ -138,7 +160,6 @@ class SarprasController extends Controller
             'nama' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategori_sarpras,id',
             'lokasi' => 'required|string|max:255',
-            'jumlah_stok' => 'required|integer|min:0',
             'kondisi' => 'required|in:baik,rusak_ringan,rusak_berat',
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -148,8 +169,6 @@ class SarprasController extends Controller
             'nama.required' => 'Nama sarpras wajib diisi.',
             'kategori_id.required' => 'Kategori wajib dipilih.',
             'lokasi.required' => 'Lokasi wajib diisi.',
-            'jumlah_stok.required' => 'Jumlah stok wajib diisi.',
-            'jumlah_stok.min' => 'Jumlah stok tidak boleh negatif.',
             'kondisi.required' => 'Kondisi wajib dipilih.',
         ]);
 
@@ -158,7 +177,6 @@ class SarprasController extends Controller
             'nama' => $request->nama,
             'kategori_id' => $request->kategori_id,
             'lokasi' => $request->lokasi,
-            'jumlah_stok' => $request->jumlah_stok,
             'kondisi' => $request->kondisi,
             'deskripsi' => $request->deskripsi,
         ];
@@ -176,7 +194,7 @@ class SarprasController extends Controller
 
         ActivityLog::log('ubah_sarpras', 'Mengubah sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ')');
 
-        return redirect()->route('sarpras.index')
+        return redirect()->route('sarpras.show', $sarpras)
             ->with('success', 'Sarpras berhasil diperbarui.');
     }
 
@@ -206,5 +224,70 @@ class SarprasController extends Controller
 
         return redirect()->route('sarpras.index')
             ->with('success', 'Sarpras berhasil dihapus.');
+    }
+
+    /**
+     * Tambah unit baru ke sarpras
+     */
+    public function addUnit(Request $request, Sarpras $sarpras)
+    {
+        $request->validate([
+            'kondisi' => 'required|in:baik,rusak_ringan,rusak_berat',
+            'catatan' => 'nullable|string|max:255',
+        ]);
+
+        $unit = \App\Models\SarprasUnit::create([
+            'sarpras_id' => $sarpras->id,
+            'kode_unit' => \App\Models\SarprasUnit::generateKodeUnit($sarpras->id),
+            'kondisi' => $request->kondisi,
+            'status' => 'tersedia',
+            'catatan' => $request->catatan,
+        ]);
+
+        // Sync jumlah_stok dengan jumlah unit tersedia
+        $this->syncStock($sarpras);
+
+        ActivityLog::log('tambah_unit', 'Menambah unit ' . $unit->kode_unit . ' ke sarpras ' . $sarpras->nama);
+
+        return redirect()->route('sarpras.show', $sarpras)
+            ->with('success', 'Unit ' . $unit->kode_unit . ' berhasil ditambahkan.');
+    }
+
+    /**
+     * Hapus unit dari sarpras
+     */
+    public function deleteUnit(Sarpras $sarpras, \App\Models\SarprasUnit $unit)
+    {
+        // Validasi unit milik sarpras ini
+        if ($unit->sarpras_id !== $sarpras->id) {
+            return redirect()->route('sarpras.show', $sarpras)
+                ->with('error', 'Unit tidak ditemukan.');
+        }
+
+        // Cek apakah unit sedang dipinjam
+        if ($unit->status === 'dipinjam') {
+            return redirect()->route('sarpras.show', $sarpras)
+                ->with('error', 'Unit ' . $unit->kode_unit . ' tidak dapat dihapus karena sedang dipinjam.');
+        }
+
+        $kodeUnit = $unit->kode_unit;
+        $unit->delete();
+
+        // Sync jumlah_stok dengan jumlah unit tersedia
+        $this->syncStock($sarpras);
+
+        ActivityLog::log('hapus_unit', 'Menghapus unit ' . $kodeUnit . ' dari sarpras ' . $sarpras->nama);
+
+        return redirect()->route('sarpras.show', $sarpras)
+            ->with('success', 'Unit ' . $kodeUnit . ' berhasil dihapus.');
+    }
+
+    /**
+     * Sync jumlah_stok dengan jumlah unit tersedia
+     */
+    private function syncStock(Sarpras $sarpras)
+    {
+        $jumlahTersedia = $sarpras->units()->where('status', 'tersedia')->count();
+        $sarpras->update(['jumlah_stok' => $jumlahTersedia]);
     }
 }

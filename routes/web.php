@@ -85,6 +85,10 @@ Route::middleware('auth')->group(function () {
         // Generate Kode Sarpras (AJAX)
         Route::get('/sarpras/generate-kode/{kategori}', [SarprasController::class, 'generateKode'])->name('sarpras.generate-kode');
         
+        // Sarpras Unit Management
+        Route::post('/sarpras/{sarpras}/unit', [SarprasController::class, 'addUnit'])->name('sarpras.unit.add');
+        Route::delete('/sarpras/{sarpras}/unit/{unit}', [SarprasController::class, 'deleteUnit'])->name('sarpras.unit.delete');
+        
         // Peminjaman Management (Admin/Petugas)
         Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
         Route::post('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');

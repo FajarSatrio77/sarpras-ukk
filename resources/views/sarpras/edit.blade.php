@@ -79,15 +79,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
                     <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                            Jumlah Stok <span style="color: var(--danger);">*</span>
-                        </label>
-                        <input type="number" name="jumlah_stok" value="{{ old('jumlah_stok', $sarpras->jumlah_stok) }}" min="0"
-                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                               required>
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                            Kondisi <span style="color: var(--danger);">*</span>
+                            Kondisi Default <span style="color: var(--danger);">*</span>
                         </label>
                         <select name="kondisi" required
                                 style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;">
@@ -95,6 +87,17 @@
                             <option value="rusak_ringan" {{ old('kondisi', $sarpras->kondisi) == 'rusak_ringan' ? 'selected' : '' }}>⚠ Rusak Ringan</option>
                             <option value="rusak_berat" {{ old('kondisi', $sarpras->kondisi) == 'rusak_berat' ? 'selected' : '' }}>✗ Rusak Berat</option>
                         </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                            Jumlah Stok
+                        </label>
+                        <div style="padding: 12px 16px; background: var(--gray-50); border-radius: 10px; border: 2px solid #e2e8f0;">
+                            <span style="font-weight: 600; color: var(--primary);">{{ $sarpras->jumlah_stok }} unit tersedia</span>
+                            <p style="font-size: 0.8rem; color: var(--secondary); margin-top: 4px;">
+                                Kelola stok melalui <a href="{{ route('sarpras.show', $sarpras) }}#units">daftar unit</a>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
