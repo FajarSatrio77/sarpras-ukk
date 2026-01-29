@@ -94,6 +94,7 @@ class SarprasController extends Controller
             'lokasi' => $request->lokasi,
             'jumlah_stok' => $request->jumlah_stok,
             'kondisi' => $request->kondisi,
+            'sekali_pakai' => $request->boolean('sekali_pakai'),
             'deskripsi' => $request->deskripsi,
         ];
 
@@ -178,6 +179,7 @@ class SarprasController extends Controller
             'kategori_id' => $request->kategori_id,
             'lokasi' => $request->lokasi,
             'kondisi' => $request->kondisi,
+            'sekali_pakai' => $request->boolean('sekali_pakai'),
             'deskripsi' => $request->deskripsi,
         ];
 

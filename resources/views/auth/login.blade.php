@@ -326,12 +326,15 @@
                     @csrf
                     
                     <div class="form-group">
-                        <label class="form-label">NISN</label>
+                        <label class="form-label">NISN/NIP</label>
                         <div class="input-icon-wrapper">
                             <i class="bi bi-person-badge"></i>
                             <input type="text" name="nisn" class="form-input @error('nisn') error @enderror" 
-                                   value="{{ old('nisn') }}" placeholder="Masukkan NISN" required autofocus>
+                                   value="{{ old('nisn') }}" placeholder="Masukkan NISN atau NIP" required autofocus>
                         </div>
+                        <p style="font-size: 0.8rem; color: #64748b; margin-top: 6px;">
+                            <i class="bi bi-info-circle"></i> Guru login dengan NIP (18 digit)
+                        </p>
                     </div>
 
                     <div class="form-group">

@@ -110,6 +110,15 @@
                 </div>
 
                 <div style="margin-top: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="sekali_pakai" value="1" {{ old('sekali_pakai') ? 'checked' : '' }}
+                               style="width: 20px; height: 20px; accent-color: var(--primary);">
+                        <span style="font-weight: 500; color: var(--dark);">Barang Sekali Pakai</span>
+                        <span style="font-size: 0.85rem; color: var(--secondary);">(Khusus Guru - contoh: spidol, kertas, dll)</span>
+                    </label>
+                </div>
+
+                <div style="margin-top: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Deskripsi
                     </label>

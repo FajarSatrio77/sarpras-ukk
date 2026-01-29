@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\Auth;
 class PeminjamanController extends Controller
 {
     /**
-     * Daftar sarpras tersedia untuk dipinjam (Pengguna)
+     * Daftar sarpras tersedia untuk dipinjam (Pengguna dan Guru)
      */
     public function daftarSarpras(Request $request)
     {
-        $query = Sarpras::with('kategori')->tersedia();
+        $query = Sarpras::with('kategori')
+            ->tersedia()
+            ->tersediaUntukUser(auth()->user()); // Filter berdasarkan role (guru bisa lihat sekali pakai)
 
         // Filter berdasarkan kategori
         if ($request->filled('kategori')) {

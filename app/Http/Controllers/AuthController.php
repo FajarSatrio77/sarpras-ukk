@@ -17,7 +17,7 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             // Redirect berdasarkan role
-            if (Auth::user()->isPengguna()) {
+            if (Auth::user()->isPeminjam()) {
                 return redirect()->route('peminjaman.daftar');
             }
             return redirect()->route('dashboard');
@@ -34,7 +34,7 @@ class AuthController extends Controller
             'nisn' => 'required|string',
             'password' => 'required',
         ], [
-            'nisn.required' => 'NISN wajib diisi.',
+            'nisn.required' => 'NISN/NIP wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
@@ -49,15 +49,15 @@ class AuthController extends Controller
             // Catat aktivitas login
             ActivityLog::log('login', 'User ' . Auth::user()->name . ' berhasil login');
 
-            // Redirect berdasarkan role
-            $redirectRoute = Auth::user()->isPengguna() ? 'peminjaman.daftar' : 'dashboard';
+            // Redirect berdasarkan role (guru dan pengguna ke daftar peminjaman)
+            $redirectRoute = Auth::user()->isPeminjam() ? 'peminjaman.daftar' : 'dashboard';
 
             return redirect()->intended(route($redirectRoute))
                 ->with('success', 'Selamat datang, ' . Auth::user()->name . '!');
         }
 
         return back()->withErrors([
-            'nisn' => 'NISN atau password salah.',
+            'nisn' => 'NISN/NIP atau password salah.',
         ])->onlyInput('nisn');
     }
 
@@ -119,7 +119,7 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             // Redirect berdasarkan role
-            if (Auth::user()->isPengguna()) {
+            if (Auth::user()->isPeminjam()) {
                 return redirect()->route('peminjaman.daftar');
             }
             return redirect()->route('dashboard');

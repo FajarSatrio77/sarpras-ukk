@@ -18,6 +18,7 @@ class Sarpras extends Model
         'lokasi',
         'jumlah_stok',
         'kondisi',
+        'sekali_pakai',
         'deskripsi',
         'foto',
     ];
@@ -52,6 +53,28 @@ class Sarpras extends Model
     public function scopeKondisi($query, $kondisi)
     {
         return $query->where('kondisi', $kondisi);
+    }
+
+    /**
+     * Scope: Filter barang sekali pakai (consumable)
+     */
+    public function scopeSekalaiPakai($query, $value = true)
+    {
+        return $query->where('sekali_pakai', $value);
+    }
+
+    /**
+     * Scope: Filter sarpras yang tersedia untuk user berdasarkan role
+     * - Guru: bisa lihat semua barang termasuk sekali pakai
+     * - Pengguna biasa: hanya barang non-sekali pakai
+     */
+    public function scopeTersediaUntukUser($query, $user)
+    {
+        // Jika user bukan guru, exclude barang sekali pakai
+        if (!$user->canBorrowConsumable()) {
+            $query->where('sekali_pakai', false);
+        }
+        return $query;
     }
 
     /**

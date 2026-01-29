@@ -101,6 +101,9 @@
                                 <span class="badge badge-danger">Rusak Berat</span>
                                 @break
                         @endswitch
+                        @if($item->sekali_pakai)
+                            <span class="badge badge-info" style="margin-left: 4px;" title="Barang sekali pakai khusus guru">Guru</span>
+                        @endif
                     </td>
                     <td>
                         <div style="display: flex; gap: 6px;">

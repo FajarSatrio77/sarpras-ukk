@@ -51,7 +51,17 @@
         </div>
         <div class="stat-content">
             <h3>{{ $statistik['pengguna'] }}</h3>
-            <p>Pengguna</p>
+            <p>Siswa</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <i class="bi bi-person-workspace"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ $statistik['guru'] ?? 0 }}</h3>
+            <p>Guru</p>
         </div>
     </div>
 </div>
@@ -75,7 +85,8 @@
                     <option value="">Semua Role</option>
                     <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                     <option value="petugas" {{ request('role') == 'petugas' ? 'selected' : '' }}>Petugas</option>
-                    <option value="pengguna" {{ request('role') == 'pengguna' ? 'selected' : '' }}>Pengguna</option>
+                    <option value="guru" {{ request('role') == 'guru' ? 'selected' : '' }}>Guru</option>
+                    <option value="pengguna" {{ request('role') == 'pengguna' ? 'selected' : '' }}>Siswa</option>
                 </select>
             </div>
             
@@ -149,8 +160,11 @@
                             @case('petugas')
                                 <span class="badge badge-info"><i class="bi bi-person-badge"></i> Petugas</span>
                                 @break
+                            @case('guru')
+                                <span class="badge badge-warning"><i class="bi bi-person-workspace"></i> Guru</span>
+                                @break
                             @case('pengguna')
-                                <span class="badge badge-success"><i class="bi bi-person"></i> Pengguna</span>
+                                <span class="badge badge-success"><i class="bi bi-person"></i> Siswa</span>
                                 @break
                         @endswitch
                     </td>

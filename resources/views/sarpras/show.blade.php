@@ -80,6 +80,14 @@
                         @endswitch
                     </td>
                 </tr>
+                @if($sarpras->sekali_pakai)
+                <tr>
+                    <td style="padding: 10px 0; color: var(--secondary);">Tipe</td>
+                    <td style="padding: 10px 0;">
+                        <span class="badge badge-info">🔷 Barang Sekali Pakai (Khusus Guru)</span>
+                    </td>
+                </tr>
+                @endif
                 <tr>
                     <td style="padding: 10px 0; color: var(--secondary);">Deskripsi</td>
                     <td style="padding: 10px 0;">{{ $sarpras->deskripsi ?? '-' }}</td>

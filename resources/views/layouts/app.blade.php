@@ -1422,7 +1422,7 @@
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a href="{{ auth()->user()->isPengguna() ? route('peminjaman.daftar') : route('dashboard') }}" 
+        <a href="{{ auth()->user()->isPeminjam() ? route('peminjaman.daftar') : route('dashboard') }}" 
            class="bottom-nav-item {{ request()->routeIs('dashboard', 'peminjaman.daftar') ? 'active' : '' }}">
             <i class="bi bi-grid-1x2"></i>
             <span>Beranda</span>
@@ -1458,7 +1458,7 @@
             </a>
             @endif
 
-            @if(auth()->user()->isPengguna())
+            @if(auth()->user()->isPeminjam())
             <div class="menu-label">Peminjaman</div>
             <a href="{{ route('peminjaman.daftar') }}" class="nav-item {{ request()->routeIs('peminjaman.daftar', 'peminjaman.create') ? 'active' : '' }}">
                 <i class="bi bi-cart-plus"></i>
@@ -1483,7 +1483,7 @@
             @endif
 
             <div class="menu-label">Layanan</div>
-            @if(auth()->user()->isPengguna())
+            @if(auth()->user()->isPeminjam())
             <a href="{{ route('pengaduan.create') }}" class="nav-item {{ request()->routeIs('pengaduan.create') ? 'active' : '' }}">
                 <i class="bi bi-megaphone"></i>
                 <span>Buat Pengaduan</span>

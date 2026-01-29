@@ -53,6 +53,7 @@ class UserController extends Controller
             'total' => User::count(),
             'admin' => User::where('role', 'admin')->count(),
             'petugas' => User::where('role', 'petugas')->count(),
+            'guru' => User::where('role', 'guru')->count(),
             'pengguna' => User::where('role', 'pengguna')->count(),
         ];
 
@@ -76,7 +77,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'nisn' => 'required|string|max:20|unique:users,nisn',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:admin,petugas,pengguna',
+            'role' => 'required|in:admin,petugas,guru,pengguna',
             'kelas' => 'nullable|string|max:50',
         ], [
             'name.required' => 'Nama wajib diisi',
@@ -140,7 +141,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:6|confirmed',
-            'role' => 'required|in:admin,petugas,pengguna',
+            'role' => 'required|in:admin,petugas,guru,pengguna',
             'kelas' => 'nullable|string|max:50',
         ], [
             'name.required' => 'Nama wajib diisi',

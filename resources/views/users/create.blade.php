@@ -32,11 +32,11 @@
                 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                        NISN <span style="color: var(--danger);">*</span>
+                        NISN/NIP <span style="color: var(--danger);">*</span>
                     </label>
                     <input type="text" name="nisn" value="{{ old('nisn') }}"
                         style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                        placeholder="Contoh: 0012345678" required>
+                        placeholder="NISN (siswa) atau NIP 18 digit (guru)" required>
                     @error('nisn')
                         <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
                     @enderror
@@ -63,7 +63,8 @@
                         <option value="">-- Pilih Role --</option>
                         <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="petugas" {{ old('role') == 'petugas' ? 'selected' : '' }}>Petugas</option>
-                        <option value="pengguna" {{ old('role') == 'pengguna' ? 'selected' : '' }}>Pengguna</option>
+                        <option value="guru" {{ old('role') == 'guru' ? 'selected' : '' }}>Guru</option>
+                        <option value="pengguna" {{ old('role') == 'pengguna' ? 'selected' : '' }}>Pengguna (Siswa)</option>
                     </select>
                     @error('role')
                         <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
@@ -128,13 +129,23 @@
                     </p>
                 </div>
                 
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <span class="badge badge-warning"><i class="bi bi-person-workspace"></i> Guru</span>
+                        <span style="font-weight: 600;">Guru/Pengajar</span>
+                    </div>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--secondary);">
+                        Sama seperti pengguna, plus bisa meminjam barang sekali pakai (alat tulis). Login dengan NIP 18 digit.
+                    </p>
+                </div>
+                
                 <div>
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
                         <span class="badge badge-success"><i class="bi bi-person"></i> Pengguna</span>
-                        <span style="font-weight: 600;">Pengguna Umum</span>
+                        <span style="font-weight: 600;">Pengguna (Siswa)</span>
                     </div>
                     <p style="margin: 0; font-size: 0.875rem; color: var(--secondary);">
-                        Mengajukan peminjaman, melihat riwayat peminjaman, dan membuat pengaduan.
+                        Mengajukan peminjaman barang umum, melihat riwayat peminjaman, dan membuat pengaduan.
                     </p>
                 </div>
             </div>

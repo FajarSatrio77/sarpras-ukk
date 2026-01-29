@@ -134,9 +134,9 @@ Route::middleware('auth')->group(function () {
     });
     
     // =============================================
-    // Pengguna Routes
+    // Pengguna & Guru Routes
     // =============================================
-    Route::middleware('role:pengguna')->group(function () {
+    Route::middleware('role:pengguna,guru')->group(function () {
         // Daftar Sarpras untuk Dipinjam
         Route::get('/pinjam', [PeminjamanController::class, 'daftarSarpras'])->name('peminjaman.daftar');
         
@@ -147,7 +147,7 @@ Route::middleware('auth')->group(function () {
         // Riwayat Peminjaman
         Route::get('/riwayat-peminjaman', [PeminjamanController::class, 'riwayat'])->name('peminjaman.riwayat');
         
-        // Buat Pengaduan (Pengguna only)
+        // Buat Pengaduan (Pengguna dan Guru)
         Route::get('/pengaduan/create', [PengaduanController::class, 'create'])->name('pengaduan.create');
         Route::post('/pengaduan', [PengaduanController::class, 'store'])->name('pengaduan.store');
     });

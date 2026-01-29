@@ -63,11 +63,35 @@ class User extends Authenticatable
     }
 
     /**
-     * Cek apakah user adalah Pengguna
+     * Cek apakah user adalah Pengguna (siswa)
      */
     public function isPengguna(): bool
     {
         return $this->role === 'pengguna';
+    }
+
+    /**
+     * Cek apakah user adalah Guru
+     */
+    public function isGuru(): bool
+    {
+        return $this->role === 'guru';
+    }
+
+    /**
+     * Cek apakah user adalah Pengguna atau Guru (untuk akses peminjaman)
+     */
+    public function isPeminjam(): bool
+    {
+        return $this->isPengguna() || $this->isGuru();
+    }
+
+    /**
+     * Cek apakah user bisa meminjam barang sekali pakai (hanya guru)
+     */
+    public function canBorrowConsumable(): bool
+    {
+        return $this->isGuru();
     }
 
     /**
@@ -94,3 +118,4 @@ class User extends Authenticatable
         return $this->hasMany(Pengaduan::class);
     }
 }
+

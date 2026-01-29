@@ -64,7 +64,8 @@
                         {{ $user->id === auth()->id() ? 'disabled' : '' }}>
                         <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="petugas" {{ old('role', $user->role) == 'petugas' ? 'selected' : '' }}>Petugas</option>
-                        <option value="pengguna" {{ old('role', $user->role) == 'pengguna' ? 'selected' : '' }}>Pengguna</option>
+                        <option value="guru" {{ old('role', $user->role) == 'guru' ? 'selected' : '' }}>Guru</option>
+                        <option value="pengguna" {{ old('role', $user->role) == 'pengguna' ? 'selected' : '' }}>Pengguna (Siswa)</option>
                     </select>
                     @if($user->id === auth()->id())
                     <input type="hidden" name="role" value="{{ $user->role }}">
@@ -131,6 +132,9 @@
                         @break
                     @case('petugas')
                         <span class="badge badge-info"><i class="bi bi-person-badge"></i> Petugas</span>
+                        @break
+                    @case('guru')
+                        <span class="badge badge-warning"><i class="bi bi-person-workspace"></i> Guru</span>
                         @break
                     @case('pengguna')
                         <span class="badge badge-success"><i class="bi bi-person"></i> Pengguna</span>
