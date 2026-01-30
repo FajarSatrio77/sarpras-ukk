@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CatatanPengaduan;
 use App\Models\KategoriSarpras;
+use App\Models\Peminjaman;
 use App\Models\Pengaduan;
 use App\Models\Sarpras;
 use Illuminate\Http\Request;
@@ -60,7 +61,23 @@ class PengaduanController extends Controller
     public function create()
     {
         $kategori = KategoriSarpras::orderBy('nama')->get();
-        $sarpras = Sarpras::orderBy('nama')->get();
+        
+        // Untuk pengguna biasa, hanya tampilkan barang yang pernah dipinjam
+        if (Auth::user()->isPengguna() || Auth::user()->isGuru()) {
+            // Ambil sarpras_id yang pernah dipinjam user ini
+            $borrowedSarprasIds = Peminjaman::where('user_id', Auth::id())
+                ->whereIn('status', ['disetujui', 'dipinjam', 'dikembalikan', 'selesai'])
+                ->pluck('sarpras_id')
+                ->unique()
+                ->toArray();
+            
+            $sarpras = Sarpras::whereIn('id', $borrowedSarprasIds)
+                ->orderBy('nama')
+                ->get();
+        } else {
+            // Admin/Petugas bisa lihat semua sarpras
+            $sarpras = Sarpras::orderBy('nama')->get();
+        }
         
         return view('pengaduan.create', compact('kategori', 'sarpras'));
     }
