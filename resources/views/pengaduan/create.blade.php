@@ -79,6 +79,61 @@
         color: #1e3a8a;
         font-size: 0.85rem;
     }
+
+    .loan-info-box {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 1px solid #86efac;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+        display: none;
+    }
+
+    .loan-info-box.show {
+        display: block;
+    }
+
+    .loan-info-box h5 {
+        margin: 0 0 12px;
+        color: #166534;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .loan-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .loan-info-item {
+        background: white;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #bbf7d0;
+    }
+
+    .loan-info-item label {
+        display: block;
+        font-size: 0.75rem;
+        color: #15803d;
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+
+    .loan-info-item span {
+        font-size: 0.9rem;
+        color: var(--dark);
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .loan-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @endpush
 
@@ -112,6 +167,69 @@
                         @enderror
                     </div>
                     
+                    @if($peminjaman->count() > 0)
+                    <!-- Pilih dari Riwayat Peminjaman -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            Pilih dari Riwayat Peminjaman
+                        </label>
+                        <select class="form-control" id="peminjamanSelect">
+                            <option value="">-- Pilih Barang yang Pernah Dipinjam --</option>
+                            @foreach($peminjaman as $pinjam)
+                            <option value="{{ $pinjam->id }}" 
+                                data-sarpras="{{ $pinjam->sarpras->nama ?? '' }} ({{ $pinjam->sarpras->kode ?? '' }})"
+                                data-kode="{{ $pinjam->kode_peminjaman }}"
+                                data-tgl-pinjam="{{ $pinjam->tgl_pinjam ? $pinjam->tgl_pinjam->format('d/m/Y') : '-' }}"
+                                data-tgl-kembali="{{ $pinjam->tgl_kembali_rencana ? $pinjam->tgl_kembali_rencana->format('d/m/Y') : '-' }}"
+                                data-tgl-kembali-aktual="{{ $pinjam->tgl_kembali_aktual ? $pinjam->tgl_kembali_aktual->format('d/m/Y') : '-' }}"
+                                data-jumlah="{{ $pinjam->jumlah }}"
+                                data-tujuan="{{ $pinjam->tujuan }}"
+                                data-status="{{ $pinjam->status }}">
+                                {{ $pinjam->sarpras->nama ?? 'N/A' }} - {{ $pinjam->kode_peminjaman }} ({{ $pinjam->tgl_pinjam ? $pinjam->tgl_pinjam->format('d/m/Y') : '-' }})
+                            </option>
+                            @endforeach
+                        </select>
+                        <p class="form-hint">Pilih barang yang pernah Anda pinjam untuk mengisi data otomatis</p>
+                    </div>
+
+                    <!-- Info Peminjaman yang Dipilih -->
+                    <div class="loan-info-box" id="loanInfoBox">
+                        <h5><i class="bi bi-info-circle-fill"></i> Detail Peminjaman</h5>
+                        <div class="loan-info-grid">
+                            <div class="loan-info-item">
+                                <label>Kode Peminjaman</label>
+                                <span id="infoKode">-</span>
+                            </div>
+                            <div class="loan-info-item">
+                                <label>Status</label>
+                                <span id="infoStatus">-</span>
+                            </div>
+                            <div class="loan-info-item">
+                                <label>Tanggal Pinjam</label>
+                                <span id="infoTglPinjam">-</span>
+                            </div>
+                            <div class="loan-info-item">
+                                <label>Tanggal Kembali (Rencana)</label>
+                                <span id="infoTglKembali">-</span>
+                            </div>
+                            <div class="loan-info-item">
+                                <label>Tanggal Kembali (Aktual)</label>
+                                <span id="infoTglKembaliAktual">-</span>
+                            </div>
+                            <div class="loan-info-item">
+                                <label>Jumlah Dipinjam</label>
+                                <span id="infoJumlah">-</span>
+                            </div>
+                            <div class="loan-info-item" style="grid-column: span 2;">
+                                <label>Tujuan Peminjaman</label>
+                                <span id="infoTujuan">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="peminjaman_id" id="peminjamanId">
+                    @endif
+                    
                     <div class="form-group">
                         <label class="form-label">
                             Jenis Barang <span class="required">*</span>
@@ -140,7 +258,7 @@
                         <label class="form-label">
                             Lokasi Sarpras <span class="required">*</span>
                         </label>
-                        <input type="text" name="lokasi" class="form-control" 
+                        <input type="text" name="lokasi" class="form-control" id="lokasiInput"
                             value="{{ old('lokasi') }}"
                             placeholder="Contoh: Lab RPL, Ruang Kelas 2A, Perpustakaan" required>
                         <p class="form-hint">Sebutkan ruangan atau tempat dimana sarpras tersebut berada</p>
@@ -153,7 +271,7 @@
                         <label class="form-label">
                             Deskripsi Masalah <span class="required">*</span>
                         </label>
-                        <textarea name="deskripsi" class="form-control" required
+                        <textarea name="deskripsi" class="form-control" required id="deskripsiInput"
                             placeholder="Jelaskan masalah secara detail...&#10;&#10;Contoh:&#10;- Proyektor tidak bisa menyala ketika dihidupkan&#10;- Lampu indikator berkedip merah&#10;- Sudah dicoba ganti kabel power tapi tetap tidak menyala">{{ old('deskripsi') }}</textarea>
                         @error('deskripsi')
                             <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
@@ -277,5 +395,55 @@
             this.name = 'jenis_sarpras';
         }
     });
+
+    // Handle peminjaman selection
+    const peminjamanSelect = document.getElementById('peminjamanSelect');
+    if (peminjamanSelect) {
+        peminjamanSelect.addEventListener('change', function() {
+            const option = this.options[this.selectedIndex];
+            const loanInfoBox = document.getElementById('loanInfoBox');
+            const jenisSarprasSelect = document.getElementById('jenisSarpras');
+            const peminjamanIdInput = document.getElementById('peminjamanId');
+            
+            if (this.value) {
+                // Show loan info box
+                loanInfoBox.classList.add('show');
+                
+                // Fill loan info
+                document.getElementById('infoKode').textContent = option.dataset.kode || '-';
+                document.getElementById('infoTglPinjam').textContent = option.dataset.tglPinjam || '-';
+                document.getElementById('infoTglKembali').textContent = option.dataset.tglKembali || '-';
+                document.getElementById('infoTglKembaliAktual').textContent = option.dataset.tglKembaliAktual || '-';
+                document.getElementById('infoJumlah').textContent = option.dataset.jumlah || '-';
+                document.getElementById('infoTujuan').textContent = option.dataset.tujuan || '-';
+                
+                // Format status
+                const status = option.dataset.status;
+                const statusLabels = {
+                    'disetujui': 'Disetujui',
+                    'dipinjam': 'Sedang Dipinjam',
+                    'dikembalikan': 'Dikembalikan',
+                    'selesai': 'Selesai'
+                };
+                document.getElementById('infoStatus').textContent = statusLabels[status] || status;
+                
+                // Auto-fill jenis sarpras
+                const sarprasValue = option.dataset.sarpras;
+                for (let i = 0; i < jenisSarprasSelect.options.length; i++) {
+                    if (jenisSarprasSelect.options[i].value === sarprasValue) {
+                        jenisSarprasSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+                
+                // Set peminjaman_id
+                peminjamanIdInput.value = this.value;
+            } else {
+                // Hide loan info box
+                loanInfoBox.classList.remove('show');
+                peminjamanIdInput.value = '';
+            }
+        });
+    }
 </script>
 @endpush

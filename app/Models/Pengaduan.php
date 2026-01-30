@@ -13,6 +13,7 @@ class Pengaduan extends Model
 
     protected $fillable = [
         'user_id',
+        'peminjaman_id',
         'judul',
         'deskripsi',
         'lokasi',
@@ -27,6 +28,14 @@ class Pengaduan extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relasi: Pengaduan terkait satu peminjaman (opsional)
+     */
+    public function peminjaman()
+    {
+        return $this->belongsTo(Peminjaman::class);
     }
 
     /**

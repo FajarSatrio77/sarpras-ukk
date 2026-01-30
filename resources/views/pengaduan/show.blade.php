@@ -136,6 +136,52 @@
                         style="width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                 </div>
                 @endif
+
+                @if($pengaduan->peminjaman)
+                <div style="margin-top: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac; border-radius: 12px; padding: 16px;">
+                    <h5 style="margin: 0 0 12px; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 8px;">
+                        <i class="bi bi-link-45deg"></i> Terkait Peminjaman
+                    </h5>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Kode Peminjaman</span>
+                            <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">{{ $pengaduan->peminjaman->kode_peminjaman }}</span>
+                        </div>
+                        <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Barang</span>
+                            <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">{{ $pengaduan->peminjaman->sarpras->nama ?? '-' }}</span>
+                        </div>
+                        <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Tanggal Pinjam</span>
+                            <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">{{ $pengaduan->peminjaman->tgl_pinjam ? $pengaduan->peminjaman->tgl_pinjam->format('d/m/Y') : '-' }}</span>
+                        </div>
+                        <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Tanggal Kembali</span>
+                            <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">{{ $pengaduan->peminjaman->tgl_kembali_rencana ? $pengaduan->peminjaman->tgl_kembali_rencana->format('d/m/Y') : '-' }}</span>
+                        </div>
+                        <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Jumlah</span>
+                            <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">{{ $pengaduan->peminjaman->jumlah }} unit</span>
+                        </div>
+                        <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Status Peminjaman</span>
+                            <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">
+                                @switch($pengaduan->peminjaman->status)
+                                    @case('disetujui') Disetujui @break
+                                    @case('dipinjam') Sedang Dipinjam @break
+                                    @case('dikembalikan') Dikembalikan @break
+                                    @case('selesai') Selesai @break
+                                    @default {{ ucfirst($pengaduan->peminjaman->status) }}
+                                @endswitch
+                            </span>
+                        </div>
+                        <div style="grid-column: span 2; background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                            <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Tujuan Peminjaman</span>
+                            <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">{{ $pengaduan->peminjaman->tujuan ?? '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
         

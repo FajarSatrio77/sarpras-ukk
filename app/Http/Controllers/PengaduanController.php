@@ -61,15 +61,19 @@ class PengaduanController extends Controller
     public function create()
     {
         $kategori = KategoriSarpras::orderBy('nama')->get();
+        $peminjaman = collect();
         
         // Untuk pengguna biasa, hanya tampilkan barang yang pernah dipinjam
         if (Auth::user()->isPengguna() || Auth::user()->isGuru()) {
-            // Ambil sarpras_id yang pernah dipinjam user ini
-            $borrowedSarprasIds = Peminjaman::where('user_id', Auth::id())
+            // Ambil data peminjaman user beserta sarpras-nya
+            $peminjaman = Peminjaman::with('sarpras')
+                ->where('user_id', Auth::id())
                 ->whereIn('status', ['disetujui', 'dipinjam', 'dikembalikan', 'selesai'])
-                ->pluck('sarpras_id')
-                ->unique()
-                ->toArray();
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            // Ambil sarpras_id yang pernah dipinjam
+            $borrowedSarprasIds = $peminjaman->pluck('sarpras_id')->unique()->toArray();
             
             $sarpras = Sarpras::whereIn('id', $borrowedSarprasIds)
                 ->orderBy('nama')
@@ -79,7 +83,7 @@ class PengaduanController extends Controller
             $sarpras = Sarpras::orderBy('nama')->get();
         }
         
-        return view('pengaduan.create', compact('kategori', 'sarpras'));
+        return view('pengaduan.create', compact('kategori', 'sarpras', 'peminjaman'));
     }
 
     /**
@@ -93,6 +97,7 @@ class PengaduanController extends Controller
             'lokasi' => 'required|string|max:255',
             'jenis_sarpras' => 'required|string|max:255',
             'foto' => 'nullable|image|max:2048',
+            'peminjaman_id' => 'nullable|exists:peminjaman,id',
         ], [
             'judul.required' => 'Judul pengaduan wajib diisi',
             'deskripsi.required' => 'Deskripsi masalah wajib diisi',
@@ -108,6 +113,7 @@ class PengaduanController extends Controller
 
         $pengaduan = Pengaduan::create([
             'user_id' => Auth::id(),
+            'peminjaman_id' => $request->peminjaman_id,
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'lokasi' => $request->lokasi,
@@ -130,7 +136,7 @@ class PengaduanController extends Controller
             abort(403);
         }
 
-        $pengaduan->load(['user', 'catatan.user']);
+        $pengaduan->load(['user', 'catatan.user', 'peminjaman.sarpras']);
         
         return view('pengaduan.show', compact('pengaduan'));
     }
