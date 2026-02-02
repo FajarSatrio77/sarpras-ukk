@@ -193,7 +193,7 @@ class PengaduanController extends Controller
     }
 
     /**
-     * Hapus pengaduan
+     * Hapus pengaduan (soft delete)
      */
     public function destroy(Pengaduan $pengaduan)
     {
@@ -204,14 +204,51 @@ class PengaduanController extends Controller
             }
         }
 
-        // Hapus foto jika ada
-        if ($pengaduan->foto) {
-            Storage::disk('public')->delete($pengaduan->foto);
-        }
-
+        // Soft delete - tidak perlu hapus foto
         $pengaduan->delete();
 
         return redirect()->route('pengaduan.index')
             ->with('success', 'Pengaduan berhasil dihapus');
+    }
+
+    /**
+     * Halaman sampah - data yang sudah dihapus
+     */
+    public function trash()
+    {
+        $pengaduan = Pengaduan::onlyTrashed()
+            ->with(['user'])
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(15);
+
+        return view('pengaduan.trash', compact('pengaduan'));
+    }
+
+    /**
+     * Pulihkan data yang sudah dihapus
+     */
+    public function restore($id)
+    {
+        $pengaduan = Pengaduan::onlyTrashed()->findOrFail($id);
+        $pengaduan->restore();
+
+        return back()->with('success', 'Pengaduan berhasil dipulihkan.');
+    }
+
+    /**
+     * Hapus permanen
+     */
+    public function forceDelete($id)
+    {
+        $pengaduan = Pengaduan::onlyTrashed()->findOrFail($id);
+        
+        // Hapus foto jika ada
+        if ($pengaduan->foto) {
+            Storage::disk('public')->delete($pengaduan->foto);
+        }
+        
+        $pengaduan->forceDelete();
+
+        return back()->with('success', 'Pengaduan berhasil dihapus permanen.');
     }
 }

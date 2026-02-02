@@ -140,6 +140,17 @@
                                 <i class="bi bi-printer"></i>
                             </a>
                             @endif
+                            
+                            @if(in_array($item->status, ['dikembalikan', 'ditolak']))
+                            <form action="{{ route('peminjaman.destroy', $item) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline" style="padding: 6px 10px; color: var(--danger);" 
+                                        title="Hapus" onclick="return confirm('Hapus data peminjaman ini?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

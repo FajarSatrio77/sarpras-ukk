@@ -44,28 +44,31 @@
          data-kode="{{ strtolower($item->kode) }}" 
          data-lokasi="{{ strtolower($item->lokasi) }}"
          data-kategori="{{ $item->kategori_id }}"
-         style="overflow: hidden;">
+         style="overflow: hidden; transition: all 0.3s ease; border: none; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
         <!-- Foto -->
-        <div style="height: 160px; background: var(--light); display: flex; align-items: center; justify-content: center;">
+        <div style="height: 180px; background: linear-gradient(135deg, #f8fafc, #e2e8f0); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
             @if($item->foto)
             <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->nama }}" 
-                 style="width: 100%; height: 100%; object-fit: cover;">
+                 style="width: 100%; height: 100%; object-fit: contain; padding: 12px; transition: transform 0.3s ease;">
             @else
-            <i class="bi bi-box-seam" style="font-size: 3rem; color: var(--secondary); opacity: 0.3;"></i>
+            <i class="bi bi-box-seam" style="font-size: 4rem; color: var(--primary); opacity: 0.2;"></i>
             @endif
+            <!-- Stock Badge Overlay -->
+            <span style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                Stok: {{ $item->jumlah_stok }}
+            </span>
         </div>
         
         <!-- Info -->
-        <div style="padding: 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                <span class="badge badge-primary">{{ $item->kategori->nama ?? '-' }}</span>
-                <span class="badge badge-success">Stok: {{ $item->jumlah_stok }}</span>
-            </div>
-            <h4 style="font-weight: 600; color: var(--dark); margin-bottom: 4px;">{{ $item->nama }}</h4>
-            <p style="font-size: 0.85rem; color: var(--secondary); margin-bottom: 12px;">
-                <i class="bi bi-geo-alt"></i> {{ $item->lokasi }}
+        <div style="padding: 16px 18px 18px;">
+            <span style="display: inline-block; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(99,102,241,0.15)); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-bottom: 10px;">
+                {{ $item->kategori->nama ?? '-' }}
+            </span>
+            <h4 style="font-weight: 700; font-size: 1.1rem; color: var(--dark); margin-bottom: 6px; line-height: 1.3;">{{ $item->nama }}</h4>
+            <p style="font-size: 0.8rem; color: var(--secondary); margin-bottom: 14px; display: flex; align-items: center; gap: 4px;">
+                <i class="bi bi-geo-alt-fill" style="color: var(--primary);"></i> {{ $item->lokasi }}
             </p>
-            <a href="{{ route('peminjaman.create', $item) }}" class="btn btn-primary" style="width: 100%;">
+            <a href="{{ route('peminjaman.create', $item) }}" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 600; border-radius: 10px;">
                 <i class="bi bi-cart-plus"></i> Pinjam
             </a>
         </div>
@@ -198,6 +201,15 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: var(--primary);
     outline: none;
     box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.sarpras-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12) !important;
+}
+
+.sarpras-item:hover img {
+    transform: scale(1.05);
 }
 </style>
 @endpush

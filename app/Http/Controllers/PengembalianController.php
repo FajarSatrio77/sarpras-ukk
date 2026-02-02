@@ -6,6 +6,9 @@ use App\Models\Peminjaman;
 use App\Models\Pengembalian;
 use App\Models\Pengaduan;
 use App\Models\Sarpras;
+use App\Models\ChecklistTemplate;
+use App\Models\Inspection;
+use App\Models\InspectionResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -102,7 +105,10 @@ class PengembalianController extends Controller
         // Cek apakah peminjaman memiliki unit tracking
         $hasUnits = $peminjaman->peminjamanUnits->isNotEmpty();
         
-        return view('pengembalian.create', compact('peminjaman', 'hasUnits'));
+        // Cari template checklist untuk barang ini
+        $template = ChecklistTemplate::findForSarpras($peminjaman->sarpras_id, $peminjaman->sarpras->kategori_id);
+        
+        return view('pengembalian.create', compact('peminjaman', 'hasUnits', 'template'));
     }
 
     /**
@@ -200,6 +206,11 @@ class PengembalianController extends Controller
             $sarpras = $peminjaman->sarpras;
             $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
 
+            // Simpan hasil checklist jika ada
+            if ($request->has('checklist') && is_array($request->checklist)) {
+                $this->saveChecklistResults($peminjaman, $request->checklist, $fotoPath);
+            }
+
             // Buat pengaduan otomatis jika ada unit hilang
             if (in_array('hilang', $conditions)) {
                 $this->createPengaduanOtomatis($peminjaman, $pengembalian);
@@ -286,6 +297,11 @@ class PengembalianController extends Controller
                     // Buat pengaduan otomatis untuk tracking
                     $this->createPengaduanOtomatis($peminjaman, $pengembalian);
                     break;
+            }
+
+            // Simpan hasil checklist jika ada
+            if ($request->has('checklist') && is_array($request->checklist)) {
+                $this->saveChecklistResults($peminjaman, $request->checklist, $fotoPath);
             }
 
             DB::commit();
@@ -438,7 +454,8 @@ class PengembalianController extends Controller
                 DB::raw('COUNT(*) as total_kerusakan'),
                 DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "rusak_ringan" THEN 1 ELSE 0 END) as rusak_ringan'),
                 DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "rusak_berat" THEN 1 ELSE 0 END) as rusak_berat'),
-                DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "hilang" THEN 1 ELSE 0 END) as hilang')
+                DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "hilang" THEN 1 ELSE 0 END) as hilang'),
+                DB::raw('MAX(pengembalian.created_at) as tgl_laporan_terakhir')
             )
             ->groupBy('sarpras.id', 'sarpras.kode', 'sarpras.nama', 'sarpras.lokasi', 'sarpras.kondisi', 'kategori_sarpras.nama')
             ->orderBy('total_kerusakan', 'desc')
@@ -492,10 +509,49 @@ class PengembalianController extends Controller
                 DB::raw('COUNT(*) as total_kerusakan'),
                 DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "rusak_ringan" THEN 1 ELSE 0 END) as rusak_ringan'),
                 DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "rusak_berat" THEN 1 ELSE 0 END) as rusak_berat'),
-                DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "hilang" THEN 1 ELSE 0 END) as hilang')
+                DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "hilang" THEN 1 ELSE 0 END) as hilang'),
+                DB::raw('MAX(pengembalian.created_at) as tgl_laporan_terakhir')
             )
             ->groupBy('sarpras.id', 'sarpras.kode', 'sarpras.nama', 'sarpras.lokasi', 'sarpras.kondisi', 'kategori_sarpras.nama')
             ->orderBy('total_kerusakan', 'desc')
             ->paginate(15);
+    }
+
+    /**
+     * Simpan hasil checklist inspeksi
+     */
+    private function saveChecklistResults(Peminjaman $peminjaman, array $checklistData, $fotoPath = null)
+    {
+        // Tentukan kondisi umum berdasarkan item terburuk
+        $conditions = array_column($checklistData, 'kondisi');
+        $kondisiUmum = 'baik';
+        if (in_array('rusak_berat', $conditions)) {
+            $kondisiUmum = 'rusak_berat';
+        } elseif (in_array('rusak_ringan', $conditions)) {
+            $kondisiUmum = 'rusak_ringan';
+        }
+
+        // Buat record inspeksi
+        $inspection = Inspection::create([
+            'peminjaman_id' => $peminjaman->id,
+            'tipe' => Inspection::TIPE_POST_RETURN,
+            'inspector_id' => Auth::id(),
+            'kondisi_umum' => $kondisiUmum,
+            'ada_kerusakan_baru' => $kondisiUmum !== 'baik',
+            'foto_path' => $fotoPath,
+            'inspected_at' => now(),
+        ]);
+
+        // Simpan hasil per item
+        foreach ($checklistData as $itemId => $data) {
+            InspectionResult::create([
+                'inspection_id' => $inspection->id,
+                'checklist_item_id' => $itemId,
+                'kondisi' => $data['kondisi'] ?? 'baik',
+                'catatan' => $data['catatan'] ?? null,
+            ]);
+        }
+
+        return $inspection;
     }
 }

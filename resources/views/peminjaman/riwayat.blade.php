@@ -60,7 +60,7 @@
                             <a href="{{ route('peminjaman.show', $item) }}" class="btn btn-outline" style="padding: 6px 12px;">
                                 <i class="bi bi-eye"></i> Detail
                             </a>
-                            @if($item->status == 'disetujui' || $item->status == 'dipinjam')
+                            @if(($item->status == 'disetujui' || $item->status == 'dipinjam') && in_array(auth()->user()->role, ['admin', 'petugas']))
                             <a href="{{ route('peminjaman.cetak', $item) }}" class="btn btn-primary" style="padding: 6px 12px;" target="_blank">
                                 <i class="bi bi-qr-code"></i> Tiket
                             </a>

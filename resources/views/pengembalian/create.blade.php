@@ -339,6 +339,44 @@
                         @enderror
                     </div>
 
+                    @if(isset($template) && $template && $template->items->count() > 0)
+                    <!-- Checklist Inspeksi -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-clipboard-check"></i> Checklist - {{ $template->nama }}
+                        </label>
+                        <div class="table-responsive" style="border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <table class="table" style="margin: 0;">
+                                <thead>
+                                    <tr style="background: #f8fafc;">
+                                        <th>Item</th>
+                                        <th style="width: 100px; text-align: center;">Kondisi</th>
+                                        <th style="width: 200px;">Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($template->items as $item)
+                                    <tr>
+                                        <td>{{ $item->nama }}</td>
+                                        <td style="text-align: center; white-space: nowrap;">
+                                            <label style="display: inline-flex; align-items: center; margin-right: 12px; cursor: pointer;">
+                                                <input type="radio" name="checklist[{{ $item->id }}][kondisi]" value="baik" checked> ✅
+                                            </label>
+                                            <label style="display: inline-flex; align-items: center; cursor: pointer;">
+                                                <input type="radio" name="checklist[{{ $item->id }}][kondisi]" value="rusak_berat"> ❌
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="checklist[{{ $item->id }}][catatan]" class="form-control" placeholder="Opsional" style="padding: 6px 10px; font-size: 0.85rem;">
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    @endif
+
                     @if(isset($hasUnits) && $hasUnits && $peminjaman->peminjamanUnits->isNotEmpty())
                         {{-- Per-Unit Condition Form - Simplified --}}
                         <div class="form-group">

@@ -28,8 +28,21 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">Pilih Barang Sarpras</label>
+                <select name="sarpras_id" id="sarprasSelect" class="form-control" onchange="onSarprasChange()">
+                    <option value="">-- Pilih Barang (atau kosongkan untuk semua) --</option>
+                    @foreach($sarprasList as $sarpras)
+                    <option value="{{ $sarpras->id }}" data-kategori="{{ $sarpras->kategori_id }}" {{ old('sarpras_id', $checklist->sarpras_id) == $sarpras->id ? 'selected' : '' }}>
+                        {{ $sarpras->kode }} - {{ $sarpras->nama }}
+                    </option>
+                    @endforeach
+                </select>
+                <small style="color: var(--secondary);">Pilih barang spesifik atau kosongkan untuk berlaku per kategori/global</small>
+            </div>
+
+            <div class="form-group" id="kategoriGroup">
                 <label class="form-label">Kategori Barang</label>
-                <select name="kategori_id" class="form-control">
+                <select name="kategori_id" id="kategoriSelect" class="form-control">
                     <option value="">-- Template Global (Semua Kategori) --</option>
                     @foreach($kategoris as $kategori)
                     <option value="{{ $kategori->id }}" {{ old('kategori_id', $checklist->kategori_id) == $kategori->id ? 'selected' : '' }}>
@@ -84,6 +97,19 @@
 <script>
 let itemIndex = {{ $checklist->items->count() }};
 
+function onSarprasChange() {
+    const sarprasSelect = document.getElementById('sarprasSelect');
+    const kategoriGroup = document.getElementById('kategoriGroup');
+    const kategoriSelect = document.getElementById('kategoriSelect');
+    
+    if (sarprasSelect.value) {
+        kategoriGroup.style.display = 'none';
+        kategoriSelect.value = '';
+    } else {
+        kategoriGroup.style.display = 'block';
+    }
+}
+
 function addItem() {
     const container = document.getElementById('itemsContainer');
     const html = `
@@ -113,6 +139,9 @@ function removeItem(btn) {
         alert('Minimal harus ada 1 item checklist.');
     }
 }
+
+// Init
+onSarprasChange();
 </script>
 @endpush
 @endsection

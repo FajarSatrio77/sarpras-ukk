@@ -12,11 +12,18 @@
             {{ Auth::user()->canManage() ? 'Daftar pengaduan kerusakan barang dari pengguna' : 'Daftar pengaduan yang sudah Anda laporkan' }}
         </p>
     </div>
-    @if(Auth::user()->isPengguna())
-    <a href="{{ route('pengaduan.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Buat Pengaduan
-    </a>
-    @endif
+    <div style="display: flex; gap: 8px;">
+        @if(Auth::user()->canManage())
+        <a href="{{ route('pengaduan.trash') }}" class="btn btn-outline" style="color: var(--secondary);">
+            <i class="bi bi-trash3"></i> Sampah
+        </a>
+        @endif
+        @if(Auth::user()->isPengguna())
+        <a href="{{ route('pengaduan.create') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Buat Pengaduan
+        </a>
+        @endif
+    </div>
 </div>
 
 <!-- Statistik -->
@@ -159,6 +166,16 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-outline" style="padding: 6px 12px; color: var(--danger);">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        @endif
+                        @if(Auth::user()->canManage() && in_array($item->status, ['selesai', 'ditutup']))
+                        <form action="{{ route('pengaduan.destroy', $item) }}" method="POST" style="display: inline;" 
+                              onsubmit="return confirm('Hapus pengaduan ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline" style="padding: 6px 12px; color: var(--danger);" title="Hapus">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>

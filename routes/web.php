@@ -8,6 +8,7 @@ use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\PengaduanController;
 use App\Http\Controllers\SarprasController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,6 +81,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('kategori', KategoriController::class)->except(['show']);
         
         // Sarpras Management
+        Route::get('/sarpras/trash', [SarprasController::class, 'trash'])->name('sarpras.trash');
+        Route::post('/sarpras/{id}/restore', [SarprasController::class, 'restore'])->name('sarpras.restore');
+        Route::delete('/sarpras/{id}/force-delete', [SarprasController::class, 'forceDelete'])->name('sarpras.forceDelete');
         Route::resource('sarpras', SarprasController::class)->parameters(['sarpras' => 'sarpras']);
         
         // Generate Kode Sarpras (AJAX)
@@ -89,14 +93,23 @@ Route::middleware('auth')->group(function () {
         Route::post('/sarpras/{sarpras}/unit', [SarprasController::class, 'addUnit'])->name('sarpras.unit.add');
         Route::delete('/sarpras/{sarpras}/unit/{unit}', [SarprasController::class, 'deleteUnit'])->name('sarpras.unit.delete');
         
+        // Unified Trash Management
+        Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
+
         // Peminjaman Management (Admin/Petugas)
         Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
+        Route::get('/peminjaman/trash', [PeminjamanController::class, 'trash'])->name('peminjaman.trash');
+        Route::post('/peminjaman/{id}/restore', [PeminjamanController::class, 'restore'])->name('peminjaman.restore');
+        Route::delete('/peminjaman/{id}/force-delete', [PeminjamanController::class, 'forceDelete'])->name('peminjaman.forceDelete');
         Route::post('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
         Route::post('/peminjaman/{peminjaman}/reject', [PeminjamanController::class, 'reject'])->name('peminjaman.reject');
         Route::get('/peminjaman/{peminjaman}/handover', [PeminjamanController::class, 'handover'])->name('peminjaman.handover');
         Route::post('/peminjaman/{peminjaman}/handover', [PeminjamanController::class, 'storeHandover'])->name('peminjaman.handover.store');
 
-        
+        // Pengaduan Trash
+        Route::get('/pengaduan/trash', [PengaduanController::class, 'trash'])->name('pengaduan.trash');
+        Route::post('/pengaduan/{id}/restore', [PengaduanController::class, 'restore'])->name('pengaduan.restore');
+        Route::delete('/pengaduan/{id}/force-delete', [PengaduanController::class, 'forceDelete'])->name('pengaduan.forceDelete');        
         // Pengembalian Management
         Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
         Route::get('/pengembalian/scan', [PengembalianController::class, 'scanForm'])->name('pengembalian.scan');
@@ -162,4 +175,5 @@ Route::middleware('auth')->group(function () {
     // Detail peminjaman (semua role bisa akses)
     Route::get('/peminjaman/{peminjaman}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
     Route::get('/peminjaman/{peminjaman}/cetak', [PeminjamanController::class, 'cetak'])->name('peminjaman.cetak');
+    Route::delete('/peminjaman/{peminjaman}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
 });

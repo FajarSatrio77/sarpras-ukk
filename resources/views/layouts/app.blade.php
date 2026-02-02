@@ -1470,11 +1470,35 @@
             </a>
             @endif
 
+                        @if(auth()->user()->canManage())
+            <div class="menu-label">Kelola Data</div>
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <i class="bi bi-people"></i>
+                <span>Kelola User</span>
+            </a>
+            @endif
+            <a href="{{ route('sarpras.index') }}" class="nav-item {{ request()->routeIs('sarpras.*') ? 'active' : '' }}">
+                <i class="bi bi-box"></i>
+                <span>Data Barang</span>
+            </a>
+            <a href="{{ route('kategori.index') }}" class="nav-item {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
+                <i class="bi bi-folder"></i>
+                <span>Kategori</span>
+            </a>
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('checklist.index') }}" class="nav-item {{ request()->routeIs('checklist.*') ? 'active' : '' }}">
+                <i class="bi bi-clipboard-check"></i>
+                <span>Template Checklist</span>
+            </a>
+            @endif
+            @endif
+
             @if(auth()->user()->canManage())
             <div class="menu-label">Transaksi</div>
             <a href="{{ route('peminjaman.index') }}" class="nav-item {{ request()->routeIs('peminjaman.index', 'peminjaman.show') ? 'active' : '' }}">
                 <i class="bi bi-clipboard-check"></i>
-                <span>Data Peminjaman</span>
+                <span>Kelola Peminjaman</span>
             </a>
             <a href="{{ route('pengembalian.scan') }}" class="nav-item {{ request()->routeIs('pengembalian.*') ? 'active' : '' }}">
                 <i class="bi bi-qr-code-scan"></i>
@@ -1500,29 +1524,7 @@
             </a>
             @endif
 
-            @if(auth()->user()->canManage())
-            <div class="menu-label">Kelola Data</div>
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                <i class="bi bi-people"></i>
-                <span>Kelola User</span>
-            </a>
-            @endif
-            <a href="{{ route('sarpras.index') }}" class="nav-item {{ request()->routeIs('sarpras.*') ? 'active' : '' }}">
-                <i class="bi bi-box"></i>
-                <span>Data Barang</span>
-            </a>
-            <a href="{{ route('kategori.index') }}" class="nav-item {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
-                <i class="bi bi-folder"></i>
-                <span>Kategori</span>
-            </a>
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('checklist.index') }}" class="nav-item {{ request()->routeIs('checklist.*') ? 'active' : '' }}">
-                <i class="bi bi-clipboard-check"></i>
-                <span>Template Checklist</span>
-            </a>
-            @endif
-            @endif
+
 
             @if(auth()->user()->isAdmin())
             <div class="menu-label">Laporan</div>
@@ -1543,6 +1545,16 @@
                 <span>Activity Log</span>
             </a>
             @endif
+
+
+            @if(auth()->user()->canManage())
+            <div class="menu-label">Sampah</div>
+            <a href="{{ route('trash.index') }}" class="nav-item {{ request()->routeIs('trash.index') ? 'active' : '' }}">
+                <i class="bi bi-trash3"></i>
+                <span>Sampah</span>
+            </a>
+            @endif
+
         </div>
 
         <!-- Sidebar Footer (User Profile) -->

@@ -27,17 +27,19 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Kategori Barang</label>
-                <select name="kategori_id" class="form-control">
-                    <option value="">-- Template Global (Semua Kategori) --</option>
-                    @foreach($kategoris as $kategori)
-                    <option value="{{ $kategori->id }}" {{ old('kategori_id') == $kategori->id ? 'selected' : '' }}>
-                        {{ $kategori->nama }}
+                <label class="form-label">Pilih Barang Sarpras</label>
+                <select name="sarpras_id" id="sarprasSelect" class="form-control" onchange="onSarprasChange()">
+                    <option value="">-- Pilih Barang (atau kosongkan untuk semua) --</option>
+                    @foreach($sarprasList as $sarpras)
+                    <option value="{{ $sarpras->id }}" data-kategori="{{ $sarpras->kategori_id }}" {{ old('sarpras_id') == $sarpras->id ? 'selected' : '' }}>
+                        {{ $sarpras->kode }} - {{ $sarpras->nama }}
                     </option>
                     @endforeach
                 </select>
-                <small style="color: var(--secondary);">Kosongkan jika ingin berlaku untuk semua kategori</small>
+                <small style="color: var(--secondary);">Pilih barang spesifik atau kosongkan untuk template global</small>
             </div>
+
+
 
             <div class="form-group">
                 <label class="form-label">Deskripsi</label>
@@ -86,6 +88,11 @@
 <script>
 let itemIndex = 1;
 
+function onSarprasChange() {
+    // Logic untuk handling perubahan sarpras jika diperlukan
+    // (Saat ini tidak ada aksi khusus karena pilihan kategori sudah dihapus)
+}
+
 function addItem() {
     const container = document.getElementById('itemsContainer');
     const html = `
@@ -115,6 +122,9 @@ function removeItem(btn) {
         alert('Minimal harus ada 1 item checklist.');
     }
 }
+
+// Init
+onSarprasChange();
 </script>
 @endpush
 @endsection

@@ -86,12 +86,12 @@
                     <th>Kode</th>
                     <th>Nama Alat</th>
                     <th>Kategori</th>
-                    <th>Lokasi</th>
-                    <th style="text-align: center;">Total Kerusakan</th>
-                    <th style="text-align: center;">Rusak Ringan</th>
-                    <th style="text-align: center;">Rusak Berat</th>
+                    <th style="text-align: center;">Total</th>
+                    <th style="text-align: center;">Ringan</th>
+                    <th style="text-align: center;">Berat</th>
                     <th style="text-align: center;">Hilang</th>
-                    <th>Kondisi Saat Ini</th>
+                    <th>Laporan Terakhir</th>
+                    <th>Kondisi</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -106,7 +106,6 @@
                     </td>
                     <td><strong>{{ $alat->nama }}</strong></td>
                     <td>{{ $alat->kategori }}</td>
-                    <td>{{ $alat->lokasi }}</td>
                     <td style="text-align: center;">
                         <span class="badge badge-danger" style="font-size: 1rem; padding: 6px 12px;">
                             {{ $alat->total_kerusakan }}
@@ -120,6 +119,14 @@
                     </td>
                     <td style="text-align: center;">
                         <span class="badge" style="background: rgba(0,0,0,0.1); color: #333;">{{ $alat->hilang }}</span>
+                    </td>
+                    <td>
+                        @if(isset($alat->tgl_laporan_terakhir))
+                        <div style="font-size: 0.85rem;">{{ \Carbon\Carbon::parse($alat->tgl_laporan_terakhir)->format('d/m/Y') }}</div>
+                        <div style="font-size: 0.75rem; color: var(--secondary);">{{ \Carbon\Carbon::parse($alat->tgl_laporan_terakhir)->format('H:i') }} WIB</div>
+                        @else
+                        <span style="color: var(--secondary);">-</span>
+                        @endif
                     </td>
                     <td>
                         @if($alat->kondisi_saat_ini == 'baik')
@@ -138,7 +145,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="11" style="text-align: center; padding: 40px; color: var(--secondary);">
+                    <td colspan="12" style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="bi bi-emoji-smile" style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
                         Tidak ada data kerusakan ditemukan
                         <br><small>Semua alat dalam kondisi baik!</small>

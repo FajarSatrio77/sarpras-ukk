@@ -145,7 +145,7 @@ class PeminjamanController extends Controller
             abort(403);
         }
 
-        $peminjaman->load(['sarpras', 'user', 'approver', 'pengembalian']);
+        $peminjaman->load(['sarpras', 'user', 'approver', 'pengembalian.penerima', 'peminjamanUnits.sarprasUnit']);
         return view('peminjaman.show', compact('peminjaman'));
     }
 
@@ -358,5 +358,63 @@ class PeminjamanController extends Controller
 
         $peminjaman->load(['sarpras', 'user', 'approver', 'peminjamanUnits.sarprasUnit']);
         return view('peminjaman.cetak', compact('peminjaman'));
+    }
+
+    /**
+     * Hapus data peminjaman yang sudah selesai atau ditolak
+     */
+    public function destroy(Peminjaman $peminjaman)
+    {
+        // Hanya bisa hapus jika sudah dikembalikan atau ditolak
+        if (!in_array($peminjaman->status, ['dikembalikan', 'ditolak'])) {
+            return back()->with('error', 'Hanya peminjaman yang sudah selesai atau ditolak yang bisa dihapus.');
+        }
+
+        $kode = $peminjaman->kode_peminjaman;
+        $peminjaman->delete();
+
+        ActivityLog::log('hapus_peminjaman', 'Menghapus data peminjaman: ' . $kode);
+
+        return back()->with('success', 'Data peminjaman berhasil dihapus.');
+    }
+
+    /**
+     * Halaman sampah - data yang sudah dihapus
+     */
+    public function trash()
+    {
+        $peminjaman = Peminjaman::onlyTrashed()
+            ->with(['sarpras', 'user'])
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(15);
+
+        return view('peminjaman.trash', compact('peminjaman'));
+    }
+
+    /**
+     * Pulihkan data yang sudah dihapus
+     */
+    public function restore($id)
+    {
+        $peminjaman = Peminjaman::onlyTrashed()->findOrFail($id);
+        $peminjaman->restore();
+
+        ActivityLog::log('pulihkan_peminjaman', 'Memulihkan data peminjaman: ' . $peminjaman->kode_peminjaman);
+
+        return back()->with('success', 'Data peminjaman berhasil dipulihkan.');
+    }
+
+    /**
+     * Hapus permanen
+     */
+    public function forceDelete($id)
+    {
+        $peminjaman = Peminjaman::onlyTrashed()->findOrFail($id);
+        $kode = $peminjaman->kode_peminjaman;
+        $peminjaman->forceDelete();
+
+        ActivityLog::log('hapus_permanen_peminjaman', 'Menghapus permanen data peminjaman: ' . $kode);
+
+        return back()->with('success', 'Data peminjaman berhasil dihapus permanen.');
     }
 }

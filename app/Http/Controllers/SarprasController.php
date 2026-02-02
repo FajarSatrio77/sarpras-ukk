@@ -201,7 +201,7 @@ class SarprasController extends Controller
     }
 
     /**
-     * Hapus sarpras
+     * Hapus sarpras (soft delete)
      */
     public function destroy(Sarpras $sarpras)
     {
@@ -215,17 +215,59 @@ class SarprasController extends Controller
                 ->with('error', 'Sarpras tidak dapat dihapus karena masih memiliki peminjaman aktif.');
         }
 
-        // Hapus foto jika ada
-        if ($sarpras->foto) {
-            Storage::disk('public')->delete($sarpras->foto);
-        }
-
         ActivityLog::log('hapus_sarpras', 'Menghapus sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ')');
         
+        // Soft delete - tidak hapus foto
         $sarpras->delete();
 
         return redirect()->route('sarpras.index')
             ->with('success', 'Sarpras berhasil dihapus.');
+    }
+
+    /**
+     * Halaman sampah sarpras
+     */
+    public function trash()
+    {
+        $sarpras = Sarpras::onlyTrashed()
+            ->with('kategori')
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(15);
+
+        return view('sarpras.trash', compact('sarpras'));
+    }
+
+    /**
+     * Pulihkan sarpras yang dihapus
+     */
+    public function restore($id)
+    {
+        $sarpras = Sarpras::onlyTrashed()->findOrFail($id);
+        $sarpras->restore();
+
+        ActivityLog::log('pulihkan_sarpras', 'Memulihkan sarpras: ' . $sarpras->nama);
+
+        return back()->with('success', 'Sarpras berhasil dipulihkan.');
+    }
+
+    /**
+     * Hapus permanen sarpras
+     */
+    public function forceDelete($id)
+    {
+        $sarpras = Sarpras::onlyTrashed()->findOrFail($id);
+        
+        // Hapus foto jika ada
+        if ($sarpras->foto) {
+            Storage::disk('public')->delete($sarpras->foto);
+        }
+        
+        $nama = $sarpras->nama;
+        $sarpras->forceDelete();
+
+        ActivityLog::log('hapus_permanen_sarpras', 'Menghapus permanen sarpras: ' . $nama);
+
+        return back()->with('success', 'Sarpras berhasil dihapus permanen.');
     }
 
     /**

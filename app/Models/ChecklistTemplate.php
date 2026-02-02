@@ -11,6 +11,7 @@ class ChecklistTemplate extends Model
 
     protected $fillable = [
         'kategori_id',
+        'sarpras_id',
         'nama',
         'deskripsi',
         'is_active',
@@ -26,6 +27,14 @@ class ChecklistTemplate extends Model
     public function kategori()
     {
         return $this->belongsTo(KategoriSarpras::class, 'kategori_id');
+    }
+
+    /**
+     * Sarpras yang terkait dengan template ini
+     */
+    public function sarpras()
+    {
+        return $this->belongsTo(Sarpras::class, 'sarpras_id');
     }
 
     /**
@@ -45,16 +54,41 @@ class ChecklistTemplate extends Model
     }
 
     /**
-     * Cari template untuk kategori tertentu atau template global
+     * Cari template untuk sarpras tertentu (hanya template spesifik untuk barang)
+     */
+    public static function findForSarpras($sarprasId, $kategoriId = null)
+    {
+        // Prioritas 1: Template spesifik untuk sarpras ini
+        $template = self::active()
+            ->with('items')
+            ->where('sarpras_id', $sarprasId)
+            ->first();
+        
+        // Tidak ada fallback ke kategori - template harus spesifik per barang
+        // Jika ingin template kategori, gunakan findForKategori()
+        
+        return $template;
+    }
+
+    /**
+     * Backward compatibility - findForKategori
      */
     public static function findForKategori($kategoriId)
     {
-        // Cari template spesifik untuk kategori
-        $template = self::active()->where('kategori_id', $kategoriId)->first();
+        // Cari template spesifik untuk kategori (dengan items)
+        $template = self::active()
+            ->with('items')
+            ->whereNull('sarpras_id')
+            ->where('kategori_id', $kategoriId)
+            ->first();
         
         // Jika tidak ada, gunakan template global (kategori_id null)
         if (!$template) {
-            $template = self::active()->whereNull('kategori_id')->first();
+            $template = self::active()
+                ->with('items')
+                ->whereNull('sarpras_id')
+                ->whereNull('kategori_id')
+                ->first();
         }
         
         return $template;

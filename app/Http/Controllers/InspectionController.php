@@ -26,8 +26,8 @@ class InspectionController extends Controller
             return back()->with('error', 'Inspeksi pre-borrow sudah dilakukan.');
         }
 
-        // Cari template checklist berdasarkan kategori sarpras
-        $template = ChecklistTemplate::findForKategori($peminjaman->sarpras->kategori_id);
+        // Cari template checklist berdasarkan sarpras atau kategori
+        $template = ChecklistTemplate::findForSarpras($peminjaman->sarpras_id, $peminjaman->sarpras->kategori_id);
 
         return view('inspection.pre-borrow', compact('peminjaman', 'template'));
     }
@@ -95,8 +95,8 @@ class InspectionController extends Controller
         // Ambil inspeksi pre-borrow untuk perbandingan
         $preBorrowInspection = $peminjaman->inspections()->preBorrow()->with('results.checklistItem')->first();
 
-        // Cari template checklist
-        $template = ChecklistTemplate::findForKategori($peminjaman->sarpras->kategori_id);
+        // Cari template checklist berdasarkan sarpras atau kategori
+        $template = ChecklistTemplate::findForSarpras($peminjaman->sarpras_id, $peminjaman->sarpras->kategori_id);
 
         return view('inspection.post-return', compact('peminjaman', 'template', 'preBorrowInspection'));
     }

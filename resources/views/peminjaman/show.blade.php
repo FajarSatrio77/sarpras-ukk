@@ -151,6 +151,150 @@
     </div>
 </div>
 
+<!-- Hasil Inspeksi Pengembalian -->
+@if($peminjaman->status == 'dikembalikan' && $peminjaman->pengembalian)
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+        <h5 class="card-title">
+            <i class="bi bi-clipboard-check" style="margin-right: 8px; color: var(--primary);"></i>
+            Hasil Inspeksi Pengembalian
+        </h5>
+        <span class="badge {{ $peminjaman->pengembalian->kondisi_alat == 'baik' ? 'badge-success' : ($peminjaman->pengembalian->kondisi_alat == 'rusak_ringan' ? 'badge-warning' : 'badge-danger') }}">
+            {{ ucfirst(str_replace('_', ' ', $peminjaman->pengembalian->kondisi_alat)) }}
+        </span>
+    </div>
+    <div class="card-body">
+        <table style="width: 100%; margin-bottom: 16px;">
+            <tr>
+                <td style="padding: 10px 0; width: 180px; color: var(--secondary);">Tanggal Pengembalian</td>
+                <td style="padding: 10px 0; font-weight: 500;">{{ $peminjaman->pengembalian->tgl_pengembalian->format('d M Y, H:i') }} WIB</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 0; color: var(--secondary);">Diterima Oleh</td>
+                <td style="padding: 10px 0;">{{ $peminjaman->pengembalian->penerima->name ?? '-' }}</td>
+            </tr>
+            @if($peminjaman->pengembalian->catatan_petugas)
+            <tr>
+                <td style="padding: 10px 0; color: var(--secondary);">Catatan Petugas</td>
+                <td style="padding: 10px 0;">{{ $peminjaman->pengembalian->catatan_petugas }}</td>
+            </tr>
+            @endif
+        </table>
+
+        @if($peminjaman->pengembalian->deskripsi_kerusakan)
+        <div style="background: #fef3c7; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+            <h6 style="font-weight: 600; color: #92400e; margin-bottom: 8px;">
+                <i class="bi bi-exclamation-triangle"></i> Deskripsi Kerusakan
+            </h6>
+            <p style="margin: 0; white-space: pre-line;">{{ $peminjaman->pengembalian->deskripsi_kerusakan }}</p>
+        </div>
+        @endif
+
+        @if($peminjaman->pengembalian->foto)
+        <div style="margin-top: 16px;">
+            <h6 style="font-weight: 600; color: var(--dark); margin-bottom: 8px;">Foto Dokumentasi</h6>
+            <img src="{{ asset('storage/' . $peminjaman->pengembalian->foto) }}" alt="Foto Pengembalian" 
+                 style="max-width: 100%; max-height: 300px; border-radius: 12px; object-fit: cover;">
+        </div>
+        @endif
+
+        <!-- Kondisi Per-Unit jika ada -->
+        @if($peminjaman->peminjamanUnits && $peminjaman->peminjamanUnits->isNotEmpty())
+        <div style="margin-top: 20px;">
+            <h6 style="font-weight: 600; color: var(--dark); margin-bottom: 12px;">
+                <i class="bi bi-list-check"></i> Kondisi Per-Unit
+            </h6>
+            <div class="table-responsive" style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
+                <table class="table" style="margin: 0;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+                            <th style="font-size: 0.8rem;">KODE UNIT</th>
+                            <th style="font-size: 0.8rem;">KONDISI SAAT PINJAM</th>
+                            <th style="font-size: 0.8rem;">KONDISI SAAT KEMBALI</th>
+                            <th style="font-size: 0.8rem;">CATATAN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($peminjaman->peminjamanUnits as $pu)
+                        <tr>
+                            <td>
+                                <code style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: 600;">
+                                    {{ $pu->sarprasUnit->kode_unit ?? '-' }}
+                                </code>
+                            </td>
+                            <td>{!! $pu->kondisi_pinjam_label ?? '<span class="badge badge-secondary">-</span>' !!}</td>
+                            <td>
+                                @if($pu->kondisi_kembali)
+                                    @switch($pu->kondisi_kembali)
+                                        @case('baik')
+                                            <span class="badge badge-success">✅ Baik</span>
+                                            @break
+                                        @case('rusak_ringan')
+                                            <span class="badge badge-warning">⚠️ Rusak Ringan</span>
+                                            @break
+                                        @case('rusak_berat')
+                                            <span class="badge badge-danger">❌ Rusak Berat</span>
+                                            @break
+                                        @case('hilang')
+                                            <span class="badge" style="background: #333; color: white;">❓ Hilang</span>
+                                            @break
+                                        @default
+                                            <span class="badge badge-secondary">{{ $pu->kondisi_kembali }}</span>
+                                    @endswitch
+                                @else
+                                    <span class="badge badge-secondary">-</span>
+                                @endif
+                            </td>
+                            <td>{{ $pu->catatan_kembali ?? '-' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+        <!-- Hasil Checklist Inspeksi -->
+        @php
+            $postReturnInspection = $peminjaman->inspections()->where('tipe', 'post_return')->with('results.checklistItem')->first();
+        @endphp
+        @if($postReturnInspection && $postReturnInspection->results->isNotEmpty())
+        <div style="margin-top: 20px;">
+            <h6 style="font-weight: 600; color: var(--dark); margin-bottom: 12px;">
+                <i class="bi bi-clipboard-check"></i> Hasil Checklist Inspeksi
+            </h6>
+            <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                @foreach($postReturnInspection->results as $result)
+                <div style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; {{ $loop->last ? 'border-bottom: none;' : '' }}">
+                    <div>
+                        <div style="font-weight: 500;">{{ $result->checklistItem->nama ?? 'Item #' . $result->checklist_item_id }}</div>
+                        @if($result->catatan)
+                        <small style="color: var(--secondary);">{{ $result->catatan }}</small>
+                        @endif
+                    </div>
+                    <span class="badge {{ $result->kondisi_badge }}">
+                        @if($result->kondisi == 'baik')
+                            ✅ Baik
+                        @elseif($result->kondisi == 'rusak_ringan')
+                            ⚠️ Rusak Ringan
+                        @else
+                            ❌ Rusak Berat
+                        @endif
+                    </span>
+                </div>
+                @endforeach
+            </div>
+            @if($postReturnInspection->ada_kerusakan_baru)
+            <div style="margin-top: 12px; padding: 12px 16px; background: #fef3c7; border-radius: 8px; color: #92400e;">
+                <i class="bi bi-exclamation-triangle"></i> Ada kerusakan baru terdeteksi pada inspeksi ini
+            </div>
+            @endif
+        </div>
+        @endif
+    </div>
+</div>
+@endif
+
 <!-- Aksi Admin/Petugas -->
 @if(auth()->user()->canManage() && $peminjaman->status == 'menunggu')
 <div class="card" style="margin-top: 24px;">

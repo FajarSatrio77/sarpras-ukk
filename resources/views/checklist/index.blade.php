@@ -6,7 +6,7 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <div>
         <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">Template Checklist</h2>
-        <p style="color: var(--secondary);">Kelola template checklist inspeksi per kategori barang</p>
+        <p style="color: var(--secondary);">Kelola template checklist inspeksi per barang</p>
     </div>
     <a href="{{ route('checklist.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-lg"></i> Buat Template
@@ -20,7 +20,7 @@
             <thead>
                 <tr>
                     <th>Nama Template</th>
-                    <th>Kategori</th>
+                    <th>Untuk Barang</th>
                     <th>Jumlah Item</th>
                     <th>Status</th>
                     <th>Aksi</th>
@@ -36,10 +36,15 @@
                         @endif
                     </td>
                     <td>
-                        @if($template->kategori)
+                        @if($template->sarpras)
+                            <span class="badge badge-info">{{ $template->sarpras->kode }}</span>
+                            <div style="font-size: 0.75rem; color: var(--secondary);">{{ $template->sarpras->nama }}</div>
+                        @elseif($template->kategori)
                             <span class="badge badge-primary">{{ $template->kategori->nama }}</span>
+                            <div style="font-size: 0.75rem; color: var(--secondary);">Semua barang kategori ini</div>
                         @else
                             <span class="badge badge-secondary">Global</span>
+                            <div style="font-size: 0.75rem; color: var(--secondary);">Semua barang</div>
                         @endif
                     </td>
                     <td>{{ $template->items->count() }} item</td>
