@@ -16,18 +16,26 @@
         <div class="card-header">
             <h3 class="card-title"><i class="bi bi-person-circle" style="margin-right: 8px;"></i>Informasi Akun</h3>
         </div>
-        <div class="card-body">
+    <div class="card-body">
             <form action="{{ route('profile.update') }}" method="POST">
                 @csrf
                 @method('PUT')
                 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--gray-700);">Nama Lengkap</label>
+                    @if($canEditName)
                     <input type="text" name="name" value="{{ old('name', $user->name) }}" 
                         style="width: 100%; padding: 12px 16px; border: 1px solid var(--gray-200); border-radius: 12px; font-size: 0.95rem;">
                     @error('name')
                     <p style="color: var(--danger); font-size: 0.8rem; margin-top: 6px;">{{ $message }}</p>
                     @enderror
+                    @else
+                    <input type="text" value="{{ $user->name }}" disabled
+                        style="width: 100%; padding: 12px 16px; border: 1px solid var(--gray-200); border-radius: 12px; font-size: 0.95rem; background: var(--gray-50); color: var(--gray-500);">
+                    <p style="font-size: 0.75rem; color: var(--gray-400); margin-top: 6px;">
+                        <i class="bi bi-info-circle"></i> Nama tidak dapat diubah. Hubungi admin jika perlu perubahan.
+                    </p>
+                    @endif
                 </div>
                 
                 <div style="margin-bottom: 20px;">
@@ -66,9 +74,11 @@
                 </div>
                 
                 <div style="display: flex; gap: 12px;">
+                    @if($canEditName)
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-lg"></i> Simpan Perubahan
                     </button>
+                    @endif
                     <a href="{{ route('password.change') }}" class="btn btn-outline">
                         <i class="bi bi-key"></i> Ubah Password
                     </a>

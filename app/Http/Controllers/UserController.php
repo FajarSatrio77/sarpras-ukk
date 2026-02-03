@@ -99,6 +99,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'kelas' => $request->kelas,
+            'is_activated' => true, // Users created by admin are pre-activated
         ]);
 
         return redirect()->route('users.index')

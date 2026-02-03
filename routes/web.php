@@ -39,6 +39,10 @@ Route::middleware('guest')->group(function () {
     
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+    
+    // Aktivasi akun
+    Route::get('/activate', [AuthController::class, 'showActivate'])->name('activate');
+    Route::post('/activate', [AuthController::class, 'activate']);
 });
 
 // Protected Routes (Auth required)

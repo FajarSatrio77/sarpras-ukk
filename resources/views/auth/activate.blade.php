@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - SARPRAS SMK NEGERI 1 BOYOLANGU</title>
+    <title>Aktivasi Akun - SARPRAS SMK NEGERI 1 BOYOLANGU</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
@@ -45,26 +45,6 @@
             padding: 40px;
             background: #f8fafc;
             text-align: center;
-        }
-
-        .login-left h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .login-left h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            opacity: 0.95;
-        }
-
-        .login-left p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 400px;
-            line-height: 1.7;
         }
 
         .login-logo {
@@ -178,27 +158,10 @@
             padding-left: 48px;
         }
 
-        .form-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-checkbox input {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-        }
-
-        .form-checkbox label {
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        .btn-login {
+        .btn-activate {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
             color: white;
             border: none;
             border-radius: 12px;
@@ -207,17 +170,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
         }
 
-        .btn-login:hover {
+        .btn-activate:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
         }
 
         .error-message {
@@ -244,40 +202,44 @@
             gap: 10px;
         }
 
-        .demo-accounts {
-            margin-top: 30px;
+        .info-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
             padding: 20px;
-            background: #f8fafc;
             border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--secondary);
         }
 
-        .demo-accounts h4 {
+        .info-box h4 {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p {
             font-size: 0.85rem;
             color: #64748b;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            line-height: 1.6;
         }
 
-        .demo-account {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            font-size: 0.85rem;
-            border-bottom: 1px solid #e2e8f0;
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
         }
 
-        .demo-account:last-child {
-            border-bottom: none;
-        }
-
-        .demo-account span:first-child {
-            color: var(--dark);
+        .login-link a {
+            color: var(--secondary);
+            text-decoration: none;
             font-weight: 500;
         }
 
-        .demo-account span:last-child {
-            color: #64748b;
+        .login-link a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 900px) {
@@ -303,8 +265,13 @@
         
         <div class="login-right">
             <div class="login-header">
-                <h2>Selamat Datang! 👋</h2>
-                <p>Silakan login untuk melanjutkan</p>
+                <h2>Aktivasi Akun 🔐</h2>
+                <p>Aktivasi akun untuk mulai menggunakan sistem</p>
+            </div>
+
+            <div class="info-box">
+                <h4><i class="bi bi-info-circle"></i> Informasi Penting</h4>
+                <p>Jika ini pertama kalinya Anda menggunakan sistem SARPRAS, silakan aktivasi akun Anda dengan memasukkan NISN/NIP dan password yang telah diberikan oleh admin.</p>
             </div>
 
             @if($errors->any())
@@ -321,21 +288,8 @@
             </div>
             @endif
 
-            @if($errors->has('activation') || session('needs_activation'))
-            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); padding: 16px 20px; border-radius: 12px; margin-bottom: 24px; border-left: 4px solid #f59e0b;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    <i class="bi bi-exclamation-triangle" style="color: #f59e0b; font-size: 1.2rem;"></i>
-                    <span style="font-weight: 600; color: #92400e;">Akun Belum Diaktivasi</span>
-                </div>
-                <p style="font-size: 0.85rem; color: #78350f; margin-bottom: 12px;">Akun Anda perlu diaktivasi terlebih dahulu sebelum dapat login.</p>
-                <a href="{{ route('activate') }}" style="display: inline-flex; align-items: center; gap: 6px; background: #f59e0b; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 500;">
-                    <i class="bi bi-key"></i> Aktivasi Akun Sekarang
-                </a>
-            </div>
-            @endif
-
             <div class="login-form-card">
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('activate') }}">
                     @csrf
                     
                     <div class="form-group">
@@ -343,11 +297,8 @@
                         <div class="input-icon-wrapper">
                             <i class="bi bi-person-badge"></i>
                             <input type="text" name="nisn" class="form-input @error('nisn') error @enderror" 
-                                   value="{{ old('nisn') }}" placeholder="Masukkan NISN atau NIP" required autofocus>
+                                   value="{{ old('nisn', session('nisn')) }}" placeholder="Masukkan NISN atau NIP" required autofocus>
                         </div>
-                        <p style="font-size: 0.8rem; color: #64748b; margin-top: 6px;">
-                            <i class="bi bi-info-circle"></i> Guru login dengan NIP (18 digit)
-                        </p>
                     </div>
 
                     <div class="form-group">
@@ -359,25 +310,13 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="form-checkbox">
-                            <input type="checkbox" name="remember" id="remember">
-                            <label for="remember">Ingat saya</label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-login">
-                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    <button type="submit" class="btn-activate">
+                        <i class="bi bi-check-circle"></i> Aktivasi Akun
                     </button>
                 </form>
-                
-                <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                    <p style="font-size: 0.85rem; color: #64748b;">
-                        Belum Pernah Aktivasi Akun? 
-                        <a href="{{ route('activate') }}" style="color: #22c55e; font-weight: 500; text-decoration: none;">
-                            Aktivasi Akun
-                        </a>
-                    </p>
+
+                <div class="login-link">
+                    <p>Sudah aktivasi? <a href="{{ route('login') }}">Kembali ke Login</a></p>
                 </div>
             </div>
         </div>

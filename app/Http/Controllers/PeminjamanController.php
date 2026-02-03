@@ -75,6 +75,20 @@ class PeminjamanController extends Controller
             'tujuan.min' => 'Tujuan peminjaman minimal 10 karakter.',
         ]);
 
+        // Batas durasi peminjaman untuk siswa (pengguna) adalah 7 hari
+        $user = Auth::user();
+        if ($user->isPengguna()) {
+            $tglPinjam = \Carbon\Carbon::parse($request->tgl_pinjam);
+            $tglKembali = \Carbon\Carbon::parse($request->tgl_kembali_rencana);
+            $durasiHari = $tglPinjam->diffInDays($tglKembali);
+            
+            if ($durasiHari > 7) {
+                return back()->withErrors([
+                    'tgl_kembali_rencana' => 'Durasi peminjaman untuk siswa maksimal 7 hari. Jika membutuhkan lebih lama, silakan ajukan peminjaman baru setelah peminjaman ini dikembalikan.'
+                ])->withInput();
+            }
+        }
+
         $sarpras = Sarpras::findOrFail($request->sarpras_id);
 
         // Cek ketersediaan stok

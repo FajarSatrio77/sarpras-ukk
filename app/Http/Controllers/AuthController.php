@@ -38,27 +38,34 @@ class AuthController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        $credentials = [
-            'nisn' => $request->nisn,
-            'password' => $request->password,
-        ];
+        // Cari user berdasarkan NISN/NIP
+        $user = User::where('nisn', $request->nisn)->first();
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            
-            // Catat aktivitas login
-            ActivityLog::log('login', 'User ' . Auth::user()->name . ' berhasil login');
-
-            // Redirect berdasarkan role (guru dan pengguna ke daftar peminjaman)
-            $redirectRoute = Auth::user()->isPeminjam() ? 'peminjaman.daftar' : 'dashboard';
-
-            return redirect()->intended(route($redirectRoute))
-                ->with('success', 'Selamat datang, ' . Auth::user()->name . '!');
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'nisn' => 'NISN/NIP atau password salah.',
+            ])->onlyInput('nisn');
         }
 
-        return back()->withErrors([
-            'nisn' => 'NISN/NIP atau password salah.',
-        ])->onlyInput('nisn');
+        // Cek apakah user (pengguna/guru) sudah diaktivasi
+        if ($user->isPeminjam() && !$user->is_activated) {
+            return back()->withErrors([
+                'activation' => 'Akun Anda belum diaktivasi. Silakan aktivasi akun terlebih dahulu.',
+            ])->onlyInput('nisn')->with('needs_activation', true)->with('nisn', $request->nisn);
+        }
+
+        // Login user
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
+        
+        // Catat aktivitas login
+        ActivityLog::log('login', 'User ' . Auth::user()->name . ' berhasil login');
+
+        // Redirect berdasarkan role (guru dan pengguna ke daftar peminjaman)
+        $redirectRoute = Auth::user()->isPeminjam() ? 'peminjaman.daftar' : 'dashboard';
+
+        return redirect()->intended(route($redirectRoute))
+            ->with('success', 'Selamat datang, ' . Auth::user()->name . '!');
     }
 
     /**
@@ -75,6 +82,55 @@ class AuthController extends Controller
 
         return redirect()->route('login')
             ->with('success', 'Anda telah berhasil logout.');
+    }
+
+    /**
+     * Tampilkan halaman aktivasi akun
+     */
+    public function showActivate()
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.activate');
+    }
+
+    /**
+     * Proses aktivasi akun
+     */
+    public function activate(Request $request)
+    {
+        $request->validate([
+            'nisn' => 'required|string',
+            'password' => 'required',
+        ], [
+            'nisn.required' => 'NISN/NIP wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+        ]);
+
+        // Cari user berdasarkan NISN/NIP
+        $user = User::where('nisn', $request->nisn)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'nisn' => 'NISN/NIP atau password salah.',
+            ])->onlyInput('nisn');
+        }
+
+        // Cek apakah sudah diaktivasi
+        if ($user->is_activated) {
+            return redirect()->route('login')
+                ->with('success', 'Akun Anda sudah aktif. Silakan login.');
+        }
+
+        // Aktivasi akun
+        $user->update(['is_activated' => true]);
+
+        // Catat aktivitas aktivasi
+        ActivityLog::log('aktivasi_akun', 'User ' . $user->name . ' mengaktivasi akun', $user->id);
+
+        return redirect()->route('login')
+            ->with('success', 'Akun berhasil diaktivasi! Silakan login.');
     }
 
     /**
@@ -146,22 +202,21 @@ class AuthController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak sesuai.',
         ]);
 
-        // Buat user baru dengan role 'pengguna' (default)
+        // Buat user baru dengan role 'pengguna' (default) - belum diaktivasi
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'pengguna', // Default role untuk pendaftar baru
+            'role' => 'pengguna',
+            'is_activated' => false,
         ]);
 
         // Catat aktivitas registrasi
         ActivityLog::log('register', 'User baru mendaftar: ' . $user->name, $user->id);
 
-        // Auto login setelah registrasi
-        Auth::login($user);
-
-        // Pengguna baru selalu redirect ke halaman ajukan peminjaman
-        return redirect()->route('peminjaman.daftar')
-            ->with('success', 'Selamat datang, ' . $user->name . '! Akun Anda berhasil dibuat.');
+        // Redirect ke halaman aktivasi (bukan auto-login)
+        return redirect()->route('activate')
+            ->with('success', 'Pendaftaran berhasil! Silakan aktivasi akun Anda.');
     }
 }
+

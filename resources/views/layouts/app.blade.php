@@ -13,10 +13,10 @@
     
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #818cf8;
-            --primary-rgb: 99, 102, 241;
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --primary-light: #3b82f6;
+            --primary-rgb: 30, 64, 175;
             --secondary: #64748b;
             --success: #10b981;
             --warning: #f59e0b;
@@ -37,7 +37,7 @@
             --gray-800: #1e293b;
             --gray-900: #0f172a;
             --nav-height: 64px;
-            --sidebar-bg: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+            --sidebar-bg: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
         }
 
         * {
@@ -89,7 +89,7 @@
         .nav-brand-text {
             font-weight: 700;
             font-size: 1.25rem;
-            background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -123,7 +123,7 @@
 
         .nav-item.active {
             color: var(--primary);
-            background: rgba(99, 102, 241, 0.1);
+            background: rgba(30, 64, 175, 0.1);
         }
 
         .nav-item i {
@@ -217,7 +217,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #a855f7);
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -349,7 +349,7 @@
         }
 
         .stat-icon.primary { 
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
             color: white;
         }
         .stat-icon.success { 
@@ -1116,7 +1116,7 @@
         align-items: center;
         padding: 0 20px;
         border-bottom: 1px solid var(--gray-100);
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(139, 92, 246, 0.03));
+        background: linear-gradient(135deg, rgba(30, 64, 175, 0.03), rgba(59, 130, 246, 0.03));
     }
 
     .brand-logo {
@@ -1134,7 +1134,7 @@
     .brand-text {
         font-weight: 700;
         font-size: 1.15rem;
-        background: linear-gradient(135deg, var(--primary), var(--purple));
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -1180,7 +1180,7 @@
     }
 
     .nav-item.active {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.08));
+        background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(59, 130, 246, 0.08));
         color: var(--primary);
         font-weight: 600;
     }
@@ -1193,7 +1193,7 @@
         transform: translateY(-50%);
         width: 4px;
         height: 24px;
-        background: linear-gradient(180deg, var(--primary), var(--purple));
+        background: linear-gradient(180deg, #1e40af, #3b82f6);
         border-radius: 0 4px 4px 0;
     }
 
@@ -1206,7 +1206,7 @@
     .sidebar-footer {
         padding: 16px;
         border-top: 1px solid var(--gray-100);
-        background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.02));
+        background: linear-gradient(180deg, transparent, rgba(30, 64, 175, 0.02));
     }
 
     .user-profile {
@@ -1231,7 +1231,7 @@
         width: 40px;
         height: 40px;
         border-radius: 10px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1484,12 +1484,12 @@
             </a>
             <a href="{{ route('kategori.index') }}" class="nav-item {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
                 <i class="bi bi-folder"></i>
-                <span>Kategori</span>
+                <span>Kategori Barang</span>
             </a>
             @if(auth()->user()->isAdmin())
             <a href="{{ route('checklist.index') }}" class="nav-item {{ request()->routeIs('checklist.*') ? 'active' : '' }}">
                 <i class="bi bi-clipboard-check"></i>
-                <span>Template Checklist</span>
+                <span>Template Ceklis</span>
             </a>
             @endif
             @endif

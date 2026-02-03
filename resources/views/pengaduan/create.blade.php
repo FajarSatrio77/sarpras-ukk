@@ -129,9 +129,71 @@
         font-weight: 600;
     }
 
+    /* Type Selection Tabs */
+    .type-tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .type-tab {
+        flex: 1;
+        padding: 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .type-tab:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    .type-tab.active {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .type-tab i {
+        font-size: 1.5rem;
+        display: block;
+        margin-bottom: 8px;
+        color: var(--secondary);
+    }
+
+    .type-tab.active i {
+        color: var(--primary);
+    }
+
+    .type-tab h6 {
+        margin: 0 0 4px;
+        font-size: 0.9rem;
+        color: var(--dark);
+    }
+
+    .type-tab p {
+        margin: 0;
+        font-size: 0.75rem;
+        color: var(--secondary);
+    }
+
+    .type-section {
+        display: none;
+    }
+
+    .type-section.active {
+        display: block;
+    }
+
     @media (max-width: 768px) {
         .loan-info-grid {
             grid-template-columns: 1fr;
+        }
+        .type-tabs {
+            flex-direction: column;
         }
     }
 </style>
@@ -155,118 +217,136 @@
                 <form action="{{ route('pengaduan.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     
+                    <!-- 1. Judul Pengaduan -->
                     <div class="form-group">
                         <label class="form-label">
                             Judul Pengaduan <span class="required">*</span>
                         </label>
                         <input type="text" name="judul" class="form-control" 
                             value="{{ old('judul') }}"
-                            placeholder="Contoh: Proyektor Lab 1 tidak menyala" required>
+                            placeholder="Contoh: Proyektor Lab 1 tidak menyala, Atap kelas bocor" required>
                         @error('judul')
                             <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
                         @enderror
                     </div>
-                    
-                    @if($peminjaman->count() > 0)
-                    <!-- Pilih dari Riwayat Peminjaman -->
+
+                    <!-- 2. Pilih Jenis Pengaduan -->
                     <div class="form-group">
-                        <label class="form-label">
-                            Pilih dari Riwayat Peminjaman
-                        </label>
-                        <select class="form-control" id="peminjamanSelect">
-                            <option value="">-- Pilih Barang yang Pernah Dipinjam --</option>
-                            @foreach($peminjaman as $pinjam)
-                            <option value="{{ $pinjam->id }}" 
-                                data-sarpras="{{ $pinjam->sarpras->nama ?? '' }} ({{ $pinjam->sarpras->kode ?? '' }})"
-                                data-kode="{{ $pinjam->kode_peminjaman }}"
-                                data-tgl-pinjam="{{ $pinjam->tgl_pinjam ? $pinjam->tgl_pinjam->format('d/m/Y') : '-' }}"
-                                data-tgl-kembali="{{ $pinjam->tgl_kembali_rencana ? $pinjam->tgl_kembali_rencana->format('d/m/Y') : '-' }}"
-                                data-tgl-kembali-aktual="{{ $pinjam->tgl_kembali_aktual ? $pinjam->tgl_kembali_aktual->format('d/m/Y') : '-' }}"
-                                data-jumlah="{{ $pinjam->jumlah }}"
-                                data-tujuan="{{ $pinjam->tujuan }}"
-                                data-status="{{ $pinjam->status }}">
-                                {{ $pinjam->sarpras->nama ?? 'N/A' }} - {{ $pinjam->kode_peminjaman }} ({{ $pinjam->tgl_pinjam ? $pinjam->tgl_pinjam->format('d/m/Y') : '-' }})
-                            </option>
-                            @endforeach
-                        </select>
-                        <p class="form-hint">Pilih barang yang pernah Anda pinjam untuk mengisi data otomatis</p>
+                        <label class="form-label">Jenis Pengaduan <span class="required">*</span></label>
+                        <div class="type-tabs">
+                            <div class="type-tab {{ old('tipe_pengaduan', 'umum') == 'umum' ? 'active' : '' }}" data-type="umum">
+                                <i class="bi bi-building"></i>
+                                <h6>Pengaduan Umum</h6>
+                                <p>Fasilitas sekolah (atap bocor, AC rusak, wifi error, dll)</p>
+                            </div>
+                            @if($peminjaman->count() > 0)
+                            <div class="type-tab {{ old('tipe_pengaduan') == 'peminjaman' ? 'active' : '' }}" data-type="peminjaman">
+                                <i class="bi bi-box-seam"></i>
+                                <h6>Barang Pinjaman</h6>
+                                <p>Barang yang pernah dipinjam</p>
+                            </div>
+                            @endif
+                        </div>
+                        <input type="hidden" name="tipe_pengaduan" id="tipePengaduan" value="{{ old('tipe_pengaduan', 'umum') }}">
                     </div>
 
-                    <!-- Info Peminjaman yang Dipilih -->
-                    <div class="loan-info-box" id="loanInfoBox">
-                        <h5><i class="bi bi-info-circle-fill"></i> Detail Peminjaman</h5>
-                        <div class="loan-info-grid">
-                            <div class="loan-info-item">
-                                <label>Kode Peminjaman</label>
-                                <span id="infoKode">-</span>
-                            </div>
-                            <div class="loan-info-item">
-                                <label>Status</label>
-                                <span id="infoStatus">-</span>
-                            </div>
-                            <div class="loan-info-item">
-                                <label>Tanggal Pinjam</label>
-                                <span id="infoTglPinjam">-</span>
-                            </div>
-                            <div class="loan-info-item">
-                                <label>Tanggal Kembali (Rencana)</label>
-                                <span id="infoTglKembali">-</span>
-                            </div>
-                            <div class="loan-info-item">
-                                <label>Tanggal Kembali (Aktual)</label>
-                                <span id="infoTglKembaliAktual">-</span>
-                            </div>
-                            <div class="loan-info-item">
-                                <label>Jumlah Dipinjam</label>
-                                <span id="infoJumlah">-</span>
-                            </div>
-                            <div class="loan-info-item" style="grid-column: span 2;">
-                                <label>Tujuan Peminjaman</label>
-                                <span id="infoTujuan">-</span>
-                            </div>
+                    <!-- Section: Pengaduan Umum -->
+                    <div class="type-section {{ old('tipe_pengaduan', 'umum') == 'umum' ? 'active' : '' }}" id="sectionUmum">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Jenis/Nama Fasilitas <span class="required">*</span>
+                            </label>
+                            <input type="text" name="jenis_sarpras_manual" class="form-control" id="jenisSarprasManual"
+                                value="{{ old('jenis_sarpras_manual') }}"
+                                placeholder="Contoh: AC Ruang Kelas, Wifi Sekolah, Atap Gedung, Toilet Lt.2">
+                            <p class="form-hint">Sebutkan fasilitas atau barang yang bermasalah</p>
+                            @error('jenis_sarpras_manual')
+                                <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                Lokasi <span class="required">*</span>
+                            </label>
+                            <input type="text" name="lokasi_manual" class="form-control" id="lokasiManual"
+                                value="{{ old('lokasi_manual') }}"
+                                placeholder="Contoh: Lab RPL, Ruang Kelas 2A, Perpustakaan, Toilet Lt.2">
+                            <p class="form-hint">Sebutkan lokasi dimana masalah terjadi</p>
+                            @error('lokasi_manual')
+                                <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
 
-                    <input type="hidden" name="peminjaman_id" id="peminjamanId">
-                    @endif
-                    
-                    <div class="form-group">
-                        <label class="form-label">
-                            Jenis Barang <span class="required">*</span>
-                        </label>
-                        <select name="jenis_sarpras" class="form-control" required id="jenisSarpras">
-                            <option value="">-- Pilih Jenis Barang --</option>
-                            @foreach($kategori as $kat)
-                            <optgroup label="{{ $kat->nama }}">
-                                @foreach($sarpras->where('kategori_id', $kat->id) as $item)
-                                <option value="{{ $item->nama }} ({{ $item->kode }})" {{ old('jenis_sarpras') == $item->nama . ' (' . $item->kode . ')' ? 'selected' : '' }}>
-                                    {{ $item->nama }} ({{ $item->kode }})
+                    <!-- Section: Barang Pinjaman -->
+                    @if($peminjaman->count() > 0)
+                    <div class="type-section {{ old('tipe_pengaduan') == 'peminjaman' ? 'active' : '' }}" id="sectionPeminjaman">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Pilih Barang dari Riwayat Peminjaman <span class="required">*</span>
+                            </label>
+                            <select name="peminjaman_id" class="form-control" id="peminjamanSelect">
+                                <option value="">-- Pilih Barang yang Pernah Dipinjam --</option>
+                                @foreach($peminjaman as $pinjam)
+                                <option value="{{ $pinjam->id }}" 
+                                    data-sarpras="{{ $pinjam->sarpras->nama ?? '' }} ({{ $pinjam->sarpras->kode ?? '' }})"
+                                    data-kode="{{ $pinjam->kode_peminjaman }}"
+                                    data-tgl-pinjam="{{ $pinjam->tgl_pinjam ? $pinjam->tgl_pinjam->format('d/m/Y') : '-' }}"
+                                    data-tgl-kembali="{{ $pinjam->tgl_kembali_rencana ? $pinjam->tgl_kembali_rencana->format('d/m/Y') : '-' }}"
+                                    data-jumlah="{{ $pinjam->jumlah }}"
+                                    data-lokasi="{{ $pinjam->sarpras->lokasi ?? '' }}"
+                                    data-status="{{ $pinjam->status }}"
+                                    {{ old('peminjaman_id') == $pinjam->id ? 'selected' : '' }}>
+                                    {{ $pinjam->sarpras->nama ?? 'N/A' }} - {{ $pinjam->kode_peminjaman }} ({{ $pinjam->tgl_pinjam ? $pinjam->tgl_pinjam->format('d/m/Y') : '-' }})
                                 </option>
                                 @endforeach
-                            </optgroup>
-                            @endforeach
-                            <option value="Lainnya">-- Lainnya (Tidak dalam daftar) --</option>
-                        </select>
-                        <input type="text" name="jenis_sarpras_lainnya" class="form-control" id="jenisSarprasLainnya"
-                            style="margin-top: 8px; display: none;" placeholder="Ketik jenis sarpras...">
-                        @error('jenis_sarpras')
-                            <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
-                        @enderror
+                            </select>
+                            <p class="form-hint">Pilih barang yang pernah Anda pinjam untuk melaporkan masalah</p>
+                        </div>
+
+                        <!-- Info Barang yang Dipilih -->
+                        <div class="loan-info-box" id="loanInfoBox">
+                            <h5><i class="bi bi-info-circle-fill"></i> Detail Barang yang Dipinjam</h5>
+                            <div class="loan-info-grid">
+                                <div class="loan-info-item">
+                                    <label>Nama Barang</label>
+                                    <span id="infoSarpras">-</span>
+                                </div>
+                                <div class="loan-info-item">
+                                    <label>Kode Peminjaman</label>
+                                    <span id="infoKode">-</span>
+                                </div>
+                                <div class="loan-info-item">
+                                    <label>Tanggal Pinjam</label>
+                                    <span id="infoTglPinjam">-</span>
+                                </div>
+                                <div class="loan-info-item">
+                                    <label>Tanggal Kembali</label>
+                                    <span id="infoTglKembali">-</span>
+                                </div>
+                                <div class="loan-info-item">
+                                    <label>Jumlah Dipinjam</label>
+                                    <span id="infoJumlah">-</span>
+                                </div>
+                                <div class="loan-info-item">
+                                    <label>Status</label>
+                                    <span id="infoStatus">-</span>
+                                </div>
+                                <div class="loan-info-item" style="grid-column: span 2;">
+                                    <label>Lokasi Barang</label>
+                                    <span id="infoLokasi">-</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    @endif
+
+                    <!-- Hidden fields untuk data yang akan dikirim -->
+                    <input type="hidden" name="jenis_sarpras" id="jenisSarprasInput">
+                    <input type="hidden" name="lokasi" id="lokasiInput">
                     
-                    <div class="form-group">
-                        <label class="form-label">
-                            Lokasi Sarpras <span class="required">*</span>
-                        </label>
-                        <input type="text" name="lokasi" class="form-control" id="lokasiInput"
-                            value="{{ old('lokasi') }}"
-                            placeholder="Contoh: Lab RPL, Ruang Kelas 2A, Perpustakaan" required>
-                        <p class="form-hint">Sebutkan ruangan atau tempat dimana sarpras tersebut berada</p>
-                        @error('lokasi')
-                            <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    
+                    <!-- 3. Deskripsi Masalah -->
                     <div class="form-group">
                         <label class="form-label">
                             Deskripsi Masalah <span class="required">*</span>
@@ -278,6 +358,7 @@
                         @enderror
                     </div>
                     
+                    <!-- 4. Foto Bukti -->
                     <div class="form-group">
                         <label class="form-label">
                             Foto Bukti (Opsional)
@@ -312,39 +393,25 @@
                     <p>Jelaskan masalah dengan detail agar tim kami dapat menindaklanjuti dengan cepat dan tepat.</p>
                 </div>
                 
-                <h5 style="margin-bottom: 16px; font-size: 0.95rem;">Contoh Pengaduan yang Baik:</h5>
+                <h5 style="margin-bottom: 16px; font-size: 0.95rem;">Contoh Pengaduan:</h5>
                 
                 <div style="background: #f8fafc; padding: 16px; border-radius: 10px; margin-bottom: 16px;">
                     <h6 style="margin: 0 0 8px; color: var(--dark); font-size: 0.9rem;">
-                        <i class="bi bi-check-circle" style="color: var(--success);"></i> 
-                        "Proyektor Lab 1 tidak menyala"
+                        <i class="bi bi-building" style="color: var(--primary);"></i> 
+                        Pengaduan Umum
                     </h6>
                     <p style="margin: 0; font-size: 0.85rem; color: var(--secondary);">
-                        Proyektor Epson di Lab 1 tidak bisa menyala sejak kemarin. 
-                        Lampu indikator berkedip merah. Sudah dicoba ganti kabel power tapi tetap tidak bisa.
+                        "Atap kelas 2A bocor saat hujan", "Wifi sekolah tidak bisa connect", "AC perpustakaan mati"
                     </p>
                 </div>
                 
                 <div style="background: #f8fafc; padding: 16px; border-radius: 10px; margin-bottom: 16px;">
                     <h6 style="margin: 0 0 8px; color: var(--dark); font-size: 0.9rem;">
-                        <i class="bi bi-check-circle" style="color: var(--success);"></i> 
-                        "Kursi di Ruang Kelas 2A patah"
+                        <i class="bi bi-box-seam" style="color: var(--success);"></i> 
+                        Barang Pinjaman
                     </h6>
                     <p style="margin: 0; font-size: 0.85rem; color: var(--secondary);">
-                        Ada 3 kursi di Ruang Kelas 2A yang patah kakinya. 
-                        Posisi: 2 kursi di baris depan, 1 kursi di baris tengah. 
-                        Sangat berbahaya jika diduduki.
-                    </p>
-                </div>
-                
-                <div style="background: #f8fafc; padding: 16px; border-radius: 10px;">
-                    <h6 style="margin: 0 0 8px; color: var(--dark); font-size: 0.9rem;">
-                        <i class="bi bi-check-circle" style="color: var(--success);"></i> 
-                        "Jaringan LAN Lab RPL tidak stabil"
-                    </h6>
-                    <p style="margin: 0; font-size: 0.85rem; color: var(--secondary);">
-                        Jaringan internet di Lab RPL sering terputus-putus sejak minggu lalu. 
-                        Koneksi putus setiap 5-10 menit. Sudah dicoba restart router tapi tetap bermasalah.
+                        "Proyektor Lab 1 tidak menyala", "Kabel HDMI yang dipinjam rusak"
                     </p>
                 </div>
                 
@@ -379,22 +446,53 @@
             preview.style.display = 'none';
         }
     }
-    
-    // Handle "Lainnya" option
-    document.getElementById('jenisSarpras').addEventListener('change', function() {
-        const lainnyaInput = document.getElementById('jenisSarprasLainnya');
-        if (this.value === 'Lainnya') {
-            lainnyaInput.style.display = 'block';
-            lainnyaInput.required = true;
-            lainnyaInput.name = 'jenis_sarpras';
-            this.name = '';
-        } else {
-            lainnyaInput.style.display = 'none';
-            lainnyaInput.required = false;
-            lainnyaInput.name = '';
-            this.name = 'jenis_sarpras';
-        }
+
+    // Type tab selection
+    const typeTabs = document.querySelectorAll('.type-tab');
+    const tipePengaduanInput = document.getElementById('tipePengaduan');
+    const sectionUmum = document.getElementById('sectionUmum');
+    const sectionPeminjaman = document.getElementById('sectionPeminjaman');
+    const jenisSarprasInput = document.getElementById('jenisSarprasInput');
+    const lokasiInput = document.getElementById('lokasiInput');
+    const jenisSarprasManual = document.getElementById('jenisSarprasManual');
+    const lokasiManual = document.getElementById('lokasiManual');
+
+    typeTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active from all tabs
+            typeTabs.forEach(t => t.classList.remove('active'));
+            // Add active to clicked tab
+            this.classList.add('active');
+            
+            const type = this.dataset.type;
+            tipePengaduanInput.value = type;
+            
+            // Show/hide sections
+            if (type === 'umum') {
+                sectionUmum.classList.add('active');
+                if (sectionPeminjaman) sectionPeminjaman.classList.remove('active');
+                // Set required
+                jenisSarprasManual.required = true;
+                lokasiManual.required = true;
+                const peminjamanSelect = document.getElementById('peminjamanSelect');
+                if (peminjamanSelect) peminjamanSelect.required = false;
+            } else {
+                sectionUmum.classList.remove('active');
+                if (sectionPeminjaman) sectionPeminjaman.classList.add('active');
+                // Set required
+                jenisSarprasManual.required = false;
+                lokasiManual.required = false;
+                const peminjamanSelect = document.getElementById('peminjamanSelect');
+                if (peminjamanSelect) peminjamanSelect.required = true;
+            }
+        });
     });
+
+    // Initialize required based on current type
+    if (tipePengaduanInput.value === 'umum') {
+        jenisSarprasManual.required = true;
+        lokasiManual.required = true;
+    }
 
     // Handle peminjaman selection
     const peminjamanSelect = document.getElementById('peminjamanSelect');
@@ -402,20 +500,18 @@
         peminjamanSelect.addEventListener('change', function() {
             const option = this.options[this.selectedIndex];
             const loanInfoBox = document.getElementById('loanInfoBox');
-            const jenisSarprasSelect = document.getElementById('jenisSarpras');
-            const peminjamanIdInput = document.getElementById('peminjamanId');
             
             if (this.value) {
                 // Show loan info box
                 loanInfoBox.classList.add('show');
                 
                 // Fill loan info
+                document.getElementById('infoSarpras').textContent = option.dataset.sarpras || '-';
                 document.getElementById('infoKode').textContent = option.dataset.kode || '-';
                 document.getElementById('infoTglPinjam').textContent = option.dataset.tglPinjam || '-';
                 document.getElementById('infoTglKembali').textContent = option.dataset.tglKembali || '-';
-                document.getElementById('infoTglKembaliAktual').textContent = option.dataset.tglKembaliAktual || '-';
                 document.getElementById('infoJumlah').textContent = option.dataset.jumlah || '-';
-                document.getElementById('infoTujuan').textContent = option.dataset.tujuan || '-';
+                document.getElementById('infoLokasi').textContent = option.dataset.lokasi || '-';
                 
                 // Format status
                 const status = option.dataset.status;
@@ -427,23 +523,29 @@
                 };
                 document.getElementById('infoStatus').textContent = statusLabels[status] || status;
                 
-                // Auto-fill jenis sarpras
-                const sarprasValue = option.dataset.sarpras;
-                for (let i = 0; i < jenisSarprasSelect.options.length; i++) {
-                    if (jenisSarprasSelect.options[i].value === sarprasValue) {
-                        jenisSarprasSelect.selectedIndex = i;
-                        break;
-                    }
-                }
-                
-                // Set peminjaman_id
-                peminjamanIdInput.value = this.value;
+                // Set hidden inputs
+                jenisSarprasInput.value = option.dataset.sarpras || '';
+                lokasiInput.value = option.dataset.lokasi || '';
             } else {
                 // Hide loan info box
                 loanInfoBox.classList.remove('show');
-                peminjamanIdInput.value = '';
+                jenisSarprasInput.value = '';
+                lokasiInput.value = '';
             }
         });
+
+        // Trigger change event if there's old value
+        if (peminjamanSelect.value) {
+            peminjamanSelect.dispatchEvent(new Event('change'));
+        }
     }
+
+    // Before form submit, set hidden inputs for umum type
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (tipePengaduanInput.value === 'umum') {
+            jenisSarprasInput.value = jenisSarprasManual.value;
+            lokasiInput.value = lokasiManual.value;
+        }
+    });
 </script>
 @endpush

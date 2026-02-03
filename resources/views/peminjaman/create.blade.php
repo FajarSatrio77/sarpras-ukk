@@ -97,10 +97,26 @@
                         </label>
                         <input type="date" name="tgl_kembali_rencana" value="{{ old('tgl_kembali_rencana') }}" 
                                min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                               @if(auth()->user()->isPengguna())
+                               max="{{ date('Y-m-d', strtotime('+7 days')) }}"
+                               @endif
                                style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
                                required>
                     </div>
                 </div>
+                
+                @if(auth()->user()->isPengguna())
+                <div style="background: linear-gradient(135deg, #fef3c7, #fef9c3); border: 1px solid #f59e0b; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 12px;">
+                    <i class="bi bi-info-circle-fill" style="color: #d97706; font-size: 1.2rem; flex-shrink: 0; margin-top: 2px;"></i>
+                    <div>
+                        <strong style="color: #92400e; display: block; margin-bottom: 4px;">Batas Durasi Peminjaman</strong>
+                        <p style="font-size: 0.85rem; color: #78350f; margin: 0;">
+                            Durasi peminjaman untuk siswa maksimal <strong>7 hari</strong>. 
+                            Jika membutuhkan waktu lebih lama, silakan ajukan peminjaman baru setelah peminjaman ini dikembalikan.
+                        </p>
+                    </div>
+                </div>
+                @endif
 
                 <div style="margin-bottom: 24px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
@@ -133,9 +149,18 @@
         const today = new Date().toISOString().split('T')[0];
         const tglPinjam = document.querySelector('input[name="tgl_pinjam"]');
         const tglKembali = document.querySelector('input[name="tgl_kembali_rencana"]');
+        const isSiswa = {{ auth()->user()->isPengguna() ? 'true' : 'false' }};
+        const maxDays = 7; // Batas maksimal untuk siswa
         
         // Set minimum dates
         tglPinjam.setAttribute('min', today);
+        
+        // Function to calculate max date (7 days from start)
+        function getMaxDate(startDate) {
+            const max = new Date(startDate);
+            max.setDate(max.getDate() + maxDays);
+            return max.toISOString().split('T')[0];
+        }
         
         // Validate tanggal pinjam
         tglPinjam.addEventListener('change', function() {
@@ -143,13 +168,24 @@
                 alert('Tanggal pinjam tidak boleh kurang dari hari ini!');
                 this.value = today;
             }
+            
             // Update min tanggal kembali
             const nextDay = new Date(this.value);
             nextDay.setDate(nextDay.getDate() + 1);
             tglKembali.setAttribute('min', nextDay.toISOString().split('T')[0]);
             
+            // Set max date untuk siswa
+            if (isSiswa) {
+                tglKembali.setAttribute('max', getMaxDate(this.value));
+            }
+            
             // Reset tanggal kembali jika lebih kecil dari tanggal pinjam
             if (tglKembali.value && tglKembali.value <= this.value) {
+                tglKembali.value = '';
+            }
+            
+            // Reset jika lebih dari 7 hari (untuk siswa)
+            if (isSiswa && tglKembali.value > getMaxDate(this.value)) {
                 tglKembali.value = '';
             }
         });
@@ -159,8 +195,27 @@
             if (this.value <= tglPinjam.value) {
                 alert('Tanggal kembali harus setelah tanggal pinjam!');
                 this.value = '';
+                return;
+            }
+            
+            // Cek batas 7 hari untuk siswa
+            if (isSiswa) {
+                const startDate = new Date(tglPinjam.value);
+                const endDate = new Date(this.value);
+                const diffTime = Math.abs(endDate - startDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays > maxDays) {
+                    alert('Durasi peminjaman untuk siswa maksimal ' + maxDays + ' hari. Jika membutuhkan lebih lama, silakan ajukan peminjaman baru setelah peminjaman ini dikembalikan.');
+                    this.value = '';
+                }
             }
         });
+        
+        // Set initial max date if tanggal pinjam already has value
+        if (tglPinjam.value && isSiswa) {
+            tglKembali.setAttribute('max', getMaxDate(tglPinjam.value));
+        }
     });
 </script>
 @endpush
