@@ -6,9 +6,7 @@ use App\Models\Peminjaman;
 use App\Models\Pengembalian;
 use App\Models\Pengaduan;
 use App\Models\Sarpras;
-use App\Models\ChecklistTemplate;
-use App\Models\Inspection;
-use App\Models\InspectionResult;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -105,10 +103,7 @@ class PengembalianController extends Controller
         // Cek apakah peminjaman memiliki unit tracking
         $hasUnits = $peminjaman->peminjamanUnits->isNotEmpty();
         
-        // Cari template checklist untuk barang ini
-        $template = ChecklistTemplate::findForSarpras($peminjaman->sarpras_id, $peminjaman->sarpras->kategori_id);
-        
-        return view('pengembalian.create', compact('peminjaman', 'hasUnits', 'template'));
+        return view('pengembalian.create', compact('peminjaman', 'hasUnits'));
     }
 
     /**
@@ -176,6 +171,7 @@ class PengembalianController extends Controller
 
             // Update setiap unit
             $peminjamanUnits = $peminjaman->peminjamanUnits()->with('sarprasUnit')->get();
+            $damagedUnits = []; // Track unit yang rusak untuk laporan
             
             foreach ($peminjamanUnits as $pu) {
                 $unitId = $pu->sarpras_unit_id;
@@ -194,6 +190,15 @@ class PengembalianController extends Controller
                     'kondisi' => $kondisi,
                     'catatan' => $catatan,
                 ]);
+                
+                // Track unit yang rusak atau hilang
+                if (in_array($kondisi, ['rusak_ringan', 'rusak_berat', 'hilang'])) {
+                    $damagedUnits[] = [
+                        'unit' => $pu->sarprasUnit,
+                        'kondisi' => $kondisi,
+                        'catatan' => $catatan,
+                    ];
+                }
             }
 
             // Update status peminjaman
@@ -206,20 +211,22 @@ class PengembalianController extends Controller
             $sarpras = $peminjaman->sarpras;
             $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
 
-            // Simpan hasil checklist jika ada
-            if ($request->has('checklist') && is_array($request->checklist)) {
-                $this->saveChecklistResults($peminjaman, $request->checklist, $fotoPath);
-            }
-
-            // Buat pengaduan otomatis jika ada unit hilang
-            if (in_array('hilang', $conditions)) {
-                $this->createPengaduanOtomatis($peminjaman, $pengembalian);
+            // Buat pengaduan otomatis untuk setiap unit yang rusak/hilang
+            $pengaduanCount = 0;
+            foreach ($damagedUnits as $damaged) {
+                $this->createPengaduanPerUnit($peminjaman, $pengembalian, $damaged);
+                $pengaduanCount++;
             }
 
             DB::commit();
 
+            $message = "Pengembalian berhasil diproses. {$peminjamanUnits->count()} unit telah dikembalikan.";
+            if ($pengaduanCount > 0) {
+                $message .= " {$pengaduanCount} laporan kerusakan otomatis telah dibuat.";
+            }
+
             return redirect()->route('pengembalian.index')
-                ->with('success', "Pengembalian berhasil diproses. {$peminjamanUnits->count()} unit telah dikembalikan.");
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -299,10 +306,7 @@ class PengembalianController extends Controller
                     break;
             }
 
-            // Simpan hasil checklist jika ada
-            if ($request->has('checklist') && is_array($request->checklist)) {
-                $this->saveChecklistResults($peminjaman, $request->checklist, $fotoPath);
-            }
+
 
             DB::commit();
 
@@ -393,6 +397,56 @@ class PengembalianController extends Controller
                 'prioritas' => 'tinggi',
             ]);
         }
+    }
+
+    /**
+     * Buat pengaduan otomatis per-unit yang rusak/hilang
+     */
+    private function createPengaduanPerUnit(Peminjaman $peminjaman, Pengembalian $pengembalian, array $damagedData)
+    {
+        if (!class_exists(\App\Models\Pengaduan::class)) {
+            return;
+        }
+
+        $unit = $damagedData['unit'];
+        $kondisi = $damagedData['kondisi'];
+        $catatan = $damagedData['catatan'] ?? '';
+
+        // Tentukan jenis dan prioritas berdasarkan kondisi
+        $jenisMap = [
+            'rusak_ringan' => 'kerusakan',
+            'rusak_berat' => 'kerusakan',
+            'hilang' => 'kehilangan',
+        ];
+        
+        $prioritasMap = [
+            'rusak_ringan' => 'rendah',
+            'rusak_berat' => 'tinggi',
+            'hilang' => 'tinggi',
+        ];
+        
+        $kondisiLabel = match($kondisi) {
+            'rusak_ringan' => 'Rusak Ringan',
+            'rusak_berat' => 'Rusak Berat',
+            'hilang' => 'Hilang',
+            default => $kondisi,
+        };
+
+        $sarpras = $peminjaman->sarpras;
+        
+        \App\Models\Pengaduan::create([
+            'kode_pengaduan' => 'ADU-' . now()->format('Ymd') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
+            'user_id' => $peminjaman->user_id,
+            'sarpras_id' => $sarpras->id,
+            'peminjaman_id' => $peminjaman->id,
+            'jenis' => $jenisMap[$kondisi] ?? 'kerusakan',
+            'judul' => "Unit {$unit->kode_unit} - {$kondisiLabel}",
+            'deskripsi' => "Unit dengan kode **{$unit->kode_unit}** dari barang **{$sarpras->nama}** ({$sarpras->kode}) " .
+                          "dikembalikan dalam kondisi **{$kondisiLabel}** pada pengembalian peminjaman {$peminjaman->kode_peminjaman}.\n\n" .
+                          ($catatan ? "**Catatan:** {$catatan}" : ""),
+            'status' => 'pending',
+            'prioritas' => $prioritasMap[$kondisi] ?? 'sedang',
+        ]);
     }
 
     /**
@@ -517,41 +571,5 @@ class PengembalianController extends Controller
             ->paginate(15);
     }
 
-    /**
-     * Simpan hasil checklist inspeksi
-     */
-    private function saveChecklistResults(Peminjaman $peminjaman, array $checklistData, $fotoPath = null)
-    {
-        // Tentukan kondisi umum berdasarkan item terburuk
-        $conditions = array_column($checklistData, 'kondisi');
-        $kondisiUmum = 'baik';
-        if (in_array('rusak_berat', $conditions)) {
-            $kondisiUmum = 'rusak_berat';
-        } elseif (in_array('rusak_ringan', $conditions)) {
-            $kondisiUmum = 'rusak_ringan';
-        }
 
-        // Buat record inspeksi
-        $inspection = Inspection::create([
-            'peminjaman_id' => $peminjaman->id,
-            'tipe' => Inspection::TIPE_POST_RETURN,
-            'inspector_id' => Auth::id(),
-            'kondisi_umum' => $kondisiUmum,
-            'ada_kerusakan_baru' => $kondisiUmum !== 'baik',
-            'foto_path' => $fotoPath,
-            'inspected_at' => now(),
-        ]);
-
-        // Simpan hasil per item
-        foreach ($checklistData as $itemId => $data) {
-            InspectionResult::create([
-                'inspection_id' => $inspection->id,
-                'checklist_item_id' => $itemId,
-                'kondisi' => $data['kondisi'] ?? 'baik',
-                'catatan' => $data['catatan'] ?? null,
-            ]);
-        }
-
-        return $inspection;
-    }
 }

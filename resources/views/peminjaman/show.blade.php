@@ -254,43 +254,7 @@
         </div>
         @endif
 
-        <!-- Hasil Checklist Inspeksi -->
-        @php
-            $postReturnInspection = $peminjaman->inspections()->where('tipe', 'post_return')->with('results.checklistItem')->first();
-        @endphp
-        @if($postReturnInspection && $postReturnInspection->results->isNotEmpty())
-        <div style="margin-top: 20px;">
-            <h6 style="font-weight: 600; color: var(--dark); margin-bottom: 12px;">
-                <i class="bi bi-clipboard-check"></i> Hasil Checklist Inspeksi
-            </h6>
-            <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-                @foreach($postReturnInspection->results as $result)
-                <div style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; {{ $loop->last ? 'border-bottom: none;' : '' }}">
-                    <div>
-                        <div style="font-weight: 500;">{{ $result->checklistItem->nama ?? 'Item #' . $result->checklist_item_id }}</div>
-                        @if($result->catatan)
-                        <small style="color: var(--secondary);">{{ $result->catatan }}</small>
-                        @endif
-                    </div>
-                    <span class="badge {{ $result->kondisi_badge }}">
-                        @if($result->kondisi == 'baik')
-                            ✅ Baik
-                        @elseif($result->kondisi == 'rusak_ringan')
-                            ⚠️ Rusak Ringan
-                        @else
-                            ❌ Rusak Berat
-                        @endif
-                    </span>
-                </div>
-                @endforeach
-            </div>
-            @if($postReturnInspection->ada_kerusakan_baru)
-            <div style="margin-top: 12px; padding: 12px 16px; background: #fef3c7; border-radius: 8px; color: #92400e;">
-                <i class="bi bi-exclamation-triangle"></i> Ada kerusakan baru terdeteksi pada inspeksi ini
-            </div>
-            @endif
-        </div>
-        @endif
+
     </div>
 </div>
 @endif
@@ -306,9 +270,13 @@
     </div>
     <div class="card-body">
         <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-            <form action="{{ route('peminjaman.approve', $peminjaman) }}" method="POST">
+            <form action="{{ route('peminjaman.approve', $peminjaman) }}" method="POST"
+                  data-confirm="Setujui peminjaman <strong>{{ $peminjaman->kode_peminjaman }}</strong>?"
+                  data-confirm-title="Setujui Peminjaman"
+                  data-confirm-type="success"
+                  data-confirm-btn="Ya, Setujui">
                 @csrf
-                <button type="submit" class="btn btn-primary" onclick="return confirm('Setujui peminjaman ini?')">
+                <button type="submit" class="btn btn-primary">
                     <i class="bi bi-check-lg"></i> Setujui Peminjaman
                 </button>
             </form>

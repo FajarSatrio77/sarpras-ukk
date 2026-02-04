@@ -4,6 +4,9 @@
 
 @push('styles')
 <style>
+    /* Page-specific styles for Pengaduan Detail */
+    
+    /* Timeline styles */
     .timeline {
         position: relative;
         padding-left: 30px;
@@ -22,7 +25,15 @@
     .timeline-item {
         position: relative;
         padding-bottom: 20px;
+        opacity: 0;
+        animation: fadeInUp 0.5s ease forwards;
     }
+    
+    .timeline-item:nth-child(1) { animation-delay: 0.3s; }
+    .timeline-item:nth-child(2) { animation-delay: 0.4s; }
+    .timeline-item:nth-child(3) { animation-delay: 0.5s; }
+    .timeline-item:nth-child(4) { animation-delay: 0.6s; }
+    .timeline-item:nth-child(5) { animation-delay: 0.7s; }
     
     .timeline-item::before {
         content: '';
@@ -35,12 +46,26 @@
         background: var(--primary);
         border: 2px solid white;
         box-shadow: 0 0 0 2px var(--primary);
+        transform: scale(0);
+        animation: scaleIn 0.4s ease forwards;
     }
+    
+    .timeline-item:nth-child(1)::before { animation-delay: 0.4s; }
+    .timeline-item:nth-child(2)::before { animation-delay: 0.5s; }
+    .timeline-item:nth-child(3)::before { animation-delay: 0.6s; }
+    .timeline-item:nth-child(4)::before { animation-delay: 0.7s; }
+    .timeline-item:nth-child(5)::before { animation-delay: 0.8s; }
     
     .timeline-content {
         background: #f8fafc;
         padding: 16px;
         border-radius: 10px;
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+    
+    .timeline-content:hover {
+        background: #f1f5f9;
+        transform: translateX(5px);
     }
     
     .timeline-meta {
@@ -49,10 +74,13 @@
         margin-bottom: 8px;
     }
     
+    /* Status card styles */
     .status-card {
         padding: 20px;
         border-radius: 12px;
         text-align: center;
+        opacity: 0;
+        animation: scaleIn 0.5s ease 0.2s forwards;
     }
     
     .status-card.menunggu {
@@ -78,6 +106,7 @@
     .status-card .status-icon {
         font-size: 2.5rem;
         margin-bottom: 12px;
+        animation: pulse 2s ease-in-out infinite;
     }
     
     .status-card.menunggu .status-icon { color: var(--warning); }
@@ -88,7 +117,7 @@
 @endpush
 
 @section('content')
-<div class="mb-4">
+<div class="mb-4 content-fade">
     <a href="{{ route('pengaduan.index') }}" style="color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
         <i class="bi bi-arrow-left"></i> Kembali ke Daftar Pengaduan
     </a>
@@ -97,7 +126,7 @@
 <div class="grid grid-2" style="gap: 24px;">
     <!-- Detail Pengaduan -->
     <div>
-        <div class="card">
+        <div class="card card-animated">
             <div class="card-header">
                 <h5 class="card-title">Detail Pengaduan</h5>
                 <span style="font-size: 0.8rem; color: var(--secondary);">
@@ -109,7 +138,7 @@
                     {{ $pengaduan->judul }}
                 </h3>
                 
-                <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div class="info-grid" style="display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 20px;">
                     <div>
                         <span style="font-size: 0.8rem; color: var(--secondary); display: block;">Lokasi</span>
                         <span style="font-weight: 600;"><i class="bi bi-geo-alt"></i> {{ $pengaduan->lokasi }}</span>
@@ -132,8 +161,11 @@
                 @if($pengaduan->foto)
                 <div>
                     <h5 style="margin-bottom: 12px; font-size: 0.9rem; color: var(--dark);">Foto Dokumentasi</h5>
-                    <img src="{{ Storage::url($pengaduan->foto) }}" alt="Foto Pengaduan" 
-                        style="width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <div class="img-loading" id="fotoContainer">
+                        <img src="{{ Storage::url($pengaduan->foto) }}" alt="Foto Pengaduan" 
+                            style="width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" 
+                            onload="this.parentElement.classList.add('loaded')">
+                    </div>
                 </div>
                 @endif
 
@@ -142,7 +174,7 @@
                     <h5 style="margin: 0 0 12px; font-size: 0.9rem; color: #166534; display: flex; align-items: center; gap: 8px;">
                         <i class="bi bi-link-45deg"></i> Terkait Peminjaman
                     </h5>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <div class="info-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                         <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
                             <span style="display: block; font-size: 0.75rem; color: #15803d; margin-bottom: 4px; font-weight: 500;">Kode Peminjaman</span>
                             <span style="font-size: 0.9rem; color: var(--dark); font-weight: 600;">{{ $pengaduan->peminjaman->kode_peminjaman }}</span>
@@ -187,7 +219,7 @@
         
         <!-- Timeline Catatan -->
         @if($pengaduan->catatan->count() > 0)
-        <div class="card" style="margin-top: 24px;">
+        <div class="card card-animated" style="margin-top: 24px;">
             <div class="card-header">
                 <h5 class="card-title"><i class="bi bi-chat-square-text"></i> Catatan Tindak Lanjut</h5>
             </div>
@@ -213,7 +245,7 @@
     <!-- Status & Actions -->
     <div>
         <!-- Status Card -->
-        <div class="card">
+        <div class="card slide-in-right">
             <div class="card-body" style="padding: 0;">
                 <div class="status-card {{ $pengaduan->status }}">
                     @switch($pengaduan->status)
@@ -244,7 +276,7 @@
         
         <!-- Admin Actions -->
         @if(Auth::user()->canManage())
-        <div class="card" style="margin-top: 24px;">
+        <div class="card slide-in-right" style="margin-top: 24px;">
             <div class="card-header">
                 <h5 class="card-title"><i class="bi bi-gear"></i> Kelola Pengaduan</h5>
             </div>
@@ -262,37 +294,26 @@
                         <option value="ditutup" {{ $pengaduan->status == 'ditutup' ? 'selected' : '' }}>Ditutup</option>
                     </select>
                     
-                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Catatan (opsional)</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Catatan</label>
                     <textarea name="catatan" rows="3" 
                         style="width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px;"
                         placeholder="Tambahkan catatan untuk perubahan status..."></textarea>
                     
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <i class="bi bi-check-lg"></i> Update Status
+                    <button type="submit" class="btn btn-primary btn-submit" style="width: 100%;">
+                        <span><i class="bi bi-check-lg"></i> Update Status</span>
                     </button>
                 </form>
                 
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
                 
                 <!-- Tambah Catatan -->
-                <form action="{{ route('pengaduan.add-catatan', $pengaduan) }}" method="POST">
-                    @csrf
-                    
-                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Tambah Catatan Tindak Lanjut</label>
-                    <textarea name="catatan" rows="3" required
-                        style="width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px;"
-                        placeholder="Contoh: Sudah dikirim teknisi, Menunggu sparepart, dll..."></textarea>
-                    
-                    <button type="submit" class="btn btn-outline" style="width: 100%;">
-                        <i class="bi bi-chat-dots"></i> Tambah Catatan
-                    </button>
-                </form>
+                
             </div>
         </div>
         @endif
         
         <!-- Info Pelapor -->
-        <div class="card" style="margin-top: 24px;">
+        <div class="card slide-in-right" style="margin-top: 24px;">
             <div class="card-header">
                 <h5 class="card-title"><i class="bi bi-person"></i> Info Pelapor</h5>
             </div>

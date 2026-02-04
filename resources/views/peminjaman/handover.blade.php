@@ -2,6 +2,298 @@
 
 @section('title', 'Serahkan Barang')
 
+@push('styles')
+<style>
+    /* Multi-select Dropdown Styles */
+    .unit-select-container {
+        position: relative;
+    }
+    
+    .unit-select-trigger {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    
+    .unit-select-trigger:hover {
+        border-color: var(--primary);
+    }
+    
+    .unit-select-trigger.open {
+        border-color: var(--primary);
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    
+    .unit-select-trigger .placeholder {
+        color: var(--secondary);
+    }
+    
+    .unit-select-trigger .arrow {
+        transition: transform 0.3s ease;
+    }
+    
+    .unit-select-trigger.open .arrow {
+        transform: rotate(180deg);
+    }
+    
+    .unit-select-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid var(--primary);
+        border-top: none;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+        max-height: 300px;
+        overflow: hidden;
+        display: none;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    
+    .unit-select-dropdown.show {
+        display: block;
+    }
+    
+    .unit-search {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+    
+    .unit-search input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .unit-search input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .unit-list {
+        max-height: 220px;
+        overflow-y: auto;
+    }
+    
+    .unit-option {
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .unit-option:last-child {
+        border-bottom: none;
+    }
+    
+    .unit-option:hover:not(.disabled) {
+        background: rgba(99, 102, 241, 0.05);
+    }
+    
+    .unit-option.selected {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+    }
+    
+    .unit-option.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f8f9fa;
+    }
+    
+    .unit-option .unit-code {
+        font-family: monospace;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.95rem;
+    }
+    
+    .unit-option .unit-check {
+        width: 22px;
+        height: 22px;
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+    
+    .unit-option.selected .unit-check {
+        background: var(--success);
+        border-color: var(--success);
+        color: white;
+    }
+    
+    /* Selected Tags */
+    .selected-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+        min-height: 36px;
+    }
+    
+    .selected-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        animation: tagEnter 0.2s ease;
+    }
+    
+    @keyframes tagEnter {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    
+    .selected-tag .remove-tag {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .selected-tag .remove-tag:hover {
+        background: rgba(255,255,255,0.4);
+    }
+    
+    /* Progress Counter */
+    .selection-counter {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-top: 16px;
+    }
+    
+    .counter-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .counter-label .count {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+    
+    .counter-label .count.complete {
+        color: var(--success);
+    }
+    
+    .progress-track {
+        height: 8px;
+        background: #d1d5db;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--warning) 0%, #f59e0b 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease, background 0.3s ease;
+    }
+    
+    .progress-fill.complete {
+        background: linear-gradient(90deg, var(--success) 0%, #10b981 100%);
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    
+    .quick-action-btn {
+        padding: 8px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--secondary);
+    }
+    
+    .quick-action-btn:hover {
+        background: #f8fafc;
+        color: var(--dark);
+    }
+    
+    /* Auto Select Button Style - Teal */
+    #autoSelectBtn {
+        color: #0d9488;
+        background: #f0fdfa;
+        border-color: #ccfbf1;
+    }
+    
+    #autoSelectBtn:hover {
+        background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+        border-color: #0d9488;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(13, 148, 136, 0.1);
+    }
+
+    .quick-action-btn.reset {
+        color: var(--danger);
+    }
+    
+    .quick-action-btn.reset:hover {
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+    
+    .empty-selection {
+        text-align: center;
+        padding: 12px;
+        color: var(--secondary);
+        font-size: 0.9rem;
+    }
+    
+    /* No results */
+    .no-results {
+        padding: 20px;
+        text-align: center;
+        color: var(--secondary);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container py-4">
     <div class="row justify-content-center">
@@ -9,7 +301,7 @@
             {{-- Header --}}
             <div class="d-flex align-items-center mb-4">
                 <a href="{{ route('peminjaman.show', $peminjaman) }}" class="btn btn-outline-secondary me-3">
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="bi bi-arrow-left"></i>
                 </a>
                 <div>
                     <h4 class="mb-0">Serahkan Barang</h4>
@@ -19,130 +311,161 @@
 
             {{-- Info Peminjaman --}}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <i class="fas fa-info-circle me-2"></i>Detail Peminjaman
+                <div class="card-header" style="background: var(--primary); color: white;">
+                    <i class="bi bi-info-circle me-2"></i>Detail Peminjaman
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6 border-end-md">
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="text-muted" width="40%">Kode</td>
-                                    <td><strong>{{ $peminjaman->kode_peminjaman }}</strong></td>
+                                    <td class="text-secondary pb-3" width="120">Kode</td>
+                                    <td class="pb-3"><span class="font-monospace fw-bold text-primary">{{ $peminjaman->kode_peminjaman }}</span></td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Peminjam</td>
-                                    <td>{{ $peminjaman->user->name }}</td>
+                                    <td class="text-secondary pb-3">Peminjam</td>
+                                    <td class="pb-3 fw-medium">{{ $peminjaman->user->name }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Barang</td>
-                                    <td>{{ $peminjaman->sarpras->nama }}</td>
+                                    <td class="text-secondary">Barang</td>
+                                    <td class="fw-medium">{{ $peminjaman->sarpras->nama }}</td>
                                 </tr>
                             </table>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 ps-md-4">
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
-                                    <td class="text-muted" width="50%">Jumlah</td>
-                                    <td><span class="badge bg-info">{{ $peminjaman->jumlah }} unit</span></td>
+                                    <td class="text-secondary pb-3" width="120">Jumlah</td>
+                                    <td class="pb-3">
+                                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                                            {{ $peminjaman->jumlah }} unit
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Tgl Pinjam</td>
-                                    <td>{{ $peminjaman->tgl_pinjam->format('d M Y') }}</td>
+                                    <td class="text-secondary pb-3">Tgl Pinjam</td>
+                                    <td class="pb-3">{{ $peminjaman->tgl_pinjam->format('d M Y') }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Tgl Kembali</td>
+                                    <td class="text-secondary">Tgl Kembali</td>
                                     <td>{{ $peminjaman->tgl_kembali_rencana->format('d M Y') }}</td>
                                 </tr>
                             </table>
                         </div>
                     </div>
                 </div>
+                    </div>
+                </div>
             </div>
 
             {{-- Form Pilih Unit --}}
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <i class="fas fa-boxes me-2"></i>Pilih Unit untuk Diserahkan
+                <div class="card-header" style="background: var(--success); color: white;">
+                    <i class="bi bi-boxes me-2"></i>Pilih Unit untuk Diserahkan
                 </div>
                 <div class="card-body">
                     @if(session('error'))
                         <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                            <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
                         </div>
                     @endif
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Pilih <strong>{{ $peminjaman->jumlah }} unit</strong> dari daftar di bawah untuk diserahkan kepada peminjam.
+                    <div class="alert alert-info" style="background: rgba(13, 110, 253, 0.05); border: 1px solid rgba(13, 110, 253, 0.1); color: var(--dark);">
+                        <i class="bi bi-info-circle me-2" style="color: var(--primary);"></i>
+                        Pilih <strong>{{ $peminjaman->jumlah }} unit</strong> dari dropdown di bawah untuk diserahkan kepada peminjam.
                     </div>
 
                     <form action="{{ route('peminjaman.handover.store', $peminjaman) }}" method="POST" id="handoverForm">
                         @csrf
 
+                        {{-- Quick Actions --}}
+                        <div class="quick-actions">
+                            <button type="button" class="quick-action-btn" id="autoSelectBtn">
+                                <i class="bi bi-lightning-charge"></i> Pilih Otomatis {{ $peminjaman->jumlah }} Unit
+                            </button>
+                            <button type="button" class="quick-action-btn reset" id="resetBtn">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset
+                            </button>
+                        </div>
+
+                        {{-- Multi-select Dropdown --}}
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Unit Tersedia</label>
-                            <div class="row g-3" id="unitList">
-                                @forelse($unitsTersedia as $unit)
-                                    <div class="col-md-6">
-                                        <div class="card unit-card {{ $unit->kondisi !== 'baik' ? 'border-warning' : '' }}" 
-                                             data-unit-id="{{ $unit->id }}">
-                                            <div class="card-body p-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input unit-checkbox" 
-                                                           type="checkbox" 
-                                                           name="unit_ids[]" 
-                                                           value="{{ $unit->id }}" 
-                                                           id="unit{{ $unit->id }}">
-                                                    <label class="form-check-label w-100" for="unit{{ $unit->id }}">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <span class="fw-bold text-primary">{{ $unit->kode_unit }}</span>
-                                                            {!! $unit->kondisi_label !!}
-                                                        </div>
-                                                        @if($unit->catatan)
-                                                            <small class="text-muted d-block mt-1">
-                                                                <i class="fas fa-comment-alt me-1"></i>{{ $unit->catatan }}
-                                                            </small>
-                                                        @endif
-                                                    </label>
+                            <label class="form-label fw-bold">Unit Tersedia ({{ $unitsTersedia->count() }} unit)</label>
+                            
+                            <div class="unit-select-container" id="unitSelectContainer">
+                                <div class="unit-select-trigger" id="unitSelectTrigger">
+                                    <span class="placeholder">Klik untuk memilih unit...</span>
+                                    <i class="bi bi-chevron-down arrow"></i>
+                                </div>
+                                
+                                <div class="unit-select-dropdown" id="unitSelectDropdown">
+                                    <div class="unit-search">
+                                        <input type="text" id="unitSearchInput" placeholder="Cari kode unit..." autocomplete="off">
+                                    </div>
+                                    <div class="unit-list" id="unitList">
+                                        @forelse($unitsTersedia as $unit)
+                                            <div class="unit-option" 
+                                                 data-unit-id="{{ $unit->id }}" 
+                                                 data-unit-code="{{ $unit->kode_unit }}"
+                                                 data-kondisi="{{ $unit->kondisi }}">
+                                                <div>
+                                                    <span class="unit-code">{{ $unit->kode_unit }}</span>
+                                                    <span style="margin-left: 8px;">{!! $unit->kondisi_label !!}</span>
+                                                    @if($unit->catatan)
+                                                        <small class="d-block text-muted mt-1">
+                                                            <i class="bi bi-chat-text"></i> {{ Str::limit($unit->catatan, 30) }}
+                                                        </small>
+                                                    @endif
+                                                </div>
+                                                <div class="unit-check">
+                                                    <i class="bi bi-check"></i>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @empty
+                                            <div class="no-results">
+                                                <i class="bi bi-inbox"></i> Tidak ada unit tersedia
+                                            </div>
+                                        @endforelse
                                     </div>
-                                @empty
-                                    <div class="col-12">
-                                        <div class="alert alert-warning mb-0">
-                                            Tidak ada unit tersedia untuk barang ini.
-                                        </div>
-                                    </div>
-                                @endforelse
+                                </div>
                             </div>
+
+                            {{-- Selected Tags --}}
+                            <div class="selected-tags" id="selectedTags">
+                                <div class="empty-selection" id="emptySelection">
+                                    <i class="bi bi-hand-index"></i> Belum ada unit yang dipilih
+                                </div>
+                            </div>
+
+                            {{-- Hidden inputs for form submission --}}
+                            <div id="hiddenInputs"></div>
+                            
                             @error('unit_ids')
                                 <div class="text-danger mt-2">
-                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                    <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
                                 </div>
                             @enderror
                         </div>
 
                         {{-- Counter --}}
-                        <div class="alert alert-secondary mb-4">
-                            <div class="d-flex justify-content-between align-items-center">
+                        <div class="selection-counter">
+                            <div class="counter-label">
                                 <span>Unit yang dipilih:</span>
-                                <span class="fw-bold">
-                                    <span id="selectedCount">0</span> / {{ $peminjaman->jumlah }}
-                                </span>
+                                <span class="count" id="selectedCount">0 / {{ $peminjaman->jumlah }}</span>
                             </div>
-                            <div class="progress mt-2" style="height: 8px;">
-                                <div class="progress-bar bg-success" id="progressBar" role="progressbar" style="width: 0%"></div>
+                            <div class="progress-track">
+                                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2">
+                        <div class="d-flex gap-2 mt-4">
                             <a href="{{ route('peminjaman.show', $peminjaman) }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-1"></i>Batal
+                                <i class="bi bi-x-lg me-1"></i>Batal
                             </a>
                             <button type="submit" class="btn btn-success flex-fill" id="submitBtn" disabled>
-                                <i class="fas fa-hand-holding me-1"></i>Serahkan {{ $peminjaman->jumlah }} Unit
+                                <i class="bi bi-hand-index me-1"></i>Serahkan {{ $peminjaman->jumlah }} Unit
                             </button>
                         </div>
                     </form>
@@ -151,93 +474,218 @@
         </div>
     </div>
 </div>
+@endsection
 
-<style>
-.unit-card {
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 2px solid #dee2e6;
-}
-.unit-card:hover:not(.disabled) {
-    border-color: #0d6efd;
-    background-color: #f8f9ff;
-}
-.unit-card.selected {
-    border-color: #198754;
-    background-color: #d1e7dd;
-}
-.unit-card.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #f8f9fa;
-}
-.unit-card .form-check-input:checked ~ .form-check-label {
-    font-weight: 500;
-}
-</style>
-
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const checkboxes = document.querySelectorAll('.unit-checkbox');
-    const submitBtn = document.getElementById('submitBtn');
-    const selectedCount = document.getElementById('selectedCount');
-    const progressBar = document.getElementById('progressBar');
     const requiredCount = {{ $peminjaman->jumlah }};
+    let selectedUnits = new Map(); // Map of unitId -> unitCode
+    
+    const trigger = document.getElementById('unitSelectTrigger');
+    const dropdown = document.getElementById('unitSelectDropdown');
+    const searchInput = document.getElementById('unitSearchInput');
+    const unitOptions = document.querySelectorAll('.unit-option');
+    const selectedTags = document.getElementById('selectedTags');
+    const emptySelection = document.getElementById('emptySelection');
+    const hiddenInputs = document.getElementById('hiddenInputs');
+    const selectedCountEl = document.getElementById('selectedCount');
+    const progressBar = document.getElementById('progressBar');
+    const submitBtn = document.getElementById('submitBtn');
+    const autoSelectBtn = document.getElementById('autoSelectBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
-    function updateCount() {
-        const checked = document.querySelectorAll('.unit-checkbox:checked').length;
-        selectedCount.textContent = checked;
-        
-        const percentage = (checked / requiredCount) * 100;
-        progressBar.style.width = Math.min(percentage, 100) + '%';
-        
-        if (checked === requiredCount) {
-            progressBar.classList.remove('bg-warning', 'bg-danger');
-            progressBar.classList.add('bg-success');
-            submitBtn.disabled = false;
-            
-            // Disable unchecked checkboxes
-            checkboxes.forEach(function(cb) {
-                if (!cb.checked) {
-                    cb.disabled = true;
-                    cb.closest('.unit-card').classList.add('disabled');
-                }
-            });
+    // Toggle dropdown
+    trigger.addEventListener('click', function() {
+        const isOpen = dropdown.classList.contains('show');
+        if (isOpen) {
+            closeDropdown();
         } else {
-            progressBar.classList.remove('bg-success', 'bg-danger');
-            progressBar.classList.add('bg-warning');
-            submitBtn.disabled = true;
-            
-            // Enable all checkboxes
-            checkboxes.forEach(function(cb) {
-                cb.disabled = false;
-                cb.closest('.unit-card').classList.remove('disabled');
-            });
+            openDropdown();
         }
+    });
+
+    function openDropdown() {
+        dropdown.classList.add('show');
+        trigger.classList.add('open');
+        searchInput.focus();
     }
 
-    checkboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-            const card = this.closest('.unit-card');
-            if (this.checked) {
-                card.classList.add('selected');
-            } else {
-                card.classList.remove('selected');
-            }
-            updateCount();
-        });
+    function closeDropdown() {
+        dropdown.classList.remove('show');
+        trigger.classList.remove('open');
+        searchInput.value = '';
+        filterUnits('');
+    }
 
-        // Click on card to toggle checkbox
-        const card = checkbox.closest('.unit-card');
-        card.addEventListener('click', function(e) {
-            if (e.target.type !== 'checkbox' && !checkbox.disabled) {
-                checkbox.checked = !checkbox.checked;
-                checkbox.dispatchEvent(new Event('change'));
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#unitSelectContainer')) {
+            closeDropdown();
+        }
+    });
+
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        filterUnits(this.value.toLowerCase());
+    });
+
+    function filterUnits(query) {
+        unitOptions.forEach(option => {
+            const code = option.dataset.unitCode.toLowerCase();
+            if (code.includes(query)) {
+                option.style.display = 'flex';
+            } else {
+                option.style.display = 'none';
             }
+        });
+    }
+
+    // Select/deselect unit
+    unitOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            if (this.classList.contains('disabled')) return;
+            
+            const unitId = this.dataset.unitId;
+            const unitCode = this.dataset.unitCode;
+            
+            if (selectedUnits.has(unitId)) {
+                deselectUnit(unitId);
+            } else {
+                if (selectedUnits.size < requiredCount) {
+                    selectUnit(unitId, unitCode);
+                }
+            }
+            
+            updateUI();
         });
     });
 
-    updateCount();
+    function selectUnit(unitId, unitCode) {
+        selectedUnits.set(unitId, unitCode);
+        
+        const option = document.querySelector(`.unit-option[data-unit-id="${unitId}"]`);
+        option.classList.add('selected');
+        
+        // Add tag
+        const tag = document.createElement('div');
+        tag.className = 'selected-tag';
+        tag.dataset.unitId = unitId;
+        tag.innerHTML = `
+            <span>${unitCode}</span>
+            <span class="remove-tag" onclick="window.removeUnit('${unitId}')">
+                <i class="bi bi-x"></i>
+            </span>
+        `;
+        selectedTags.appendChild(tag);
+        
+        // Add hidden input
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'unit_ids[]';
+        input.value = unitId;
+        input.id = `input_${unitId}`;
+        hiddenInputs.appendChild(input);
+    }
+
+    function deselectUnit(unitId) {
+        selectedUnits.delete(unitId);
+        
+        const option = document.querySelector(`.unit-option[data-unit-id="${unitId}"]`);
+        option.classList.remove('selected');
+        
+        // Remove tag
+        const tag = selectedTags.querySelector(`[data-unit-id="${unitId}"]`);
+        if (tag) tag.remove();
+        
+        // Remove hidden input
+        const input = document.getElementById(`input_${unitId}`);
+        if (input) input.remove();
+    }
+
+    // Global function for removing via tag X button
+    window.removeUnit = function(unitId) {
+        deselectUnit(unitId);
+        updateUI();
+    };
+
+    function updateUI() {
+        const count = selectedUnits.size;
+        
+        // Update counter
+        selectedCountEl.textContent = `${count} / ${requiredCount}`;
+        
+        // Update progress
+        const percentage = (count / requiredCount) * 100;
+        progressBar.style.width = `${Math.min(percentage, 100)}%`;
+        
+        if (count === requiredCount) {
+            progressBar.classList.add('complete');
+            selectedCountEl.classList.add('complete');
+            submitBtn.disabled = false;
+            
+            // Disable unselected options
+            unitOptions.forEach(option => {
+                if (!option.classList.contains('selected')) {
+                    option.classList.add('disabled');
+                }
+            });
+        } else {
+            progressBar.classList.remove('complete');
+            selectedCountEl.classList.remove('complete');
+            submitBtn.disabled = true;
+            
+            // Enable all options
+            unitOptions.forEach(option => {
+                option.classList.remove('disabled');
+            });
+        }
+        
+        // Update trigger text
+        if (count > 0) {
+            trigger.querySelector('.placeholder').textContent = `${count} unit dipilih`;
+        } else {
+            trigger.querySelector('.placeholder').textContent = 'Klik untuk memilih unit...';
+        }
+        
+        // Show/hide empty selection
+        if (count > 0) {
+            emptySelection.style.display = 'none';
+        } else {
+            emptySelection.style.display = 'block';
+        }
+    }
+
+    // Auto select button
+    autoSelectBtn.addEventListener('click', function() {
+        // Reset first
+        selectedUnits.forEach((code, id) => deselectUnit(id));
+        
+        // Select first N available units (prioritize 'baik' condition)
+        const sortedOptions = Array.from(unitOptions).sort((a, b) => {
+            const kondisiA = a.dataset.kondisi === 'baik' ? 0 : 1;
+            const kondisiB = b.dataset.kondisi === 'baik' ? 0 : 1;
+            return kondisiA - kondisiB;
+        });
+        
+        let count = 0;
+        for (const option of sortedOptions) {
+            if (count >= requiredCount) break;
+            selectUnit(option.dataset.unitId, option.dataset.unitCode);
+            count++;
+        }
+        
+        updateUI();
+    });
+
+    // Reset button
+    resetBtn.addEventListener('click', function() {
+        selectedUnits.forEach((code, id) => deselectUnit(id));
+        updateUI();
+    });
+
+    // Initial UI update
+    updateUI();
 });
 </script>
-@endsection
+@endpush

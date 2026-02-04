@@ -1075,6 +1075,710 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* ========================================
+           GLOBAL LOADING & ANIMATION STYLES 
+        ======================================== */
+        
+        /* Keyframe Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Page Loader - Optimized Modern Style */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 99999;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
+            will-change: opacity, visibility;
+        }
+        
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        /* Simple Elegant Spinner */
+        .loader-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #f0f0f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spinSmooth 0.6s linear infinite;
+            will-change: transform;
+        }
+        
+        @keyframes spinSmooth {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Pulse Dot Alternative */
+        .loader-pulse {
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulseDot 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulseDot {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+        }
+        
+        .loader-text {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .skeleton-title {
+            height: 24px;
+            width: 60%;
+            margin-bottom: 16px;
+        }
+        
+        /* Animated Cards */
+        .card-animated {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        .card-animated:nth-child(1) { animation-delay: 0.05s; }
+        .card-animated:nth-child(2) { animation-delay: 0.1s; }
+        .card-animated:nth-child(3) { animation-delay: 0.15s; }
+        .card-animated:nth-child(4) { animation-delay: 0.2s; }
+        .card-animated:nth-child(5) { animation-delay: 0.25s; }
+        .card-animated:nth-child(6) { animation-delay: 0.3s; }
+        
+        /* Stat Card Animations */
+        .stat-card-animated {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        .stat-card-animated:nth-child(1) { animation-delay: 0.05s; }
+        .stat-card-animated:nth-child(2) { animation-delay: 0.1s; }
+        .stat-card-animated:nth-child(3) { animation-delay: 0.15s; }
+        .stat-card-animated:nth-child(4) { animation-delay: 0.2s; }
+        
+        /* Slide In Animations */
+        .slide-in-right {
+            opacity: 0;
+            animation: slideInRight 0.5s ease forwards;
+        }
+        
+        .slide-in-left {
+            opacity: 0;
+            animation: slideInLeft 0.5s ease forwards;
+        }
+        
+        .slide-in-right:nth-child(1), .slide-in-left:nth-child(1) { animation-delay: 0.1s; }
+        .slide-in-right:nth-child(2), .slide-in-left:nth-child(2) { animation-delay: 0.2s; }
+        .slide-in-right:nth-child(3), .slide-in-left:nth-child(3) { animation-delay: 0.3s; }
+        
+        /* Table Row Animations */
+        .table-animated tbody tr {
+            opacity: 0;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+        
+        .table-animated tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        .table-animated tbody tr:nth-child(2) { animation-delay: 0.08s; }
+        .table-animated tbody tr:nth-child(3) { animation-delay: 0.11s; }
+        .table-animated tbody tr:nth-child(4) { animation-delay: 0.14s; }
+        .table-animated tbody tr:nth-child(5) { animation-delay: 0.17s; }
+        .table-animated tbody tr:nth-child(6) { animation-delay: 0.20s; }
+        .table-animated tbody tr:nth-child(7) { animation-delay: 0.23s; }
+        .table-animated tbody tr:nth-child(8) { animation-delay: 0.26s; }
+        .table-animated tbody tr:nth-child(9) { animation-delay: 0.29s; }
+        .table-animated tbody tr:nth-child(10) { animation-delay: 0.32s; }
+        
+        /* Content Fade In */
+        .content-fade {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease 0.1s forwards;
+        }
+        
+        /* Button Loading State */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        
+        .btn-loading span, .btn-loading i {
+            opacity: 0;
+        }
+        
+        /* Image Loading */
+        .img-loading {
+            position: relative;
+            overflow: hidden;
+            min-height: 100px;
+        }
+        
+        .img-loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: inherit;
+        }
+        
+        .img-loading img {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .img-loading.loaded::before {
+            display: none;
+        }
+        
+        .img-loading.loaded img {
+            opacity: 1;
+        }
+        
+        /* Card Hover Enhancement */
+        .card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+        
+        /* Alert Animations */
+        .alert {
+            animation: slideInRight 0.4s ease;
+        }
+        
+        /* ========================================
+           GLOBAL POPUP NOTIFICATION SYSTEM
+           ======================================== */
+        .notification-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .notification-popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .notification-popup {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.8) translateY(30px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+        }
+        
+        .notification-popup-overlay.show .notification-popup {
+            transform: scale(1) translateY(0);
+        }
+        
+        .notification-popup .popup-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+        
+        .notification-popup .popup-icon.success {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #059669;
+        }
+        
+        .notification-popup .popup-icon.error {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #dc2626;
+        }
+        
+        .notification-popup .popup-icon.warning {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #d97706;
+        }
+        
+        .notification-popup .popup-icon.info {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #2563eb;
+        }
+        
+        .notification-popup .popup-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .notification-popup .popup-message {
+            font-size: 0.95rem;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        
+        .notification-popup .popup-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.35);
+        }
+        
+        .notification-popup .popup-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.45);
+        }
+        
+        .notification-popup .popup-btn.success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35);
+        }
+        
+        .notification-popup .popup-btn.success:hover {
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.45);
+        }
+        
+        /* ========================================
+           GLOBAL CONFIRM POPUP SYSTEM - PREMIUM
+           ======================================== */
+        .confirm-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.8));
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .confirm-popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .confirm-popup {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 24px;
+            padding: 40px 36px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.7) translateY(50px);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.25),
+                0 16px 32px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .confirm-popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light), #8b5cf6);
+            border-radius: 24px 24px 0 0;
+        }
+        
+        .confirm-popup-overlay.show .confirm-popup {
+            transform: scale(1) translateY(0);
+        }
+        
+        .confirm-popup .popup-icon {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+            background: linear-gradient(135deg, #fef3c7, #fcd34d);
+            color: #b45309;
+            box-shadow: 
+                0 8px 24px rgba(251, 191, 36, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            animation: iconPulse 2s ease-in-out infinite;
+            position: relative;
+        }
+        
+        .confirm-popup .popup-icon::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(251, 191, 36, 0.3);
+            animation: iconRing 2s ease-in-out infinite;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes iconRing {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+        }
+        
+        .confirm-popup .popup-icon.danger {
+            background: linear-gradient(135deg, #fee2e2, #fca5a5);
+            color: #b91c1c;
+            box-shadow: 
+                0 8px 24px rgba(239, 68, 68, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9);
+        }
+        
+        .confirm-popup .popup-icon.danger::after {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .confirm-popup .popup-icon.success {
+            background: linear-gradient(135deg, #d1fae5, #6ee7b7);
+            color: #047857;
+            box-shadow: 
+                0 8px 24px rgba(16, 185, 129, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9);
+        }
+        
+        .confirm-popup .popup-icon.success::after {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .confirm-popup .popup-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        
+        .confirm-popup .popup-message {
+            font-size: 1rem;
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+        
+        .confirm-popup .popup-message strong {
+            color: #334155;
+            font-weight: 600;
+        }
+        
+        .confirm-popup .popup-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+        }
+        
+        .confirm-popup .popup-btn {
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .confirm-popup .popup-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .confirm-popup .popup-btn:hover::before {
+            left: 100%;
+        }
+        
+        .confirm-popup .popup-btn.cancel {
+            background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+            color: #475569;
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        
+        .confirm-popup .popup-btn.cancel:hover {
+            background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        .confirm-popup .popup-btn.confirm {
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            box-shadow: 
+                0 4px 16px rgba(30, 64, 175, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .confirm-popup .popup-btn.confirm:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(30, 64, 175, 0.5);
+        }
+        
+        .confirm-popup .popup-btn.confirm:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        .confirm-popup .popup-btn.confirm.danger {
+            background: linear-gradient(135deg, #dc2626, #f43f5e);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+        }
+        
+        .confirm-popup .popup-btn.confirm.danger:hover {
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.5);
+        }
+        
+        .confirm-popup .popup-btn.confirm.success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
+        }
+        
+        .confirm-popup .popup-btn.confirm.success:hover {
+            box-shadow: 0 8px 24px rgba(5, 150, 105, 0.5);
+        }
+        
+        /* Mobile optimization */
+        @media (max-width: 480px) {
+            .confirm-popup {
+                padding: 32px 24px;
+                margin: 16px;
+            }
+            .confirm-popup .popup-icon {
+                width: 72px;
+                height: 72px;
+                font-size: 32px;
+            }
+            .confirm-popup .popup-buttons {
+                flex-direction: column;
+            }
+            .confirm-popup .popup-btn {
+                width: 100%;
+            }
+        }
+        /* Page Title Animation */
+        .page-title-animated {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        /* Info Grid Animation */
+        .info-grid > div {
+            opacity: 0;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+        
+        .info-grid > div:nth-child(1) { animation-delay: 0.1s; }
+        .info-grid > div:nth-child(2) { animation-delay: 0.15s; }
+        .info-grid > div:nth-child(3) { animation-delay: 0.2s; }
+        .info-grid > div:nth-child(4) { animation-delay: 0.25s; }
+        .info-grid > div:nth-child(5) { animation-delay: 0.3s; }
+        .info-grid > div:nth-child(6) { animation-delay: 0.35s; }
+        
+        /* Badge Bounce */
+        .badge-animated {
+            animation: bounceIn 0.5s ease;
+        }
+        
+        /* Reduce animations for users who prefer reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            .page-loader {
+                display: none !important;
+            }
+        }
     </style>
     @stack('styles')
 <style>
@@ -1486,12 +2190,7 @@
                 <i class="bi bi-folder"></i>
                 <span>Kategori Barang</span>
             </a>
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('checklist.index') }}" class="nav-item {{ request()->routeIs('checklist.*') ? 'active' : '' }}">
-                <i class="bi bi-clipboard-check"></i>
-                <span>Template Ceklis</span>
-            </a>
-            @endif
+
             @endif
 
             @if(auth()->user()->canManage())
@@ -1580,6 +2279,11 @@
         </div>
     </aside>
 
+    <!-- Global Page Loader -->
+    <div class="page-loader" id="globalPageLoader">
+        <div class="loader-spinner"></div>
+    </div>
+
     <!-- App Main Container -->
     <div class="main-wrapper">
         <!-- Mobile Header (Visible only on mobile) -->
@@ -1593,26 +2297,187 @@
 
         <!-- Main Content -->
         <div class="content-wrapper">
-            @if(session('success'))
-            <div class="alert alert-success">
-                <i class="bi bi-check-circle"></i>
-                {{ session('success') }}
-            </div>
-            @endif
-
-            @if(session('error'))
-            <div class="alert alert-error">
-                <i class="bi bi-exclamation-circle"></i>
-                {{ session('error') }}
-            </div>
-            @endif
-
             @yield('content')
         </div>
     </div>
+    
+    <!-- Global Notification Popup -->
+    <div class="notification-popup-overlay" id="globalNotificationPopup">
+        <div class="notification-popup">
+            <div class="popup-icon success" id="notifPopupIcon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="popup-title" id="notifPopupTitle">Berhasil</div>
+            <div class="popup-message" id="notifPopupMessage">Operasi berhasil dilakukan.</div>
+            <button class="popup-btn success" id="notifPopupBtn" onclick="closeNotificationPopup()">OK</button>
+        </div>
+    </div>
+    
+    <!-- Global Confirm Popup -->
+    <div class="confirm-popup-overlay" id="globalConfirmPopup">
+        <div class="confirm-popup">
+            <div class="popup-icon" id="confirmPopupIcon">
+                <i class="bi bi-question-circle-fill"></i>
+            </div>
+            <div class="popup-title" id="confirmPopupTitle">Konfirmasi</div>
+            <div class="popup-message" id="confirmPopupMessage">Apakah Anda yakin?</div>
+            <div class="popup-buttons">
+                <button class="popup-btn cancel" onclick="closeConfirmPopup(false)">Batal</button>
+                <button class="popup-btn confirm" id="confirmPopupBtn" onclick="closeConfirmPopup(true)">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+    
+    @if(session('success') || session('error') || session('warning') || session('info'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+            showNotification('Berhasil!', '{{ session('success') }}', 'success');
+            @endif
+            @if(session('error'))
+            showNotification('Terjadi Kesalahan', '{{ session('error') }}', 'error');
+            @endif
+            @if(session('warning'))
+            showNotification('Perhatian', '{{ session('warning') }}', 'warning');
+            @endif
+            @if(session('info'))
+            showNotification('Informasi', '{{ session('info') }}', 'info');
+            @endif
+        });
+    </script>
+    @endif
 
     <!-- Script -->
     <script>
+        // ========================================
+        // GLOBAL NOTIFICATION POPUP FUNCTIONS
+        // ========================================
+        function showNotification(title, message, type = 'success') {
+            const overlay = document.getElementById('globalNotificationPopup');
+            const icon = document.getElementById('notifPopupIcon');
+            const titleEl = document.getElementById('notifPopupTitle');
+            const messageEl = document.getElementById('notifPopupMessage');
+            const btn = document.getElementById('notifPopupBtn');
+            
+            titleEl.textContent = title;
+            messageEl.innerHTML = message;
+            
+            // Reset classes
+            icon.className = 'popup-icon ' + type;
+            btn.className = 'popup-btn ' + type;
+            
+            // Set icon based on type
+            const icons = {
+                success: '<i class="bi bi-check-circle-fill"></i>',
+                error: '<i class="bi bi-x-circle-fill"></i>',
+                warning: '<i class="bi bi-exclamation-triangle-fill"></i>',
+                info: '<i class="bi bi-info-circle-fill"></i>'
+            };
+            icon.innerHTML = icons[type] || icons.success;
+            
+            overlay.classList.add('show');
+            
+            overlay.onclick = function(e) {
+                if (e.target === overlay) {
+                    closeNotificationPopup();
+                }
+            };
+        }
+        
+        function closeNotificationPopup() {
+            document.getElementById('globalNotificationPopup').classList.remove('show');
+        }
+        
+        // ========================================
+        // GLOBAL CONFIRM POPUP FUNCTIONS
+        // ========================================
+        let confirmCallback = null;
+        let confirmForm = null;
+        
+        function showConfirm(title, message, options = {}) {
+            const overlay = document.getElementById('globalConfirmPopup');
+            const icon = document.getElementById('confirmPopupIcon');
+            const titleEl = document.getElementById('confirmPopupTitle');
+            const messageEl = document.getElementById('confirmPopupMessage');
+            const confirmBtn = document.getElementById('confirmPopupBtn');
+            
+            titleEl.textContent = title;
+            messageEl.innerHTML = message;
+            
+            // Set type (danger, success, or default warning)
+            const type = options.type || 'warning';
+            const isDanger = type === 'danger';
+            const isSuccess = type === 'success';
+            
+            icon.className = 'popup-icon' + (isDanger ? ' danger' : isSuccess ? ' success' : '');
+            icon.innerHTML = isDanger ? '<i class="bi bi-exclamation-triangle-fill"></i>' : 
+                            isSuccess ? '<i class="bi bi-check-circle-fill"></i>' :
+                            '<i class="bi bi-question-circle-fill"></i>';
+            
+            confirmBtn.className = 'popup-btn confirm' + (isDanger ? ' danger' : isSuccess ? ' success' : '');
+            confirmBtn.textContent = options.confirmText || 'Ya, Lanjutkan';
+            
+            confirmCallback = options.onConfirm || null;
+            confirmForm = options.form || null;
+            
+            overlay.classList.add('show');
+        }
+        
+        function closeConfirmPopup(confirmed) {
+            document.getElementById('globalConfirmPopup').classList.remove('show');
+            
+            if (confirmed) {
+                if (confirmForm) {
+                    confirmForm.submit();
+                } else if (confirmCallback) {
+                    confirmCallback();
+                }
+            }
+            
+            confirmCallback = null;
+            confirmForm = null;
+        }
+        
+        // Auto-initialize confirm popups for forms and buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle forms with data-confirm attribute
+            document.querySelectorAll('form[data-confirm]').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const message = this.dataset.confirm;
+                    const type = this.dataset.confirmType || 'warning';
+                    const title = this.dataset.confirmTitle || 'Konfirmasi';
+                    showConfirm(title, message, { 
+                        type: type, 
+                        form: this,
+                        confirmText: this.dataset.confirmBtn || 'Ya, Lanjutkan'
+                    });
+                });
+            });
+            
+            // Handle buttons/links with data-confirm attribute
+            document.querySelectorAll('[data-confirm]:not(form)').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const message = this.dataset.confirm;
+                    const type = this.dataset.confirmType || 'warning';
+                    const title = this.dataset.confirmTitle || 'Konfirmasi';
+                    const href = this.href;
+                    showConfirm(title, message, {
+                        type: type,
+                        confirmText: this.dataset.confirmBtn || 'Ya, Lanjutkan',
+                        onConfirm: () => { if (href) window.location.href = href; }
+                    });
+                });
+            });
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeNotificationPopup();
+            }
+        });
+        
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobileOverlay');
@@ -1631,6 +2496,67 @@
                 document.getElementById('sidebar').classList.remove('active');
                 document.getElementById('mobileOverlay').classList.remove('active');
                 document.body.style.overflow = '';
+            }
+        });
+        
+        // ========================================
+        // GLOBAL LOADING EFFECTS
+        // ========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide page loader when DOM is ready
+            const pageLoader = document.getElementById('globalPageLoader');
+            if (pageLoader) {
+                setTimeout(() => {
+                    pageLoader.classList.add('hidden');
+                }, 200);
+            }
+            
+            // Button loading state on form submit
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.classList.contains('btn-no-loading')) {
+                        submitBtn.classList.add('btn-loading');
+                    }
+                });
+            });
+            
+            // Auto-add loaded class to images when they finish loading
+            document.querySelectorAll('.img-loading img').forEach(img => {
+                if (img.complete) {
+                    img.parentElement.classList.add('loaded');
+                } else {
+                    img.addEventListener('load', function() {
+                        this.parentElement.classList.add('loaded');
+                    });
+                }
+            });
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId !== '#') {
+                        e.preventDefault();
+                        const target = document.querySelector(targetId);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Show page loader on page navigate (for turbo-like feel)
+        window.addEventListener('beforeunload', function() {
+            const pageLoader = document.getElementById('globalPageLoader');
+            if (pageLoader) {
+                pageLoader.classList.remove('hidden');
             }
         });
     </script>

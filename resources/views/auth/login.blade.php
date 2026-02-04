@@ -359,13 +359,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="form-checkbox">
-                            <input type="checkbox" name="remember" id="remember">
-                            <label for="remember">Ingat saya</label>
-                        </div>
-                    </div>
-
                     <button type="submit" class="btn-login">
                         <i class="bi bi-box-arrow-in-right"></i> Login
                     </button>

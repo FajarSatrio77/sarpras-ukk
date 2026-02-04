@@ -71,10 +71,7 @@ Route::middleware('auth')->group(function () {
         // Activity Log
         Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.index');
         Route::get('/activity-log/export', [ActivityLogController::class, 'export'])->name('activity.export');
-        
-        // Checklist Template Management
-        Route::resource('checklist', \App\Http\Controllers\ChecklistTemplateController::class)->except(['show']);
-        Route::patch('/checklist/{checklist}/toggle', [\App\Http\Controllers\ChecklistTemplateController::class, 'toggleStatus'])->name('checklist.toggle');
+
     });
     
     // =============================================
@@ -141,13 +138,7 @@ Route::middleware('auth')->group(function () {
         // Pengaduan Management (Admin/Petugas - bisa update status)
         Route::patch('/pengaduan/{pengaduan}/status', [PengaduanController::class, 'updateStatus'])->name('pengaduan.update-status');
         Route::post('/pengaduan/{pengaduan}/catatan', [PengaduanController::class, 'addCatatan'])->name('pengaduan.add-catatan');
-        
-        // Inspection Routes
-        Route::get('/peminjaman/{peminjaman}/inspect/pre-borrow', [\App\Http\Controllers\InspectionController::class, 'createPreBorrow'])->name('inspection.pre-borrow');
-        Route::post('/peminjaman/{peminjaman}/inspect/pre-borrow', [\App\Http\Controllers\InspectionController::class, 'storePreBorrow'])->name('inspection.pre-borrow.store');
-        Route::get('/peminjaman/{peminjaman}/inspect/post-return', [\App\Http\Controllers\InspectionController::class, 'createPostReturn'])->name('inspection.post-return');
-        Route::post('/peminjaman/{peminjaman}/inspect/post-return', [\App\Http\Controllers\InspectionController::class, 'storePostReturn'])->name('inspection.post-return.store');
-        Route::get('/peminjaman/{peminjaman}/inspect/compare', [\App\Http\Controllers\InspectionController::class, 'compare'])->name('inspection.compare');
+
     });
     
     // =============================================

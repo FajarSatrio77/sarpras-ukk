@@ -77,9 +77,26 @@ class PeminjamanController extends Controller
 
         // Batas durasi peminjaman untuk siswa (pengguna) adalah 7 hari
         $user = Auth::user();
+        $tglPinjam = \Carbon\Carbon::parse($request->tgl_pinjam);
+        $tglKembali = \Carbon\Carbon::parse($request->tgl_kembali_rencana);
+        
+        // Validasi: tanggal pinjam tidak boleh hari Sabtu atau Minggu
+        if ($tglPinjam->isWeekend()) {
+            $dayName = $tglPinjam->isSaturday() ? 'Sabtu' : 'Minggu';
+            return back()->withErrors([
+                'tgl_pinjam' => "Tanggal pinjam tidak boleh hari {$dayName}. Peminjaman hanya bisa dilakukan di hari Senin - Jumat."
+            ])->withInput();
+        }
+        
+        // Validasi: tanggal kembali tidak boleh hari Sabtu atau Minggu
+        if ($tglKembali->isWeekend()) {
+            $dayName = $tglKembali->isSaturday() ? 'Sabtu' : 'Minggu';
+            return back()->withErrors([
+                'tgl_kembali_rencana' => "Tanggal kembali tidak boleh hari {$dayName}. Pengembalian hanya bisa dilakukan di hari Senin - Jumat."
+            ])->withInput();
+        }
+        
         if ($user->isPengguna()) {
-            $tglPinjam = \Carbon\Carbon::parse($request->tgl_pinjam);
-            $tglKembali = \Carbon\Carbon::parse($request->tgl_kembali_rencana);
             $durasiHari = $tglPinjam->diffInDays($tglKembali);
             
             if ($durasiHari > 7) {

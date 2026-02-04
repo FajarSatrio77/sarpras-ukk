@@ -325,7 +325,7 @@
                 <h5 class="card-title"><i class="bi bi-clipboard-check"></i> Inspeksi Pengembalian</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('pengembalian.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pengembalian.store') }}" method="POST" enctype="multipart/form-data" id="formPengembalian" novalidate>
                     @csrf
                     <input type="hidden" name="peminjaman_id" value="{{ $peminjaman->id }}">
                     
@@ -339,43 +339,7 @@
                         @enderror
                     </div>
 
-                    @if(isset($template) && $template && $template->items->count() > 0)
-                    <!-- Checklist Inspeksi -->
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="bi bi-clipboard-check"></i> Checklist - {{ $template->nama }}
-                        </label>
-                        <div class="table-responsive" style="border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <table class="table" style="margin: 0;">
-                                <thead>
-                                    <tr style="background: #f8fafc;">
-                                        <th>Item</th>
-                                        <th style="width: 100px; text-align: center;">Kondisi</th>
-                                        <th style="width: 200px;">Catatan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($template->items as $item)
-                                    <tr>
-                                        <td>{{ $item->nama }}</td>
-                                        <td style="text-align: center; white-space: nowrap;">
-                                            <label style="display: inline-flex; align-items: center; margin-right: 12px; cursor: pointer;">
-                                                <input type="radio" name="checklist[{{ $item->id }}][kondisi]" value="baik" checked> ✅
-                                            </label>
-                                            <label style="display: inline-flex; align-items: center; cursor: pointer;">
-                                                <input type="radio" name="checklist[{{ $item->id }}][kondisi]" value="rusak_berat"> ❌
-                                            </label>
-                                        </td>
-                                        <td>
-                                            <input type="text" name="checklist[{{ $item->id }}][catatan]" class="form-control" placeholder="Opsional" style="padding: 6px 10px; font-size: 0.85rem;">
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    @endif
+
 
                     @if(isset($hasUnits) && $hasUnits && $peminjaman->peminjamanUnits->isNotEmpty())
                         {{-- Per-Unit Condition Form - Simplified --}}
@@ -402,7 +366,7 @@
                                             </td>
                                             <td>{!! $pu->kondisi_pinjam_label !!}</td>
                                             <td>
-                                                <select name="unit_kondisi[{{ $pu->sarpras_unit_id }}]" class="form-control" style="padding: 8px 12px; font-size: 0.85rem;" required>
+                                                <select name="unit_kondisi[{{ $pu->sarpras_unit_id }}]" class="form-control" style="padding: 8px 12px; font-size: 0.85rem;">
                                                     <option value="">-- Pilih --</option>
                                                     <option value="baik" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'baik' ? 'selected' : '' }}>✅ Baik</option>
                                                     <option value="rusak_ringan" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_ringan' ? 'selected' : '' }}>⚠️ Rusak Ringan</option>
@@ -441,7 +405,7 @@
                             <label class="form-label">Status Kondisi Alat *</label>
                             
                             <label class="kondisi-option" onclick="selectKondisi('baik', this)">
-                                <input type="radio" name="kondisi_alat" value="baik" id="kondisi_baik" {{ old('kondisi_alat') == 'baik' ? 'checked' : '' }} required>
+                                <input type="radio" name="kondisi_alat" value="baik" id="kondisi_baik" {{ old('kondisi_alat') == 'baik' ? 'checked' : '' }}>
                                 <div class="kondisi-icon baik">
                                     <i class="bi bi-check-circle"></i>
                                 </div>
@@ -579,9 +543,28 @@
             const kondisi = checked.value;
             checked.closest('.kondisi-option').classList.add('selected', kondisi.replace('_', '-'));
             if (['rusak_ringan', 'rusak_berat', 'hilang'].includes(kondisi)) {
-                document.getElementById('damageFields').classList.add('show');
+                // Check if element exists before accessing classList
+                const damageFields = document.getElementById('damageFields');
+                if (damageFields) damageFields.classList.add('show');
             }
+        }
+
+        // Simple Form Submit Handler
+        const form = document.getElementById('formPengembalian');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const btn = form.querySelector('button[type="submit"]');
+                if (btn) {
+                    // Beri delay sedikit agar submit request terkirim sebelum button disabled
+                    setTimeout(() => {
+                        btn.disabled = true;
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
+                    }, 50);
+                }
+                // Biarkan submit berjalan secara alami tanpa preventDefault
+            });
         }
     });
 </script>
 @endpush
+```

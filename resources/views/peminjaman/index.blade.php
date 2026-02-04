@@ -103,10 +103,14 @@
                             
                             @if($item->status == 'menunggu')
                             <!-- Tombol Setujui -->
-                            <form action="{{ route('peminjaman.approve', $item) }}" method="POST" style="display: inline;">
+                            <form action="{{ route('peminjaman.approve', $item) }}" method="POST" style="display: inline;"
+                                  data-confirm="Setujui peminjaman <strong>{{ $item->kode_peminjaman }}</strong>?"
+                                  data-confirm-title="Setujui Peminjaman"
+                                  data-confirm-type="success"
+                                  data-confirm-btn="Ya, Setujui">
                                 @csrf
                                 <button type="submit" class="btn btn-outline" style="padding: 6px 10px; color: var(--success);" 
-                                        title="Setujui" onclick="return confirm('Setujui peminjaman ini?')">
+                                        title="Setujui">
                                     <i class="bi bi-check-lg"></i>
                                 </button>
                             </form>
@@ -142,11 +146,15 @@
                             @endif
                             
                             @if(in_array($item->status, ['dikembalikan', 'ditolak']))
-                            <form action="{{ route('peminjaman.destroy', $item) }}" method="POST" style="display: inline;">
+                            <form action="{{ route('peminjaman.destroy', $item) }}" method="POST" style="display: inline;"
+                                  data-confirm="Hapus data peminjaman <strong>{{ $item->kode_peminjaman }}</strong>? Data akan dipindahkan ke sampah."
+                                  data-confirm-title="Hapus Peminjaman"
+                                  data-confirm-type="danger"
+                                  data-confirm-btn="Ya, Hapus">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-outline" style="padding: 6px 10px; color: var(--danger);" 
-                                        title="Hapus" onclick="return confirm('Hapus data peminjaman ini?')">
+                                        title="Hapus">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
