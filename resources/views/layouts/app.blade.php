@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- @vite(['resources/css/app.css', 'resources/js/app.js']) -->
+    <!-- Temporary CDN for Tailwind & DaisyUI (bypassing build step) -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                    }
+                }
+            }
+        }
+    </script>
     
     <style>
         :root {
@@ -1387,358 +1403,71 @@
         }
         
         /* ========================================
-           GLOBAL POPUP NOTIFICATION SYSTEM
+           DAISYUI MODAL ENHANCEMENTS
            ======================================== */
-        .notification-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+        .modal {
+            --tw-backdrop-blur: blur(8px);
         }
         
-        .notification-popup-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .notification-popup {
-            background: white;
-            border-radius: 20px;
-            padding: 32px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            transform: scale(0.8) translateY(30px);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
-        }
-        
-        .notification-popup-overlay.show .notification-popup {
-            transform: scale(1) translateY(0);
-        }
-        
-        .notification-popup .popup-icon {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 32px;
-        }
-        
-        .notification-popup .popup-icon.success {
-            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-            color: #059669;
-        }
-        
-        .notification-popup .popup-icon.error {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            color: #dc2626;
-        }
-        
-        .notification-popup .popup-icon.warning {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            color: #d97706;
-        }
-        
-        .notification-popup .popup-icon.info {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #2563eb;
-        }
-        
-        .notification-popup .popup-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        
-        .notification-popup .popup-message {
-            font-size: 0.95rem;
-            color: #6b7280;
-            line-height: 1.6;
-            margin-bottom: 24px;
-        }
-        
-        .notification-popup .popup-btn {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            border: none;
-            padding: 14px 40px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.35);
-        }
-        
-        .notification-popup .popup-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.45);
-        }
-        
-        .notification-popup .popup-btn.success {
-            background: linear-gradient(135deg, #059669, #10b981);
-            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35);
-        }
-        
-        .notification-popup .popup-btn.success:hover {
-            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.45);
-        }
-        
-        /* ========================================
-           GLOBAL CONFIRM POPUP SYSTEM - PREMIUM
-           ======================================== */
-        .confirm-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.8));
+        .modal::backdrop {
+            background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .confirm-popup-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .confirm-popup {
-            background: linear-gradient(145deg, #ffffff, #f8fafc);
-            border-radius: 24px;
-            padding: 40px 36px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            transform: scale(0.7) translateY(50px);
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .modal-box {
+            border-radius: 1.5rem;
             box-shadow: 
-                0 32px 64px rgba(0, 0, 0, 0.25),
-                0 16px 32px rgba(0, 0, 0, 0.15),
-                0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 32px 64px rgba(0, 0, 0, 0.2),
+                0 16px 32px rgba(0, 0, 0, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            position: relative;
-            overflow: hidden;
+            animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
-        .confirm-popup::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light), #8b5cf6);
-            border-radius: 24px 24px 0 0;
+        @keyframes modalPopIn {
+            0% {
+                transform: scale(0.7) translateY(30px);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
         }
         
-        .confirm-popup-overlay.show .confirm-popup {
-            transform: scale(1) translateY(0);
+        .modal-backdrop {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
         }
         
-        .confirm-popup .popup-icon {
-            width: 88px;
-            height: 88px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 40px;
-            background: linear-gradient(135deg, #fef3c7, #fcd34d);
-            color: #b45309;
-            box-shadow: 
-                0 8px 24px rgba(251, 191, 36, 0.4),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.1),
-                inset 0 2px 4px rgba(255, 255, 255, 0.9);
-            animation: iconPulse 2s ease-in-out infinite;
-            position: relative;
+        /* Icon floating effect */
+        .modal-box > .flex > div[class*="rounded-full"] {
+            animation: iconFloat 2s ease-in-out infinite;
         }
         
-        .confirm-popup .popup-icon::after {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            border: 2px solid rgba(251, 191, 36, 0.3);
-            animation: iconRing 2s ease-in-out infinite;
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
         }
         
-        @keyframes iconPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        @keyframes iconRing {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.2; }
-        }
-        
-        .confirm-popup .popup-icon.danger {
-            background: linear-gradient(135deg, #fee2e2, #fca5a5);
-            color: #b91c1c;
-            box-shadow: 
-                0 8px 24px rgba(239, 68, 68, 0.4),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.1),
-                inset 0 2px 4px rgba(255, 255, 255, 0.9);
-        }
-        
-        .confirm-popup .popup-icon.danger::after {
-            border-color: rgba(239, 68, 68, 0.3);
-        }
-        
-        .confirm-popup .popup-icon.success {
-            background: linear-gradient(135deg, #d1fae5, #6ee7b7);
-            color: #047857;
-            box-shadow: 
-                0 8px 24px rgba(16, 185, 129, 0.4),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.1),
-                inset 0 2px 4px rgba(255, 255, 255, 0.9);
-        }
-        
-        .confirm-popup .popup-icon.success::after {
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-        
-        .confirm-popup .popup-title {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
-        }
-        
-        .confirm-popup .popup-message {
-            font-size: 1rem;
-            color: #64748b;
-            line-height: 1.7;
-            margin-bottom: 32px;
-        }
-        
-        .confirm-popup .popup-message strong {
-            color: #334155;
-            font-weight: 600;
-        }
-        
-        .confirm-popup .popup-buttons {
-            display: flex;
-            gap: 14px;
-            justify-content: center;
-        }
-        
-        .confirm-popup .popup-btn {
-            padding: 14px 32px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
+        /* Button hover enhancement */
+        .modal-action .btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            position: relative;
-            overflow: hidden;
         }
         
-        .confirm-popup .popup-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
+        .modal-action .btn:hover:not(.btn-ghost) {
+            transform: translateY(-2px);
         }
         
-        .confirm-popup .popup-btn:hover::before {
-            left: 100%;
-        }
-        
-        .confirm-popup .popup-btn.cancel {
-            background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
-            color: #475569;
-            box-shadow: 
-                0 2px 8px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
-        
-        .confirm-popup .popup-btn.cancel:hover {
-            background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        }
-        
-        .confirm-popup .popup-btn.confirm {
-            background: linear-gradient(135deg, var(--primary), #3b82f6);
-            color: white;
-            box-shadow: 
-                0 4px 16px rgba(30, 64, 175, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        }
-        
-        .confirm-popup .popup-btn.confirm:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 24px rgba(30, 64, 175, 0.5);
-        }
-        
-        .confirm-popup .popup-btn.confirm:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-        
-        .confirm-popup .popup-btn.confirm.danger {
-            background: linear-gradient(135deg, #dc2626, #f43f5e);
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
-        }
-        
-        .confirm-popup .popup-btn.confirm.danger:hover {
-            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.5);
-        }
-        
-        .confirm-popup .popup-btn.confirm.success {
-            background: linear-gradient(135deg, #059669, #10b981);
-            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
-        }
-        
-        .confirm-popup .popup-btn.confirm.success:hover {
-            box-shadow: 0 8px 24px rgba(5, 150, 105, 0.5);
+        .modal-action .btn:active:not(.btn-ghost) {
+            transform: translateY(0);
         }
         
         /* Mobile optimization */
-        @media (max-width: 480px) {
-            .confirm-popup {
-                padding: 32px 24px;
-                margin: 16px;
-            }
-            .confirm-popup .popup-icon {
-                width: 72px;
-                height: 72px;
-                font-size: 32px;
-            }
-            .confirm-popup .popup-buttons {
-                flex-direction: column;
-            }
-            .confirm-popup .popup-btn {
-                width: 100%;
+        @media (max-width: 640px) {
+            .modal-bottom .modal-box {
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+                margin-bottom: 0;
             }
         }
         /* Page Title Animation */
@@ -2297,36 +2026,106 @@
 
         <!-- Main Content -->
         <div class="content-wrapper">
+            <!-- H-1 Return Reminder Alert -->
+            @if(isset($peminjamanH1) && $peminjamanH1->count() > 0)
+            <div class="alert alert-warning shadow-md mb-6 flex flex-row items-center gap-4">
+                <div class="text-3xl text-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg mb-1">Pengingat Pengembalian!</h3>
+                    <div class="text-sm opacity-90">
+                        Anda memiliki <span class="font-bold">{{ $peminjamanH1->count() }} barang</span> yang harus dikembalikan besok:
+                        <ul class="list-disc list-inside mt-2 bg-white/30 p-2 rounded-lg">
+                            @foreach($peminjamanH1 as $pinjam)
+                                <li>
+                                    <strong>{{ $pinjam->sarpras->nama ?? 'Unit' }}</strong> 
+                                    ({{ $pinjam->jumlah }} unit) - 
+                                    <span class="text-xs">Tgl Pinjam: {{ \Carbon\Carbon::parse($pinjam->tgl_pinjam)->format('d M') }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ route('peminjaman.index') }}" class="btn btn-sm btn-outline gap-2 bg-white/20 border-current hover:bg-white/40">
+                        <i class="bi bi-eye"></i> Detail
+                    </a>
+                </div>
+            </div>
+            @endif
+
             @yield('content')
         </div>
     </div>
     
-    <!-- Global Notification Popup -->
-    <div class="notification-popup-overlay" id="globalNotificationPopup">
-        <div class="notification-popup">
-            <div class="popup-icon success" id="notifPopupIcon">
-                <i class="bi bi-check-circle-fill"></i>
+    <!-- Global Notification Popup - DaisyUI Modal -->
+    <dialog id="globalNotificationPopup" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box bg-white relative overflow-visible">
+            <!-- Decorative top bar -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-t-2xl"></div>
+            
+            <!-- Close button -->
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3 text-gray-400 hover:text-gray-600" onclick="closeNotificationPopup()">✕</button>
+            
+            <!-- Icon -->
+            <div class="flex justify-center -mt-8">
+                <div id="notifPopupIcon" class="w-20 h-20 rounded-full flex items-center justify-center text-3xl shadow-lg border-4 border-white bg-emerald-100 text-emerald-600">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
             </div>
-            <div class="popup-title" id="notifPopupTitle">Berhasil</div>
-            <div class="popup-message" id="notifPopupMessage">Operasi berhasil dilakukan.</div>
-            <button class="popup-btn success" id="notifPopupBtn" onclick="closeNotificationPopup()">OK</button>
+            
+            <!-- Content -->
+            <div class="text-center mt-4">
+                <h3 id="notifPopupTitle" class="font-bold text-xl text-gray-800">Berhasil</h3>
+                <p id="notifPopupMessage" class="py-4 text-gray-600">Operasi berhasil dilakukan.</p>
+            </div>
+            
+            <!-- Action -->
+            <div class="modal-action justify-center">
+                <button id="notifPopupBtn" class="btn btn-wide bg-gradient-to-r from-emerald-500 to-green-500 text-white border-none hover:from-emerald-600 hover:to-green-600 shadow-lg shadow-emerald-200" onclick="closeNotificationPopup()">
+                    <i class="bi bi-check2 mr-2"></i> OK
+                </button>
+            </div>
         </div>
-    </div>
+        <form method="dialog" class="modal-backdrop bg-black/50 backdrop-blur-sm">
+            <button onclick="closeNotificationPopup()">close</button>
+        </form>
+    </dialog>
     
-    <!-- Global Confirm Popup -->
-    <div class="confirm-popup-overlay" id="globalConfirmPopup">
-        <div class="confirm-popup">
-            <div class="popup-icon" id="confirmPopupIcon">
-                <i class="bi bi-question-circle-fill"></i>
+    <!-- Global Confirm Popup - DaisyUI Modal -->
+    <dialog id="globalConfirmPopup" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box bg-white relative overflow-visible">
+            <!-- Decorative top bar -->
+            <div id="confirmTopBar" class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-400 rounded-t-2xl"></div>
+            
+            <!-- Icon -->
+            <div class="flex justify-center -mt-8">
+                <div id="confirmPopupIcon" class="w-20 h-20 rounded-full flex items-center justify-center text-3xl shadow-lg border-4 border-white bg-amber-100 text-amber-600 animate-pulse">
+                    <i class="bi bi-question-circle-fill"></i>
+                </div>
             </div>
-            <div class="popup-title" id="confirmPopupTitle">Konfirmasi</div>
-            <div class="popup-message" id="confirmPopupMessage">Apakah Anda yakin?</div>
-            <div class="popup-buttons">
-                <button class="popup-btn cancel" onclick="closeConfirmPopup(false)">Batal</button>
-                <button class="popup-btn confirm" id="confirmPopupBtn" onclick="closeConfirmPopup(true)">Ya, Lanjutkan</button>
+            
+            <!-- Content -->
+            <div class="text-center mt-4">
+                <h3 id="confirmPopupTitle" class="font-bold text-xl text-gray-800">Konfirmasi</h3>
+                <p id="confirmPopupMessage" class="py-4 text-gray-600">Apakah Anda yakin?</p>
+            </div>
+            
+            <!-- Actions -->
+            <div class="modal-action justify-center gap-3">
+                <button class="btn btn-ghost bg-gray-100 hover:bg-gray-200 text-gray-600 px-6" onclick="closeConfirmPopup(false)">
+                    <i class="bi bi-x-lg mr-1"></i> Batal
+                </button>
+                <button id="confirmPopupBtn" class="btn bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none hover:from-blue-600 hover:to-indigo-600 shadow-lg shadow-blue-200 px-6" onclick="closeConfirmPopup(true)">
+                    <i class="bi bi-check2 mr-1"></i> Ya, Lanjutkan
+                </button>
             </div>
         </div>
-    </div>
+        <form method="dialog" class="modal-backdrop bg-black/50 backdrop-blur-sm">
+            <button onclick="closeConfirmPopup(false)">close</button>
+        </form>
+    </dialog>
     
     @if(session('success') || session('error') || session('warning') || session('info'))
     <script>
@@ -2353,7 +2152,7 @@
         // GLOBAL NOTIFICATION POPUP FUNCTIONS
         // ========================================
         function showNotification(title, message, type = 'success') {
-            const overlay = document.getElementById('globalNotificationPopup');
+            const modal = document.getElementById('globalNotificationPopup');
             const icon = document.getElementById('notifPopupIcon');
             const titleEl = document.getElementById('notifPopupTitle');
             const messageEl = document.getElementById('notifPopupMessage');
@@ -2362,30 +2161,24 @@
             titleEl.textContent = title;
             messageEl.innerHTML = message;
             
-            // Reset classes
-            icon.className = 'popup-icon ' + type;
-            btn.className = 'popup-btn ' + type;
-            
-            // Set icon based on type
-            const icons = {
-                success: '<i class="bi bi-check-circle-fill"></i>',
-                error: '<i class="bi bi-x-circle-fill"></i>',
-                warning: '<i class="bi bi-exclamation-triangle-fill"></i>',
-                info: '<i class="bi bi-info-circle-fill"></i>'
+            // Set styles based on type
+            const styles = {
+                success: { bg: 'bg-emerald-100', text: 'text-emerald-600', icon: 'bi-check-circle-fill', btnBg: 'from-emerald-500 to-green-500', btnHover: 'hover:from-emerald-600 hover:to-green-600', shadow: 'shadow-emerald-200' },
+                error: { bg: 'bg-red-100', text: 'text-red-600', icon: 'bi-x-circle-fill', btnBg: 'from-red-500 to-rose-500', btnHover: 'hover:from-red-600 hover:to-rose-600', shadow: 'shadow-red-200' },
+                warning: { bg: 'bg-amber-100', text: 'text-amber-600', icon: 'bi-exclamation-triangle-fill', btnBg: 'from-amber-500 to-orange-500', btnHover: 'hover:from-amber-600 hover:to-orange-600', shadow: 'shadow-amber-200' },
+                info: { bg: 'bg-blue-100', text: 'text-blue-600', icon: 'bi-info-circle-fill', btnBg: 'from-blue-500 to-indigo-500', btnHover: 'hover:from-blue-600 hover:to-indigo-600', shadow: 'shadow-blue-200' }
             };
-            icon.innerHTML = icons[type] || icons.success;
             
-            overlay.classList.add('show');
+            const style = styles[type] || styles.success;
+            icon.className = `w-20 h-20 rounded-full flex items-center justify-center text-3xl shadow-lg border-4 border-white ${style.bg} ${style.text}`;
+            icon.innerHTML = `<i class="bi ${style.icon}"></i>`;
+            btn.className = `btn btn-wide bg-gradient-to-r ${style.btnBg} text-white border-none ${style.btnHover} shadow-lg ${style.shadow}`;
             
-            overlay.onclick = function(e) {
-                if (e.target === overlay) {
-                    closeNotificationPopup();
-                }
-            };
+            modal.showModal();
         }
         
         function closeNotificationPopup() {
-            document.getElementById('globalNotificationPopup').classList.remove('show');
+            document.getElementById('globalNotificationPopup').close();
         }
         
         // ========================================
@@ -2395,8 +2188,9 @@
         let confirmForm = null;
         
         function showConfirm(title, message, options = {}) {
-            const overlay = document.getElementById('globalConfirmPopup');
+            const modal = document.getElementById('globalConfirmPopup');
             const icon = document.getElementById('confirmPopupIcon');
+            const topBar = document.getElementById('confirmTopBar');
             const titleEl = document.getElementById('confirmPopupTitle');
             const messageEl = document.getElementById('confirmPopupMessage');
             const confirmBtn = document.getElementById('confirmPopupBtn');
@@ -2406,25 +2200,28 @@
             
             // Set type (danger, success, or default warning)
             const type = options.type || 'warning';
-            const isDanger = type === 'danger';
-            const isSuccess = type === 'success';
             
-            icon.className = 'popup-icon' + (isDanger ? ' danger' : isSuccess ? ' success' : '');
-            icon.innerHTML = isDanger ? '<i class="bi bi-exclamation-triangle-fill"></i>' : 
-                            isSuccess ? '<i class="bi bi-check-circle-fill"></i>' :
-                            '<i class="bi bi-question-circle-fill"></i>';
+            const styles = {
+                warning: { bg: 'bg-amber-100', text: 'text-amber-600', icon: 'bi-question-circle-fill', bar: 'from-amber-400 via-orange-400 to-yellow-400', btnBg: 'from-blue-500 to-indigo-500', btnHover: 'hover:from-blue-600 hover:to-indigo-600', shadow: 'shadow-blue-200' },
+                danger: { bg: 'bg-red-100', text: 'text-red-600', icon: 'bi-exclamation-triangle-fill', bar: 'from-red-400 via-rose-400 to-pink-400', btnBg: 'from-red-500 to-rose-500', btnHover: 'hover:from-red-600 hover:to-rose-600', shadow: 'shadow-red-200' },
+                success: { bg: 'bg-emerald-100', text: 'text-emerald-600', icon: 'bi-check-circle-fill', bar: 'from-emerald-400 via-green-400 to-teal-400', btnBg: 'from-emerald-500 to-green-500', btnHover: 'hover:from-emerald-600 hover:to-green-600', shadow: 'shadow-emerald-200' }
+            };
             
-            confirmBtn.className = 'popup-btn confirm' + (isDanger ? ' danger' : isSuccess ? ' success' : '');
-            confirmBtn.textContent = options.confirmText || 'Ya, Lanjutkan';
+            const style = styles[type] || styles.warning;
+            icon.className = `w-20 h-20 rounded-full flex items-center justify-center text-3xl shadow-lg border-4 border-white ${style.bg} ${style.text} animate-pulse`;
+            icon.innerHTML = `<i class="bi ${style.icon}"></i>`;
+            topBar.className = `absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${style.bar} rounded-t-2xl`;
+            confirmBtn.className = `btn bg-gradient-to-r ${style.btnBg} text-white border-none ${style.btnHover} shadow-lg ${style.shadow} px-6`;
+            confirmBtn.innerHTML = `<i class="bi bi-check2 mr-1"></i> ${options.confirmText || 'Ya, Lanjutkan'}`;
             
             confirmCallback = options.onConfirm || null;
             confirmForm = options.form || null;
             
-            overlay.classList.add('show');
+            modal.showModal();
         }
         
         function closeConfirmPopup(confirmed) {
-            document.getElementById('globalConfirmPopup').classList.remove('show');
+            document.getElementById('globalConfirmPopup').close();
             
             if (confirmed) {
                 if (confirmForm) {

@@ -117,6 +117,45 @@
     </div>
 </div>
 
+<!-- Daftar Barang Hilang -->
+@if(isset($daftarUnitHilang) && $daftarUnitHilang->count() > 0)
+<div class="card" style="margin-top: 24px; border-left: 4px solid var(--dark);">
+    <div class="card-header">
+        <h5 class="card-title"><i class="bi bi-search" style="margin-right: 8px; color: var(--dark);"></i>Daftar Barang Hilang</h5>
+        <span class="badge badge-neutral">{{ $daftarUnitHilang->count() }} unit</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Kode Unit</th>
+                        <th>Barang</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Catatan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($daftarUnitHilang as $unit)
+                    <tr>
+                        <td><code class="font-mono font-bold">{{ $unit->kode_unit }}</code></td>
+                        <td>
+                            <div class="font-bold">{{ $unit->sarpras->nama ?? '-' }}</div>
+                            <div class="text-xs opacity-70">{{ $unit->sarpras->kode ?? '-' }}</div>
+                        </td>
+                        <td>{{ $unit->sarpras->kategori->nama ?? '-' }}</td>
+                        <td><span class="badge badge-neutral">Hilang</span></td>
+                        <td class="italic text-sm opacity-80">{{ $unit->catatan ?? '-' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Alat Sering Rusak (Compact Table) -->
 @if($alatSeringRusak->count() > 0)
 <div class="card" style="margin-top: 24px;">

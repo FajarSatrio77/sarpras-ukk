@@ -291,6 +291,26 @@
         text-align: center;
         color: var(--secondary);
     }
+    
+    /* Info Card Table Styling */
+    .card-body .table td.text-secondary {
+        color: #64748b !important;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+    
+    .card-body .table td.fw-medium {
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    /* Card header styling */
+    .card-header {
+        border-radius: 0.75rem 0.75rem 0 0 !important;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
 </style>
 @endpush
 
@@ -311,14 +331,12 @@
 
             {{-- Info Peminjaman --}}
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header" style="background: var(--primary); color: white;">
+                <div class="card-header" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white;">
                     <i class="bi bi-info-circle me-2"></i>Detail Peminjaman
                 </div>
-                <div class="card-body">
-                    <div class="row">
                 <div class="card-body p-4">
                     <div class="row g-4">
-                        <div class="col-md-6 border-end-md">
+                        <div class="col-md-6">
                             <table class="table table-borderless table-sm mb-0">
                                 <tr>
                                     <td class="text-secondary pb-3" width="120">Kode</td>
@@ -339,7 +357,7 @@
                                 <tr>
                                     <td class="text-secondary pb-3" width="120">Jumlah</td>
                                     <td class="pb-3">
-                                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                                        <span class="badge fs-6 px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
                                             {{ $peminjaman->jumlah }} unit
                                         </span>
                                     </td>
@@ -356,13 +374,11 @@
                         </div>
                     </div>
                 </div>
-                    </div>
-                </div>
             </div>
 
             {{-- Form Pilih Unit --}}
             <div class="card border-0 shadow-sm">
-                <div class="card-header" style="background: var(--success); color: white;">
+                <div class="card-header" style="background: linear-gradient(135deg, #475569 0%, #64748b 100%); color: white;">
                     <i class="bi bi-boxes me-2"></i>Pilih Unit untuk Diserahkan
                 </div>
                 <div class="card-body">
@@ -377,7 +393,7 @@
                         Pilih <strong>{{ $peminjaman->jumlah }} unit</strong> dari dropdown di bawah untuk diserahkan kepada peminjam.
                     </div>
 
-                    <form action="{{ route('peminjaman.handover.store', $peminjaman) }}" method="POST" id="handoverForm">
+                    <form action="{{ route('peminjaman.handover.store', $peminjaman) }}" method="POST" id="handoverForm" enctype="multipart/form-data">
                         @csrf
 
                         {{-- Quick Actions --}}
@@ -443,6 +459,37 @@
                             <div id="hiddenInputs"></div>
                             
                             @error('unit_ids')
+                                <div class="text-danger mt-2">
+                                    <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        {{-- Upload Foto Kondisi --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-camera text-primary me-1"></i>
+                                Foto Kondisi Barang <span class="text-danger">*</span>
+                            </label>
+                            <p class="text-muted small mb-2">Upload foto kondisi barang sebelum diserahkan ke peminjam (Wajib)</p>
+                            
+                            <div class="upload-area" id="uploadArea" style="border: 2px dashed #e2e8f0; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: #f8fafc;">
+                                <input type="file" name="foto_kondisi_pinjam" id="fotoKondisi" accept="image/jpeg,image/png,image/jpg" style="display: none;" required>
+                                <div id="uploadPlaceholder">
+                                    <i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem; color: var(--primary); opacity: 0.7;"></i>
+                                    <p class="mb-1 mt-2 fw-medium">Klik untuk upload foto</p>
+                                    <small class="text-muted">Format: JPG, JPEG, PNG (Maks. 5MB)</small>
+                                </div>
+                                <div id="uploadPreview" style="display: none;">
+                                    <img id="previewImage" src="" alt="Preview" style="max-height: 200px; border-radius: 8px; margin-bottom: 10px;">
+                                    <p class="mb-0 text-success fw-medium"><i class="bi bi-check-circle me-1"></i>Foto berhasil dipilih</p>
+                                    <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="removePhoto">
+                                        <i class="bi bi-trash me-1"></i>Hapus Foto
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            @error('foto_kondisi_pinjam')
                                 <div class="text-danger mt-2">
                                     <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
                                 </div>
@@ -683,6 +730,120 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedUnits.forEach((code, id) => deselectUnit(id));
         updateUI();
     });
+
+    // ========================================
+    // Photo Upload Handling
+    // ========================================
+    const uploadArea = document.getElementById('uploadArea');
+    const fotoKondisi = document.getElementById('fotoKondisi');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const previewImage = document.getElementById('previewImage');
+    const removePhoto = document.getElementById('removePhoto');
+    let photoSelected = false;
+
+    // Click to upload
+    uploadArea.addEventListener('click', function(e) {
+        if (e.target.id !== 'removePhoto' && !e.target.closest('#removePhoto')) {
+            fotoKondisi.click();
+        }
+    });
+
+    // File selected
+    fotoKondisi.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                this.value = '';
+                return;
+            }
+            
+            // Validate file type
+            if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                alert('Format file tidak valid. Gunakan JPG, JPEG, atau PNG.');
+                this.value = '';
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                uploadPlaceholder.style.display = 'none';
+                uploadPreview.style.display = 'block';
+                uploadArea.style.borderColor = 'var(--success)';
+                uploadArea.style.background = 'rgba(16, 185, 129, 0.05)';
+                photoSelected = true;
+                updateSubmitButton();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Remove photo
+    removePhoto.addEventListener('click', function(e) {
+        e.stopPropagation();
+        fotoKondisi.value = '';
+        previewImage.src = '';
+        uploadPlaceholder.style.display = 'block';
+        uploadPreview.style.display = 'none';
+        uploadArea.style.borderColor = '#e2e8f0';
+        uploadArea.style.background = '#f8fafc';
+        photoSelected = false;
+        updateSubmitButton();
+    });
+
+    // Update submit button to also check photo
+    function updateSubmitButton() {
+        const unitsComplete = selectedUnits.size === requiredCount;
+        submitBtn.disabled = !(unitsComplete && photoSelected);
+    }
+
+    // Override original updateUI to use new submit button logic
+    const originalUpdateUI = updateUI;
+    updateUI = function() {
+        // Calculate progress
+        const count = selectedUnits.size;
+        const percentage = Math.min((count / requiredCount) * 100, 100);
+        
+        // Update counter
+        selectedCountEl.textContent = `${count} / ${requiredCount}`;
+        progressBar.style.width = `${percentage}%`;
+        
+        // Update tags display
+        if (count === 0) {
+            emptySelection.style.display = 'flex';
+        } else {
+            emptySelection.style.display = 'none';
+        }
+        
+        // Update submit button
+        updateSubmitButton();
+        
+        // Update hidden inputs
+        hiddenInputs.innerHTML = '';
+        selectedUnits.forEach((code, id) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'unit_ids[]';
+            input.value = id;
+            hiddenInputs.appendChild(input);
+        });
+        
+        // Visual feedback
+        if (count === requiredCount) {
+            selectedCountEl.style.color = 'var(--success)';
+            progressBar.style.background = 'var(--success)';
+        } else if (count > 0 && count < requiredCount) {
+            selectedCountEl.style.color = 'var(--warning)';
+            progressBar.style.background = 'var(--warning)';
+        } else {
+            selectedCountEl.style.color = 'var(--secondary)';
+        }
+    };
 
     // Initial UI update
     updateUI();

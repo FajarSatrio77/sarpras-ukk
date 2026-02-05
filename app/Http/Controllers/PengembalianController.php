@@ -184,9 +184,19 @@ class PengembalianController extends Controller
                     'catatan_kembali' => $catatan,
                 ]);
 
+                // Tentukan status baru berdasarkan kondisi
+                $newStatus = 'tersedia';
+                if ($kondisi == 'hilang') {
+                    $newStatus = 'hilang';
+                } elseif ($kondisi == 'rusak_berat') {
+                    $newStatus = 'rusak'; // atau maintenance, tergantung flow
+                } elseif ($kondisi == 'rusak_ringan') {
+                    $newStatus = 'tersedia'; // Tetap tersedia tapi ada catatan
+                }
+
                 // Update sarpras_unit record
                 $pu->sarprasUnit->update([
-                    'status' => 'tersedia',
+                    'status' => $newStatus,
                     'kondisi' => $kondisi,
                     'catatan' => $catatan,
                 ]);
@@ -211,18 +221,15 @@ class PengembalianController extends Controller
             $sarpras = $peminjaman->sarpras;
             $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
 
-            // Buat pengaduan otomatis untuk setiap unit yang rusak/hilang
-            $pengaduanCount = 0;
-            foreach ($damagedUnits as $damaged) {
-                $this->createPengaduanPerUnit($peminjaman, $pengembalian, $damaged);
-                $pengaduanCount++;
-            }
+            // Unit rusak/hilang sudah tercatat di peminjaman_units (kondisi_kembali)
+            // dan akan muncul di Laporan Kerusakan secara otomatis
+            $damagedCount = count($damagedUnits);
 
             DB::commit();
 
             $message = "Pengembalian berhasil diproses. {$peminjamanUnits->count()} unit telah dikembalikan.";
-            if ($pengaduanCount > 0) {
-                $message .= " {$pengaduanCount} laporan kerusakan otomatis telah dibuat.";
+            if ($damagedCount > 0) {
+                $message .= " {$damagedCount} unit dengan kerusakan telah dicatat di Laporan Kerusakan.";
             }
 
             return redirect()->route('pengembalian.index')
@@ -412,17 +419,11 @@ class PengembalianController extends Controller
         $kondisi = $damagedData['kondisi'];
         $catatan = $damagedData['catatan'] ?? '';
 
-        // Tentukan jenis dan prioritas berdasarkan kondisi
+        // Tentukan jenis berdasarkan kondisi
         $jenisMap = [
-            'rusak_ringan' => 'kerusakan',
-            'rusak_berat' => 'kerusakan',
-            'hilang' => 'kehilangan',
-        ];
-        
-        $prioritasMap = [
-            'rusak_ringan' => 'rendah',
-            'rusak_berat' => 'tinggi',
-            'hilang' => 'tinggi',
+            'rusak_ringan' => 'Kerusakan Ringan',
+            'rusak_berat' => 'Kerusakan Berat',
+            'hilang' => 'Kehilangan',
         ];
         
         $kondisiLabel = match($kondisi) {
@@ -435,17 +436,15 @@ class PengembalianController extends Controller
         $sarpras = $peminjaman->sarpras;
         
         \App\Models\Pengaduan::create([
-            'kode_pengaduan' => 'ADU-' . now()->format('Ymd') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT),
             'user_id' => $peminjaman->user_id,
-            'sarpras_id' => $sarpras->id,
             'peminjaman_id' => $peminjaman->id,
-            'jenis' => $jenisMap[$kondisi] ?? 'kerusakan',
             'judul' => "Unit {$unit->kode_unit} - {$kondisiLabel}",
             'deskripsi' => "Unit dengan kode **{$unit->kode_unit}** dari barang **{$sarpras->nama}** ({$sarpras->kode}) " .
                           "dikembalikan dalam kondisi **{$kondisiLabel}** pada pengembalian peminjaman {$peminjaman->kode_peminjaman}.\n\n" .
                           ($catatan ? "**Catatan:** {$catatan}" : ""),
-            'status' => 'pending',
-            'prioritas' => $prioritasMap[$kondisi] ?? 'sedang',
+            'lokasi' => $sarpras->lokasi ?? '-',
+            'jenis_sarpras' => $jenisMap[$kondisi] ?? 'Kerusakan',
+            'status' => 'menunggu',
         ]);
     }
 
@@ -488,61 +487,90 @@ class PengembalianController extends Controller
     }
 
     /**
-     * Laporan alat yang sering rusak
+     * Laporan alat yang sering rusak - per unit
      */
     public function laporanKerusakan(Request $request)
     {
-        // Ambil data alat dengan kerusakan terbanyak
-        $alatRusak = DB::table('pengembalian')
-            ->join('peminjaman', 'pengembalian.peminjaman_id', '=', 'peminjaman.id')
-            ->join('sarpras', 'peminjaman.sarpras_id', '=', 'sarpras.id')
-            ->join('kategori_sarpras', 'sarpras.kategori_id', '=', 'kategori_sarpras.id')
-            ->whereIn('pengembalian.kondisi_alat', ['rusak_ringan', 'rusak_berat', 'hilang'])
+        // Query untuk mendapatkan unit-unit yang rusak/hilang dari peminjaman_unit
+        $query = DB::table('peminjaman_unit')
+            ->join('sarpras_unit', 'peminjaman_unit.sarpras_unit_id', '=', 'sarpras_unit.id')
+            ->join('sarpras', 'sarpras_unit.sarpras_id', '=', 'sarpras.id')
+            ->join('peminjaman', 'peminjaman_unit.peminjaman_id', '=', 'peminjaman.id')
+            ->join('users', 'peminjaman.user_id', '=', 'users.id')
+            ->leftJoin('kategori_sarpras', 'sarpras.kategori_id', '=', 'kategori_sarpras.id')
+            ->whereIn('peminjaman_unit.kondisi_kembali', ['rusak_ringan', 'rusak_berat'])
             ->select(
-                'sarpras.id',
-                'sarpras.kode',
-                'sarpras.nama',
-                'sarpras.lokasi',
-                'sarpras.kondisi as kondisi_saat_ini',
+                'peminjaman_unit.id',
+                'peminjaman_unit.kondisi_kembali',
+                'peminjaman_unit.catatan_kembali',
+                'peminjaman_unit.updated_at as tgl_laporan',
+                'sarpras_unit.kode_unit',
+                'sarpras_unit.kondisi as kondisi_saat_ini',
+                'sarpras.kode as kode_barang',
+                'sarpras.nama as nama_barang',
                 'kategori_sarpras.nama as kategori',
-                DB::raw('COUNT(*) as total_kerusakan'),
-                DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "rusak_ringan" THEN 1 ELSE 0 END) as rusak_ringan'),
-                DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "rusak_berat" THEN 1 ELSE 0 END) as rusak_berat'),
-                DB::raw('SUM(CASE WHEN pengembalian.kondisi_alat = "hilang" THEN 1 ELSE 0 END) as hilang'),
-                DB::raw('MAX(pengembalian.created_at) as tgl_laporan_terakhir')
+                'peminjaman.kode_peminjaman',
+                'users.name as nama_peminjam'
             )
-            ->groupBy('sarpras.id', 'sarpras.kode', 'sarpras.nama', 'sarpras.lokasi', 'sarpras.kondisi', 'kategori_sarpras.nama')
-            ->orderBy('total_kerusakan', 'desc')
-            ->paginate(15);
+            ->orderBy('peminjaman_unit.updated_at', 'desc');
 
         // Filter periode jika ada
         if ($request->filled('periode')) {
             switch ($request->periode) {
                 case 'bulan_ini':
-                    $alatRusak = $this->getAlatRusakByPeriode(now()->startOfMonth(), now());
+                    $query->where('peminjaman_unit.updated_at', '>=', now()->startOfMonth());
                     break;
                 case '3_bulan':
-                    $alatRusak = $this->getAlatRusakByPeriode(now()->subMonths(3), now());
+                    $query->where('peminjaman_unit.updated_at', '>=', now()->subMonths(3));
                     break;
                 case '6_bulan':
-                    $alatRusak = $this->getAlatRusakByPeriode(now()->subMonths(6), now());
+                    $query->where('peminjaman_unit.updated_at', '>=', now()->subMonths(6));
                     break;
                 case '1_tahun':
-                    $alatRusak = $this->getAlatRusakByPeriode(now()->subYear(), now());
+                    $query->where('peminjaman_unit.updated_at', '>=', now()->subYear());
                     break;
             }
         }
 
-        // Statistik keseluruhan
+        $unitRusak = $query->paginate(15);
+
+        // Statistik keseluruhan dari peminjaman_unit
         $statistik = [
-            'total_kerusakan' => Pengembalian::whereIn('kondisi_alat', ['rusak_ringan', 'rusak_berat', 'hilang'])->count(),
-            'rusak_ringan' => Pengembalian::where('kondisi_alat', 'rusak_ringan')->count(),
-            'rusak_berat' => Pengembalian::where('kondisi_alat', 'rusak_berat')->count(),
-            'hilang' => Pengembalian::where('kondisi_alat', 'hilang')->count(),
-            'perlu_maintenance' => Sarpras::where('kondisi', 'butuh_maintenance')->count(),
+            'total_kerusakan' => DB::table('peminjaman_unit')
+                ->whereIn('kondisi_kembali', ['rusak_ringan', 'rusak_berat', 'hilang'])->count(),
+            'rusak_ringan' => DB::table('peminjaman_unit')
+                ->where('kondisi_kembali', 'rusak_ringan')->count(),
+            'rusak_berat' => DB::table('peminjaman_unit')
+                ->where('kondisi_kembali', 'rusak_berat')->count(),
+            'hilang' => DB::table('peminjaman_unit')
+                ->where('kondisi_kembali', 'hilang')->count(),
+            'perlu_maintenance' => DB::table('sarpras_unit')
+                ->whereIn('kondisi', ['rusak_ringan', 'rusak_berat'])->count(),
         ];
 
-        return view('pengembalian.laporan-kerusakan', compact('alatRusak', 'statistik'));
+        // Juga ambil ringkasan per sarpras (aggregat)
+        $alatRusak = DB::table('peminjaman_unit')
+            ->join('sarpras_unit', 'peminjaman_unit.sarpras_unit_id', '=', 'sarpras_unit.id')
+            ->join('sarpras', 'sarpras_unit.sarpras_id', '=', 'sarpras.id')
+            ->leftJoin('kategori_sarpras', 'sarpras.kategori_id', '=', 'kategori_sarpras.id')
+            ->whereIn('peminjaman_unit.kondisi_kembali', ['rusak_ringan', 'rusak_berat', 'hilang'])
+            ->select(
+                'sarpras.id',
+                'sarpras.kode',
+                'sarpras.nama',
+                'sarpras.kondisi as kondisi_saat_ini',
+                'kategori_sarpras.nama as kategori',
+                DB::raw('COUNT(*) as total_kerusakan'),
+                DB::raw('SUM(CASE WHEN peminjaman_unit.kondisi_kembali = "rusak_ringan" THEN 1 ELSE 0 END) as rusak_ringan'),
+                DB::raw('SUM(CASE WHEN peminjaman_unit.kondisi_kembali = "rusak_berat" THEN 1 ELSE 0 END) as rusak_berat'),
+                DB::raw('SUM(CASE WHEN peminjaman_unit.kondisi_kembali = "hilang" THEN 1 ELSE 0 END) as hilang'),
+                DB::raw('MAX(peminjaman_unit.updated_at) as tgl_laporan_terakhir')
+            )
+            ->groupBy('sarpras.id', 'sarpras.kode', 'sarpras.nama', 'sarpras.kondisi', 'kategori_sarpras.nama')
+            ->orderBy('total_kerusakan', 'desc')
+            ->get();
+
+        return view('pengembalian.laporan-kerusakan', compact('unitRusak', 'alatRusak', 'statistik'));
     }
 
     private function getAlatRusakByPeriode($dari, $sampai)
@@ -569,6 +597,55 @@ class PengembalianController extends Controller
             ->groupBy('sarpras.id', 'sarpras.kode', 'sarpras.nama', 'sarpras.lokasi', 'sarpras.kondisi', 'kategori_sarpras.nama')
             ->orderBy('total_kerusakan', 'desc')
             ->paginate(15);
+    }
+
+    /**
+     * Tindak lanjut kerusakan unit - update kondisi unit
+     */
+    public function tindakLanjutKerusakan(Request $request)
+    {
+        $request->validate([
+            'kode_unit' => 'required|string',
+            'kondisi_baru' => 'required|in:baik,rusak_ringan,maintenance',
+            'catatan' => 'nullable|string|max:500',
+        ]);
+
+        $unit = \App\Models\SarprasUnit::where('kode_unit', $request->kode_unit)->first();
+        
+        if (!$unit) {
+            return back()->with('error', 'Unit tidak ditemukan.');
+        }
+
+        // Update kondisi unit
+        $kondisiSebelum = $unit->kondisi;
+        $unit->update([
+            'kondisi' => $request->kondisi_baru, // Sekarang DB sudah support 'maintenance'
+            'catatan' => $request->catatan,
+            'status' => $request->kondisi_baru == 'maintenance' ? 'maintenance' : 'tersedia',
+        ]);
+
+        // Log activity (optional - only if spatie/laravel-activitylog is installed)
+        $kondisiLabel = match($request->kondisi_baru) {
+            'baik' => 'Sudah Diperbaiki (Kondisi Baik)',
+            'rusak_ringan' => 'Masih Rusak Ringan',
+            'maintenance' => 'Dalam Perbaikan',
+            default => $request->kondisi_baru,
+        };
+
+        if (function_exists('activity')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($unit)
+                ->withProperties([
+                    'kode_unit' => $unit->kode_unit,
+                    'kondisi_sebelum' => $kondisiSebelum,
+                    'kondisi_sesudah' => $request->kondisi_baru,
+                    'catatan' => $request->catatan,
+                ])
+                ->log("Tindak lanjut kerusakan unit {$unit->kode_unit}: {$kondisiLabel}");
+        }
+
+        return back()->with('success', "Tindak lanjut untuk unit {$unit->kode_unit} berhasil disimpan. Status: {$kondisiLabel}");
     }
 
 

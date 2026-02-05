@@ -127,6 +127,7 @@ Route::middleware('auth')->group(function () {
         
         // Laporan Kerusakan
         Route::get('/laporan/kerusakan', [PengembalianController::class, 'laporanKerusakan'])->name('laporan.kerusakan');
+        Route::post('/laporan/kerusakan/tindak-lanjut', [PengembalianController::class, 'tindakLanjutKerusakan'])->name('laporan.kerusakan.tindak-lanjut');
         
         // Laporan Asset Health
         Route::get('/laporan/asset-health', [\App\Http\Controllers\LaporanController::class, 'assetHealth'])->name('laporan.asset-health');

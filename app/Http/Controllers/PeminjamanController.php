@@ -306,9 +306,14 @@ class PeminjamanController extends Controller
         $request->validate([
             'unit_ids' => 'required|array|min:1',
             'unit_ids.*' => 'required|exists:sarpras_unit,id',
+            'foto_kondisi_pinjam' => 'required|image|mimes:jpeg,png,jpg|max:5120',
         ], [
             'unit_ids.required' => 'Pilih minimal 1 unit untuk diserahkan.',
             'unit_ids.min' => 'Pilih minimal 1 unit untuk diserahkan.',
+            'foto_kondisi_pinjam.required' => 'Foto kondisi barang wajib diupload.',
+            'foto_kondisi_pinjam.image' => 'File harus berupa gambar.',
+            'foto_kondisi_pinjam.mimes' => 'Format gambar harus JPEG, PNG, atau JPG.',
+            'foto_kondisi_pinjam.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         // Validasi jumlah unit harus sesuai dengan jumlah peminjaman
@@ -328,6 +333,9 @@ class PeminjamanController extends Controller
 
         \Illuminate\Support\Facades\DB::beginTransaction();
         try {
+            // Upload foto kondisi
+            $fotoPath = $request->file('foto_kondisi_pinjam')->store('foto-kondisi-pinjam', 'public');
+
             // Buat record peminjaman_unit untuk setiap unit
             foreach ($units as $unit) {
                 \App\Models\PeminjamanUnit::create([
@@ -343,8 +351,11 @@ class PeminjamanController extends Controller
             // Kurangi stok sarpras
             $peminjaman->sarpras->decrement('jumlah_stok', $peminjaman->jumlah);
 
-            // Update status peminjaman
-            $peminjaman->update(['status' => 'dipinjam']);
+            // Update status peminjaman dan simpan foto kondisi
+            $peminjaman->update([
+                'status' => 'dipinjam',
+                'foto_kondisi_pinjam' => $fotoPath,
+            ]);
 
             ActivityLog::log('serahkan_barang', 'Menyerahkan barang peminjaman: ' . $peminjaman->kode_peminjaman . ' (Unit: ' . $units->pluck('kode_unit')->join(', ') . ')');
 

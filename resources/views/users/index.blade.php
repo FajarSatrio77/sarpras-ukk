@@ -179,10 +179,12 @@
     .users-table tbody tr {
         transition: all 0.2s ease;
         border-bottom: 1px solid #f1f5f9;
+        cursor: pointer;
     }
     
     .users-table tbody tr:hover {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.06) 0%, rgba(118, 75, 162, 0.06) 100%);
+        transform: scale(1.002);
     }
     
     .users-table tbody tr:last-child {
@@ -559,7 +561,7 @@
             </thead>
             <tbody>
                 @forelse($users as $user)
-                <tr>
+                <tr data-href="{{ route('users.edit', $user) }}" class="clickable-row">
                     <td>
                         <div class="user-cell">
                             <div class="user-avatar {{ $user->role }}">
@@ -716,6 +718,17 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.value = '';
         roleFilter.value = '';
         submitForm();
+    });
+    
+    // Clickable rows - navigate to edit page
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Don't navigate if clicking on action buttons or links
+            if (e.target.closest('.action-buttons') || e.target.closest('a') || e.target.closest('button') || e.target.closest('form')) {
+                return;
+            }
+            window.location.href = this.dataset.href;
+        });
     });
 });
 </script>

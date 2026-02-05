@@ -242,6 +242,35 @@
             font-size: 0.9rem;
         }
     }
+    
+    /* Select kondisi styling */
+    .kondisi-select {
+        transition: all 0.2s ease;
+    }
+    
+    .kondisi-select.kondisi-baik {
+        background-color: #d1fae5 !important;
+        border-color: #10b981 !important;
+        color: #065f46 !important;
+    }
+    
+    .kondisi-select.kondisi-rusak_ringan {
+        background-color: #fef3c7 !important;
+        border-color: #f59e0b !important;
+        color: #92400e !important;
+    }
+    
+    .kondisi-select.kondisi-rusak_berat {
+        background-color: #fee2e2 !important;
+        border-color: #ef4444 !important;
+        color: #991b1b !important;
+    }
+    
+    .kondisi-select.kondisi-hilang {
+        background-color: #fce7f3 !important;
+        border-color: #ec4899 !important;
+        color: #9d174d !important;
+    }
 </style>
 @endpush
 
@@ -325,6 +354,23 @@
                 <h5 class="card-title"><i class="bi bi-clipboard-check"></i> Inspeksi Pengembalian</h5>
             </div>
             <div class="card-body">
+                @if(session('error'))
+                    <div class="alert alert-danger mb-4">
+                        <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+                    </div>
+                @endif
+                
+                @if($errors->any())
+                    <div class="alert alert-danger mb-4">
+                        <i class="bi bi-exclamation-triangle me-2"></i><strong>Terjadi kesalahan:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                
                 <form action="{{ route('pengembalian.store') }}" method="POST" enctype="multipart/form-data" id="formPengembalian" novalidate>
                     @csrf
                     <input type="hidden" name="peminjaman_id" value="{{ $peminjaman->id }}">
@@ -366,9 +412,8 @@
                                             </td>
                                             <td>{!! $pu->kondisi_pinjam_label !!}</td>
                                             <td>
-                                                <select name="unit_kondisi[{{ $pu->sarpras_unit_id }}]" class="form-control" style="padding: 8px 12px; font-size: 0.85rem;">
-                                                    <option value="">-- Pilih --</option>
-                                                    <option value="baik" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'baik' ? 'selected' : '' }}>✅ Baik</option>
+                                                <select name="unit_kondisi[{{ $pu->sarpras_unit_id }}]" class="form-control kondisi-select" style="padding: 8px 12px; font-size: 0.85rem;" required>
+                                                    <option value="baik" {{ old("unit_kondisi.{$pu->sarpras_unit_id}", 'baik') == 'baik' ? 'selected' : '' }}>✅ Baik</option>
                                                     <option value="rusak_ringan" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_ringan' ? 'selected' : '' }}>⚠️ Rusak Ringan</option>
                                                     <option value="rusak_berat" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_berat' ? 'selected' : '' }}>❌ Rusak Berat</option>
                                                     <option value="hilang" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'hilang' ? 'selected' : '' }}>❓ Hilang</option>
@@ -391,7 +436,7 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="perUnitPhotoField">
                             <label class="form-label">Foto Dokumentasi Pengembalian</label>
                             <input type="file" name="foto" class="form-control" accept="image/*" onchange="previewPhoto(this)">
                             <small style="color: var(--secondary);">Format: JPG, PNG (max 2MB) - Untuk bukti visual kondisi alat</small>
@@ -469,7 +514,7 @@
                                 @enderror
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" id="legacyPhotoField">
                                 <label class="form-label">Foto Dokumentasi Pengembalian</label>
                                 <input type="file" name="foto" class="form-control" accept="image/*" onchange="previewPhoto(this)">
                                 <small style="color: var(--secondary);">Format: JPG, PNG (max 2MB) - Untuk bukti visual kondisi alat</small>
@@ -513,16 +558,46 @@
         
         // Show/hide damage fields
         const damageFields = document.getElementById('damageFields');
+        const legacyPhotoField = document.getElementById('legacyPhotoField');
+        
         if (kondisi === 'rusak_ringan' || kondisi === 'rusak_berat' || kondisi === 'hilang') {
             damageFields.classList.add('show');
+            
+            // Logic: Hide photo if 'hilang', show otherwise (if damageFields is shown)
+            if (legacyPhotoField) {
+                if (kondisi === 'hilang') {
+                    legacyPhotoField.style.display = 'none';
+                } else {
+                    legacyPhotoField.style.display = 'block';
+                }
+            }
         } else {
             damageFields.classList.remove('show');
         }
     }
+
+    // New function to check photo visibility for Per-Unit form
+    function checkPerUnitPhotoVisibility() {
+        const photoField = document.getElementById('perUnitPhotoField');
+        if (!photoField) return;
+
+        // Check if ANY unit is damaged (rusak_ringan OR rusak_berat)
+        // If only 'baik' or 'hilang', we don't need photo
+        const hasDamage = Array.from(document.querySelectorAll('.kondisi-select')).some(select => {
+            return ['rusak_ringan', 'rusak_berat'].includes(select.value);
+        });
+
+        if (hasDamage) {
+            photoField.style.display = 'block';
+        } else {
+            photoField.style.display = 'none';
+        }
+    }
     
     function previewPhoto(input) {
-        const preview = document.getElementById('photoPreview');
-        const previewImg = document.getElementById('previewImg');
+        // ... (existing code, untouched)
+        const preview = input.parentElement.querySelector('div[id^="photoPreview"]');
+        const previewImg = input.parentElement.querySelector('img[id^="previewImg"]');
         
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -536,20 +611,39 @@
         }
     }
     
+    // Update select styling based on selected value
+    function updateSelectStyling(select) {
+        // Remove all kondisi classes
+        select.classList.remove('kondisi-baik', 'kondisi-rusak_ringan', 'kondisi-rusak_berat', 'kondisi-hilang');
+        // Add class based on current value
+        if (select.value) {
+            select.classList.add('kondisi-' + select.value);
+        }
+    }
+    
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         const checked = document.querySelector('input[name="kondisi_alat"]:checked');
         if (checked) {
-            const kondisi = checked.value;
-            checked.closest('.kondisi-option').classList.add('selected', kondisi.replace('_', '-'));
-            if (['rusak_ringan', 'rusak_berat', 'hilang'].includes(kondisi)) {
-                // Check if element exists before accessing classList
-                const damageFields = document.getElementById('damageFields');
-                if (damageFields) damageFields.classList.add('show');
-            }
+            // Trigger logic for initial state (Legacy)
+             selectKondisi(checked.value, checked.closest('.kondisi-option'));
         }
 
-        // Simple Form Submit Handler
+        // Initialize kondisi select styling (Per-Unit)
+        const unitSelects = document.querySelectorAll('.kondisi-select');
+        if (unitSelects.length > 0) {
+            unitSelects.forEach(function(select) {
+                updateSelectStyling(select);
+                select.addEventListener('change', function() {
+                    updateSelectStyling(this);
+                    checkPerUnitPhotoVisibility(); // Check visibility on change
+                });
+            });
+            // Initial check
+            checkPerUnitPhotoVisibility();
+        }
+
+        // Simple Form Submit Handler - without any blocking
         const form = document.getElementById('formPengembalian');
         if (form) {
             form.addEventListener('submit', function(e) {
@@ -559,12 +653,12 @@
                     setTimeout(() => {
                         btn.disabled = true;
                         btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
-                    }, 50);
+                    }, 100);
                 }
-                // Biarkan submit berjalan secara alami tanpa preventDefault
+                // Form submit berjalan normal tanpa preventDefault
+                return true;
             });
         }
     });
 </script>
 @endpush
-```

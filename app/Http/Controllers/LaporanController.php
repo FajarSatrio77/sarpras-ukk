@@ -178,11 +178,21 @@ class LaporanController extends Controller
 
         $needsReplacement = $lifecycleAssets->filter(fn($a) => $a->replacement_score >= 50);
 
+        // ==========================================
+        // DAFTAR UNIT HILANG (NEW)
+        // ==========================================
+        $daftarUnitHilang = \App\Models\SarprasUnit::with(['sarpras.kategori'])
+            ->where('status', 'hilang')
+            ->orWhere('kondisi', 'hilang')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
         return view('laporan.asset-health', compact(
             'statistik',
             'alatRusak',
             'alatSeringRusak',
             'alatHilang',
+            'daftarUnitHilang', // Pass new variable
             'maintenanceHistory',
             'trendBulanan',
             'kerusakanPerKategori',
