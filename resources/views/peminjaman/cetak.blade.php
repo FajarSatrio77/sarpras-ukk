@@ -185,6 +185,14 @@
                     <span class="label">Kelas</span>
                     <span class="value">{{ $peminjaman->user->kelas ?? '-' }}</span>
                 </div>
+                <div class="info-row">
+                    <span class="label">Lokasi Pemakaian</span>
+                    <span class="value">{{ $peminjaman->lokasi_pemakaian ?? '-' }}</span>
+                </div>
+                <div class="info-row" style="margin-top: 8px; border-top: 1px dashed #e5e7eb; padding-top: 12px;">
+                    <span class="label" style="font-weight: 600; color: #4f46e5;">Lokasi Pengambilan</span>
+                    <span class="value" style="font-weight: 700; color: #4f46e5;">{{ $peminjaman->sarpras->ruang->nama ?? '-' }}</span>
+                </div>
             </div>
         </div>
 

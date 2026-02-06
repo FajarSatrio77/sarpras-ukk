@@ -1185,63 +1185,48 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            gap: 12px;
             z-index: 99999;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
-            will-change: opacity, visibility;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
         }
-        
+
         .page-loader.hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
-        
-        /* Simple Elegant Spinner */
-        .loader-spinner {
-            width: 32px;
-            height: 32px;
-            border: 2px solid #f0f0f0;
+
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .loader-circle {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(99, 102, 241, 0.1);
             border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spinSmooth 0.6s linear infinite;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.3));
             will-change: transform;
         }
-        
-        @keyframes spinSmooth {
+
+        @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        /* Pulse Dot Alternative */
-        .loader-pulse {
-            width: 10px;
-            height: 10px;
-            background: var(--primary);
-            border-radius: 50%;
-            animation: pulseDot 1s ease-in-out infinite;
-        }
-        
-        @keyframes pulseDot {
-            0%, 100% { 
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% { 
-                transform: scale(1.5);
-                opacity: 0.5;
-            }
-        }
-        
+
         .loader-text {
-            font-size: 0.7rem;
-            color: #9ca3af;
+            font-size: 0.8rem;
+            color: var(--gray-500);
             font-weight: 500;
             letter-spacing: 0.5px;
         }
@@ -1919,6 +1904,10 @@
                 <i class="bi bi-folder"></i>
                 <span>Kategori Barang</span>
             </a>
+            <a href="{{ route('ruang.index') }}" class="nav-item {{ request()->routeIs('ruang.*') ? 'active' : '' }}">
+                <i class="bi bi-door-open"></i>
+                <span>Kelola Ruang</span>
+            </a>
 
             @endif
 
@@ -1931,6 +1920,10 @@
             <a href="{{ route('pengembalian.scan') }}" class="nav-item {{ request()->routeIs('pengembalian.*') ? 'active' : '' }}">
                 <i class="bi bi-qr-code-scan"></i>
                 <span>Scan Pengembalian</span>
+            </a>
+            <a href="{{ route('barang-hilang.index') }}" class="nav-item {{ request()->routeIs('barang-hilang.*') ? 'active' : '' }}">
+                <i class="bi bi-question-diamond"></i>
+                <span>Barang Hilang</span>
             </a>
             @endif
 
@@ -2010,7 +2003,10 @@
 
     <!-- Global Page Loader -->
     <div class="page-loader" id="globalPageLoader">
-        <div class="loader-spinner"></div>
+        <div class="loader-content">
+            <div class="loader-circle"></div>
+            <p class="loader-text">Memuat...</p>
+        </div>
     </div>
 
     <!-- App Main Container -->
@@ -2301,12 +2297,13 @@
         // ========================================
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Hide page loader when DOM is ready
+            // Hide page loader immediately when DOM is ready
             const pageLoader = document.getElementById('globalPageLoader');
             if (pageLoader) {
+                // Use a tiny timeout just to ensure the transition triggers properly
                 setTimeout(() => {
                     pageLoader.classList.add('hidden');
-                }, 200);
+                }, 50);
             }
             
             // Button loading state on form submit
@@ -2315,6 +2312,7 @@
                 form.addEventListener('submit', function(e) {
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn && !submitBtn.classList.contains('btn-no-loading')) {
+                        // Optional: Add loading state only for significant actions
                         submitBtn.classList.add('btn-loading');
                     }
                 });
@@ -2347,14 +2345,6 @@
                     }
                 });
             });
-        });
-        
-        // Show page loader on page navigate (for turbo-like feel)
-        window.addEventListener('beforeunload', function() {
-            const pageLoader = document.getElementById('globalPageLoader');
-            if (pageLoader) {
-                pageLoader.classList.remove('hidden');
-            }
         });
     </script>
     @stack('scripts')

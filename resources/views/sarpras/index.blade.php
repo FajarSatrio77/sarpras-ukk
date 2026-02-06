@@ -462,7 +462,7 @@
                         <span class="category-text">{{ $item->kategori->nama ?? '-' }}</span>
                     </td>
                     <td>
-                        <span class="location-text">{{ $item->lokasi }}</span>
+                        <span class="location-text">{{ $item->ruang->nama ?? '-' }}</span>
                     </td>
                     <td style="text-align: center;">
                         <span class="stock-badge {{ $item->jumlah_stok > 0 ? 'available' : 'empty' }}">

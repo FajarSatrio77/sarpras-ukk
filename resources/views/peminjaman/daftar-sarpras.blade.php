@@ -28,6 +28,28 @@
 @endpush
 
 @section('content')
+<!-- Warning Alert -->
+@if(auth()->user()->jumlah_peringatan > 0)
+<div class="alert alert-error mb-6 shadow-md border-l-4 border-l-red-600 bg-red-50">
+    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center w-full">
+        <div class="text-3xl text-red-600">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="flex-1">
+            <h3 class="font-bold text-lg text-red-800">Peringatan Akun!</h3>
+            <p class="text-red-700">
+                Anda memiliki <strong class="text-red-900">{{ auth()->user()->jumlah_peringatan }} catatan peringatan</strong> terkait pengembalian barang yang rusak atau hilang.
+                <br>
+                <span class="text-sm opacity-90">Silakan hubungi petugas SARPRAS untuk penyelesaian administrasi atau perbaikan.</span>
+            </p>
+        </div>
+        <div class="badge badge-error gap-2 p-4 font-semibold text-white">
+            {{ auth()->user()->jumlah_peringatan }}x Peringatan
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Header Section -->
 <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
     <div class="flex items-center gap-4">

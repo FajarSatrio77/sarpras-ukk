@@ -68,11 +68,16 @@
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
-                            Lokasi <span style="color: var(--danger);">*</span>
+                            Ruang / Lokasi <span style="color: var(--danger);">*</span>
                         </label>
-                        <input type="text" name="lokasi" value="{{ old('lokasi', $sarpras->lokasi) }}"
-                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                               required>
+                        <select name="ruang_id" required
+                                style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;">
+                            @foreach($ruang as $r)
+                                <option value="{{ $r->id }}" {{ old('ruang_id', $sarpras->ruang_id) == $r->id ? 'selected' : '' }}>
+                                    {{ $r->nama }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 

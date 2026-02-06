@@ -79,6 +79,9 @@ class SarprasUnit extends Model
         
         // Pad prefix ke 3 karakter
         $prefix = str_pad($prefix, 3, 'X');
+        
+        // Add 'U' prefix to differentiate from Sarpras/Item code
+        $prefix = 'U-' . $prefix;
 
         if ($unitNumber !== null) {
             return $prefix . '-' . str_pad($unitNumber, 3, '0', STR_PAD_LEFT);

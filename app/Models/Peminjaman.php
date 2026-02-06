@@ -25,6 +25,7 @@ class Peminjaman extends Model
         'catatan_persetujuan',
         'disetujui_oleh',
         'foto_kondisi_pinjam',
+        'lokasi_pemakaian',
     ];
 
     protected $casts = [

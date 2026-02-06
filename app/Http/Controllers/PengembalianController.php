@@ -217,9 +217,21 @@ class PengembalianController extends Controller
                 'tgl_kembali_aktual' => $request->tgl_pengembalian,
             ]);
 
-            // Kembalikan stok sarpras
+            // Hitung unit yang stock-nya bisa dikembalikan (kondisi baik atau rusak ringan)
+            // Rusak berat dan hilang dianggap mengurangi stock (perlu perbaikan/ganti)
+            $unitNonRestorable = collect($request->unit_kondisi)->filter(fn($k) => in_array($k, ['hilang', 'rusak_berat']))->count();
+            $unitDikembalikan = $peminjaman->jumlah - $unitNonRestorable;
+            
+            // Kembalikan stok sarpras HANYA untuk unit yang baik/rusak ringan
             $sarpras = $peminjaman->sarpras;
-            $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
+            if ($unitDikembalikan > 0) {
+                $sarpras->increment('jumlah_stok', $unitDikembalikan);
+            }
+
+            // Jika ada unit rusak berat atau hilang, beri peringatan ke siswa
+            if ($unitNonRestorable > 0) {
+                $peminjaman->user->increment('jumlah_peringatan');
+            }
 
             // Unit rusak/hilang sudah tercatat di peminjaman_units (kondisi_kembali)
             // dan akan muncul di Laporan Kerusakan secara otomatis
@@ -288,8 +300,17 @@ class PengembalianController extends Controller
             $sarpras = $peminjaman->sarpras;
             $kondisiAlat = $request->kondisi_alat;
             
-            // SELALU kembalikan stok apapun kondisinya
-            $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
+            // Kembalikan stok HANYA jika barang TIDAK hilang dan TIDAK rusak berat
+            if (!in_array($kondisiAlat, ['hilang', 'rusak_berat'])) {
+                $sarpras->increment('jumlah_stok', $peminjaman->jumlah);
+            }
+            
+            // Jika hilang atau rusak berat:
+            // 1. Stok TIDAK dikembalikan (tetap berkurang)
+            // 2. Tambah jumlah peringatan ke user
+            if (in_array($kondisiAlat, ['hilang', 'rusak_berat'])) {
+                $peminjaman->user->increment('jumlah_peringatan');
+            }
             
             // Update kondisi sarpras berdasarkan kondisi alat saat dikembalikan
             switch ($kondisiAlat) {

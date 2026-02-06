@@ -435,9 +435,14 @@
         <h1><i class="bi bi-people-fill" style="margin-right: 10px;"></i>Kelola User</h1>
         <p>Manajemen pengguna sistem SARPRAS</p>
     </div>
-    <a href="{{ route('users.create') }}" class="btn-add">
-        <i class="bi bi-plus-lg"></i> Tambah User
-    </a>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="document.getElementById('importUserModal').showModal()" class="btn-add" style="background: #f1f5f9; color: #475569;">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Import User
+        </button>
+        <a href="{{ route('users.create') }}" class="btn-add">
+            <i class="bi bi-plus-lg"></i> Tambah User
+        </a>
+    </div>
 </div>
 
 <!-- Statistics -->
@@ -661,6 +666,61 @@
     </div>
     @endif
 </div>
+
+</div>
+
+<!-- Import User Modal -->
+<dialog id="importUserModal" class="modal">
+    <div class="modal-box bg-white">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        
+        <h3 class="font-bold text-lg mb-4">Import User dari CSV</h3>
+        
+        <form action="{{ route('users.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            
+            <!-- Step 1: Select Role -->
+            <div class="form-control mb-4">
+                <label class="label font-bold text-gray-700">1. Pilih Role User</label>
+                <div class="flex gap-4">
+                    <label class="cursor-pointer flex items-center gap-2 border p-3 rounded-lg hover:bg-gray-50 flex-1">
+                        <input type="radio" name="role" value="pengguna" class="radio radio-primary" checked />
+                        <span class="label-text font-semibold">🎓 Siswa</span>
+                    </label>
+                    <label class="cursor-pointer flex items-center gap-2 border p-3 rounded-lg hover:bg-gray-50 flex-1">
+                        <input type="radio" name="role" value="guru" class="radio radio-warning" />
+                        <span class="label-text font-semibold">👨‍🏫 Guru</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Format Info -->
+            <div class="alert alert-info shadow-sm mb-4 text-sm">
+                <div>
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>
+                        Format CSV wajib (tanpa header):<br/>
+                        <b>NAMA, NISN, KELAS</b>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Step 2: Upload File -->
+            <div class="form-control mb-6">
+                <label class="label font-bold text-gray-700">2. Upload File CSV</label>
+                <input type="file" name="file" accept=".csv,.txt" class="file-input file-input-bordered w-full" required />
+            </div>
+
+            <div class="modal-action">
+                <button type="submit" class="btn btn-primary w-full">
+                    <i class="bi bi-upload"></i> Mulai Import
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
 
 @push('scripts')
 <script>

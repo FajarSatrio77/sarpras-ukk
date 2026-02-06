@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\KategoriSarpras;
+use App\Models\Ruang;
 use App\Models\Sarpras;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,7 @@ class SarprasController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Sarpras::with('kategori');
+        $query = Sarpras::with(['kategori', 'ruang']);
 
         // Filter berdasarkan kategori
         if ($request->filled('kategori')) {
@@ -47,7 +48,8 @@ class SarprasController extends Controller
     public function create()
     {
         $kategori = KategoriSarpras::all();
-        return view('sarpras.create', compact('kategori'));
+        $ruang = Ruang::all();
+        return view('sarpras.create', compact('kategori', 'ruang'));
     }
 
     /**
@@ -68,7 +70,7 @@ class SarprasController extends Controller
             'kode' => 'required|string|max:50|unique:sarpras,kode',
             'nama' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategori_sarpras,id',
-            'lokasi' => 'required|string|max:255',
+            'ruang_id' => 'required|exists:ruang,id',
             'jumlah_stok' => 'required|integer|min:0',
             'kondisi' => 'required|in:baik,rusak_ringan,rusak_berat',
             'deskripsi' => 'nullable|string',
@@ -79,7 +81,8 @@ class SarprasController extends Controller
             'nama.required' => 'Nama sarpras wajib diisi.',
             'kategori_id.required' => 'Kategori wajib dipilih.',
             'kategori_id.exists' => 'Kategori tidak valid.',
-            'lokasi.required' => 'Lokasi wajib diisi.',
+            'ruang_id.required' => 'Ruang/Lokasi wajib dipilih.',
+            'ruang_id.exists' => 'Ruang tidak valid.',
             'jumlah_stok.required' => 'Jumlah stok wajib diisi.',
             'jumlah_stok.min' => 'Jumlah stok tidak boleh negatif.',
             'kondisi.required' => 'Kondisi wajib dipilih.',
@@ -91,7 +94,7 @@ class SarprasController extends Controller
             'kode' => $request->kode,
             'nama' => $request->nama,
             'kategori_id' => $request->kategori_id,
-            'lokasi' => $request->lokasi,
+            'ruang_id' => $request->ruang_id,
             'jumlah_stok' => $request->jumlah_stok,
             'kondisi' => $request->kondisi,
             'sekali_pakai' => $request->boolean('sekali_pakai'),
@@ -148,7 +151,8 @@ class SarprasController extends Controller
     public function edit(Sarpras $sarpras)
     {
         $kategori = KategoriSarpras::all();
-        return view('sarpras.edit', compact('sarpras', 'kategori'));
+        $ruang = Ruang::all();
+        return view('sarpras.edit', compact('sarpras', 'kategori', 'ruang'));
     }
 
     /**
@@ -160,7 +164,7 @@ class SarprasController extends Controller
             'kode' => 'required|string|max:50|unique:sarpras,kode,' . $sarpras->id,
             'nama' => 'required|string|max:255',
             'kategori_id' => 'required|exists:kategori_sarpras,id',
-            'lokasi' => 'required|string|max:255',
+            'ruang_id' => 'required|exists:ruang,id',
             'kondisi' => 'required|in:baik,rusak_ringan,rusak_berat',
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -169,7 +173,8 @@ class SarprasController extends Controller
             'kode.unique' => 'Kode sarpras sudah ada.',
             'nama.required' => 'Nama sarpras wajib diisi.',
             'kategori_id.required' => 'Kategori wajib dipilih.',
-            'lokasi.required' => 'Lokasi wajib diisi.',
+            'ruang_id.required' => 'Ruang/Lokasi wajib dipilih.',
+            'ruang_id.exists' => 'Ruang tidak valid.',
             'kondisi.required' => 'Kondisi wajib dipilih.',
         ]);
 
@@ -177,7 +182,7 @@ class SarprasController extends Controller
             'kode' => $request->kode,
             'nama' => $request->nama,
             'kategori_id' => $request->kategori_id,
-            'lokasi' => $request->lokasi,
+            'ruang_id' => $request->ruang_id,
             'kondisi' => $request->kondisi,
             'sekali_pakai' => $request->boolean('sekali_pakai'),
             'deskripsi' => $request->deskripsi,

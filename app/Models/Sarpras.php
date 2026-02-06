@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Ruang;
 
 class Sarpras extends Model
 {
@@ -16,7 +17,7 @@ class Sarpras extends Model
         'kode',
         'nama',
         'kategori_id',
-        'lokasi',
+        'ruang_id',
         'jumlah_stok',
         'kondisi',
         'sekali_pakai',
@@ -30,6 +31,14 @@ class Sarpras extends Model
     public function kategori()
     {
         return $this->belongsTo(KategoriSarpras::class, 'kategori_id');
+    }
+
+    /**
+     * Relasi: Sarpras berada di satu ruang
+     */
+    public function ruang()
+    {
+        return $this->belongsTo(Ruang::class, 'ruang_id')->withDefault(['nama' => '-']);
     }
 
     /**
@@ -85,23 +94,10 @@ class Sarpras extends Model
      */
     public static function generateKode($kategoriId)
     {
-        $kategori = \App\Models\KategoriSarpras::find($kategoriId);
-        
-        if (!$kategori) {
-            return null;
-        }
+        $prefix = 'ATL';
 
-        // Gunakan kode/singkatan dari kategori, atau fallback ke 3 huruf pertama nama
-        $prefix = $kategori->kode 
-            ? strtoupper($kategori->kode)
-            : strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $kategori->nama), 0, 3));
-        
-        // Jika kurang dari 3 huruf, pad dengan 'X'
-        $prefix = str_pad($prefix, 3, 'X');
-
-        // Cari nomor urut terakhir untuk kategori ini
-        $lastKode = self::where('kategori_id', $kategoriId)
-            ->where('kode', 'like', $prefix . '-%')
+        // Cari nomor urut terakhir dengan prefix ATL
+        $lastKode = self::where('kode', 'like', $prefix . '-%')
             ->orderBy('kode', 'desc')
             ->value('kode');
 
@@ -113,7 +109,7 @@ class Sarpras extends Model
             $newNumber = 1;
         }
 
-        // Format: XXX-001
+        // Format: ATL-001
         return $prefix . '-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
     }
 

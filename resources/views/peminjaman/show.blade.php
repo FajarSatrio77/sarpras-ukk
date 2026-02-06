@@ -69,6 +69,13 @@
                     <td style="padding: 10px 0; color: var(--secondary);">Diajukan</td>
                     <td style="padding: 10px 0;">{{ $peminjaman->created_at->format('d M Y, H:i') }}</td>
                 </tr>
+                <tr>
+                    <td style="padding: 10px 0; color: var(--secondary);">Lokasi Pemakaian</td>
+                    <td style="padding: 10px 0; font-weight: 500; color: var(--primary);">
+                        <i class="bi bi-geo-alt-fill" style="margin-right: 4px;"></i>
+                        {{ $peminjaman->lokasi_pemakaian ?? '-' }}
+                    </td>
+                </tr>
                 @if($peminjaman->approver)
                 <tr>
                     <td style="padding: 10px 0; color: var(--secondary);">Diproses Oleh</td>

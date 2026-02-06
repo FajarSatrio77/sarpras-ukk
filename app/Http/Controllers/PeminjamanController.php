@@ -63,6 +63,7 @@ class PeminjamanController extends Controller
             'tgl_pinjam' => 'required|date|after_or_equal:today',
             'tgl_kembali_rencana' => 'required|date|after:tgl_pinjam',
             'tujuan' => 'required|string|min:10',
+            'lokasi_pemakaian' => 'required|string|min:3',
         ], [
             'sarpras_id.required' => 'Sarpras wajib dipilih.',
             'jumlah.required' => 'Jumlah wajib diisi.',
@@ -73,6 +74,8 @@ class PeminjamanController extends Controller
             'tgl_kembali_rencana.after' => 'Tanggal kembali harus setelah tanggal pinjam.',
             'tujuan.required' => 'Tujuan peminjaman wajib diisi.',
             'tujuan.min' => 'Tujuan peminjaman minimal 10 karakter.',
+            'lokasi_pemakaian.required' => 'Lokasi pemakaian wajib diisi.',
+            'lokasi_pemakaian.min' => 'Lokasi pemakaian minimal 3 karakter.',
         ]);
 
         // Batas durasi peminjaman untuk siswa (pengguna) adalah 7 hari
@@ -144,6 +147,7 @@ class PeminjamanController extends Controller
             'tgl_pinjam' => $request->tgl_pinjam,
             'tgl_kembali_rencana' => $request->tgl_kembali_rencana,
             'tujuan' => $request->tujuan,
+            'lokasi_pemakaian' => $request->lokasi_pemakaian,
             'status' => 'menunggu',
         ]);
 
@@ -398,7 +402,7 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Bukti hanya bisa dicetak untuk peminjaman yang sudah disetujui.');
         }
 
-        $peminjaman->load(['sarpras', 'user', 'approver', 'peminjamanUnits.sarprasUnit']);
+        $peminjaman->load(['sarpras.ruang', 'user', 'approver', 'peminjamanUnits.sarprasUnit']);
         return view('peminjaman.cetak', compact('peminjaman'));
     }
 

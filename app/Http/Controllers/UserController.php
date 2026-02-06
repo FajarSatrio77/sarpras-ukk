@@ -191,4 +191,75 @@ class UserController extends Controller
         return redirect()->route('users.index')
             ->with('success', 'User berhasil dihapus');
     }
+    /**
+     * Import users from CSV
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'role' => 'required|in:guru,pengguna',
+            'file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        $file = $request->file('file');
+        $handle = fopen($file->getPathname(), 'r');
+        
+        if (!$handle) {
+            return back()->with('error', 'Gagal membaca file.');
+        }
+
+        // Skip header row
+        fgetcsv($handle);
+
+        $successCount = 0;
+        $skipCount = 0;
+        $rowNumber = 1; // Start line after header matches data
+
+        while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+            $rowNumber++;
+
+            // Expected format: NAMA (0), NISN (1), KELAS (2)
+            if (count($data) < 2) continue; // Skip invalid rows
+
+            $name = trim($data[0]);
+            $nisn = trim($data[1]);
+            $kelas = isset($data[2]) ? trim($data[2]) : null;
+
+            if (empty($name) || empty($nisn)) continue;
+
+            // Check if user exists
+            if (User::where('nisn', $nisn)->exists()) {
+                $skipCount++;
+                continue;
+            }
+
+            // Create User
+            // Password = NISN
+            // Email = NISN@smkn1boyolangu.sch.id
+            try {
+                User::create([
+                    'name' => $name,
+                    'nisn' => $nisn,
+                    'email' => $nisn . '@smkn1boyolangu.sch.id',
+                    'password' => Hash::make($nisn),
+                    'role' => $request->role,
+                    'kelas' => $kelas,
+                    'is_activated' => true,
+                ]);
+                $successCount++;
+            } catch (\Exception $e) {
+                // Log error or just skip
+                continue;
+            }
+        }
+
+        fclose($handle);
+
+        $message = "Import selesai! Berhasil: $successCount users.";
+        if ($skipCount > 0) {
+            $message .= " Dilewati (duplikat): $skipCount users.";
+        }
+
+        return redirect()->route('users.index')->with('success', $message);
+    }
 }

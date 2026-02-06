@@ -120,6 +120,18 @@
 
                 <div style="margin-bottom: 24px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
+                        Lokasi Pemakaian <span style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" name="lokasi_pemakaian" value="{{ old('lokasi_pemakaian') }}"
+                           style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                           placeholder="Contoh: Lab RPL, Ruang Guru, Lapangan..." required>
+                    <p style="font-size: 0.8rem; color: var(--secondary); margin-top: 6px;">
+                        Minimal 3 karakter
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Tujuan Peminjaman <span style="color: var(--danger);">*</span>
                     </label>
                     <textarea name="tujuan" rows="4"

@@ -50,8 +50,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding: 10px 0; color: var(--secondary);">Lokasi</td>
-                    <td style="padding: 10px 0;">{{ $sarpras->lokasi }}</td>
+                    <td style="padding: 10px 0; color: var(--secondary);">Ruang / Lokasi</td>
+                    <td style="padding: 10px 0;">{{ $sarpras->ruang->nama ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td style="padding: 10px 0; color: var(--secondary);">Jumlah Stok</td>

@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_activated',
+        'jumlah_peringatan',
     ];
 
     /**

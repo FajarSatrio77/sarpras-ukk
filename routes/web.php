@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
     // =============================================
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         // User Management
+        Route::post('users/import', [\App\Http\Controllers\UserController::class, 'import'])->name('users.import');
         Route::resource('users', \App\Http\Controllers\UserController::class);
         
         // Activity Log
@@ -80,6 +81,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin,petugas')->group(function () {
         // Kategori Sarpras Management
         Route::resource('kategori', KategoriController::class)->except(['show']);
+        
+        // Ruang Management
+        Route::resource('ruang', \App\Http\Controllers\RuangController::class)->except(['show']);
         
         // Sarpras Management
         Route::get('/sarpras/trash', [SarprasController::class, 'trash'])->name('sarpras.trash');
@@ -118,6 +122,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengembalian/create/{peminjaman}', [PengembalianController::class, 'create'])->name('pengembalian.create');
         Route::post('/pengembalian', [PengembalianController::class, 'store'])->name('pengembalian.store');
         Route::get('/pengembalian/{pengembalian}', [PengembalianController::class, 'show'])->name('pengembalian.show');
+
+        // Barang Hilang Management
+        Route::get('/barang-hilang', [\App\Http\Controllers\BarangHilangController::class, 'index'])->name('barang-hilang.index');
+        Route::get('/barang-hilang/{pengembalian}', [\App\Http\Controllers\BarangHilangController::class, 'show'])->name('barang-hilang.show');
+        Route::post('/barang-hilang/{pengembalian}/found', [\App\Http\Controllers\BarangHilangController::class, 'resolveFound'])->name('barang-hilang.resolve-found');
+        Route::post('/barang-hilang/{pengembalian}/compensation', [\App\Http\Controllers\BarangHilangController::class, 'resolveCompensation'])->name('barang-hilang.resolve-compensation');
 
         // Maintenance Management
         Route::resource('maintenance', \App\Http\Controllers\MaintenanceController::class);
