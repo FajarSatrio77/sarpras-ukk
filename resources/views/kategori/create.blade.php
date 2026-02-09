@@ -29,7 +29,7 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('kategori.store') }}">
+            <form method="POST" action="{{ route('kategori.store') }}" onsubmit="return confirmSubmit(this, 'Tambah kategori baru?')">
                 @csrf
                 
                 <div style="display: grid; grid-template-columns: 1fr 120px; gap: 16px; margin-bottom: 20px;">

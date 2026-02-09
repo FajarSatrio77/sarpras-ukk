@@ -29,7 +29,7 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('sarpras.update', $sarpras) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('sarpras.update', $sarpras) }}" enctype="multipart/form-data" onsubmit="return confirmSubmit(this, 'Simpan perubahan data sarpras?')">
                 @csrf
                 @method('PUT')
                 

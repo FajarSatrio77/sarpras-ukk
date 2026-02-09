@@ -1,0 +1,211 @@
+// Database Schema untuk Sistem Manajemen SARPRAS
+// Generated: 2026-02-08
+
+Project SistemSarpras {
+  database_type: 'MySQL'
+  Note: 'Sistem Manajemen Sarana dan Prasarana Sekolah'
+}
+
+// ==================== USERS TABLE ====================
+Table users {
+  id Int [primary key, increment]
+  name String [not null]
+  nisn String [unique, null]
+  kelas String [null]
+  email String [unique, not null]
+  password String [not null]
+  role Enum [not null, default: 'siswa', note: 'siswa, guru, petugas, admin']
+  is_activated Boolean [not null, default: false]
+  jumlah_peringatan Int [not null, default: 0]
+  email_verified_at DateTime [null]
+  remember_token String [null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  
+  Note: 'Tabel pengguna sistem (siswa, guru, petugas, admin)'
+}
+
+// ==================== KATEGORI_SARPRAS TABLE ====================
+Table kategori_sarpras {
+  id Int [primary key, increment]
+  kode String [unique, not null]
+  nama String [not null]
+  deskripsi Text [null]
+  maintenance_period Int [null, note: 'Periode perawatan dalam hari']
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  
+  Note: 'Kategori/tipe sarana prasarana'
+}
+
+// ==================== RUANG TABLE ====================
+Table ruang {
+  id Int [primary key, increment]
+  nama String [not null]
+  keterangan Text [null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  deleted_at Timestamp [null]
+  
+  Note: 'Ruang/lokasi penyimpanan barang'
+}
+
+// ==================== SARPRAS TABLE ====================
+Table sarpras {
+  id Int [primary key, increment]
+  kode String [unique, not null]
+  nama String [not null]
+  kategori_id Int [not null]
+  ruang_id Int [null]
+  jumlah_stok Int [not null, default: 0]
+  kondisi Enum [not null, default: 'baik', note: 'baik, rusak_ringan, rusak_berat, maintenance']
+  sekali_pakai Boolean [not null, default: false]
+  deskripsi Text [null]
+  foto String [null]
+  butuh_maintenance Boolean [not null, default: false]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  deleted_at Timestamp [null]
+  
+  Note: 'Data master sarana prasarana'
+}
+
+// ==================== SARPRAS_UNIT TABLE ====================
+Table sarpras_unit {
+  id Int [primary key, increment]
+  sarpras_id Int [not null]
+  kode_unit String [unique, not null]
+  status Enum [not null, default: 'tersedia', note: 'tersedia, dipinjam, hilang, maintenance']
+  kondisi Enum [not null, default: 'baik', note: 'baik, rusak_ringan, rusak_berat, maintenance']
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  deleted_at Timestamp [null]
+  
+  Note: 'Unit individual dari setiap barang'
+}
+
+// ==================== PEMINJAMAN TABLE ====================
+Table peminjaman {
+  id Int [primary key, increment]
+  kode_peminjaman String [unique, not null]
+  user_id Int [not null]
+  sarpras_id Int [not null]
+  jumlah Int [not null]
+  tgl_pinjam Date [not null]
+  tgl_kembali_rencana Date [not null]
+  tgl_kembali_aktual Date [null]
+  tujuan Text [not null]
+  status Enum [not null, default: 'menunggu', note: 'menunggu, disetujui, ditolak, dipinjam, dikembalikan']
+  catatan_persetujuan Text [null]
+  disetujui_oleh Int [null]
+  foto_kondisi_pinjam String [null]
+  lokasi_pemakaian String [null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  deleted_at Timestamp [null]
+  
+  Note: 'Data permintaan peminjaman sarana prasarana'
+}
+
+// ==================== PEMINJAMAN_UNIT TABLE ====================
+Table peminjaman_unit {
+  id Int [primary key, increment]
+  peminjaman_id Int [not null]
+  sarpras_unit_id Int [not null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  
+  Note: 'Detail unit barang yang dipinjam'
+}
+
+// ==================== PENGEMBALIAN TABLE ====================
+Table pengembalian {
+  id Int [primary key, increment]
+  peminjaman_id Int [not null]
+  tgl_pengembalian Date [not null]
+  kondisi_barang Enum [not null, note: 'baik, rusak_ringan, rusak_berat']
+  catatan Text [null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  deleted_at Timestamp [null]
+  
+  Note: 'Pencatatan pengembalian barang pinjaman'
+}
+
+// ==================== PENGADUAN TABLE ====================
+Table pengaduan {
+  id Int [primary key, increment]
+  user_id Int [not null]
+  peminjaman_id Int [null]
+  judul String [not null]
+  deskripsi Text [not null]
+  lokasi String [null]
+  jenis_sarpras String [null]
+  foto String [null]
+  status Enum [not null, default: 'menunggu', note: 'menunggu, diproses, selesai']
+  ditutup Boolean [not null, default: false]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  deleted_at Timestamp [null]
+  
+  Note: 'Laporan kerusakan/keluhan atas sarana prasarana'
+}
+
+// ==================== CATATAN_PENGADUAN TABLE ====================
+Table catatan_pengaduan {
+  id Int [primary key, increment]
+  pengaduan_id Int [not null]
+  user_id Int [not null]
+  catatan Text [not null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  
+  Note: 'Catatan tindak lanjut pengaduan'
+}
+
+// ==================== MAINTENANCE_RECORD TABLE ====================
+Table maintenance_record {
+  id Int [primary key, increment]
+  sarpras_id Int [not null]
+  user_id Int [not null]
+  tgl_maintenance Date [not null]
+  jenis String [not null]
+  deskripsi Text [null]
+  biaya Decimal [null, note: '8,2 precision']
+  status Enum [not null, default: 'belum_dikerjakan', note: 'belum_dikerjakan, dalam_proses, selesai']
+  catatan Text [null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  updated_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  
+  Note: 'Catatan perawatan/maintenance barang'
+}
+
+// ==================== ACTIVITY_LOG TABLE ====================
+Table activity_log {
+  id Int [primary key, increment]
+  user_id Int [null]
+  action String [not null, note: 'create, update, delete, view, approve, reject']
+  description Text [null]
+  model String [null, note: 'Nama model yang dipengaruhi']
+  model_id Int [null]
+  old_values Json [null]
+  new_values Json [null]
+  ip_address String [null]
+  user_agent String [null]
+  created_at Timestamp [default: 'CURRENT_TIMESTAMP']
+  
+  Note: 'Log aktivitas seluruh user di sistem'
+}
+
+// ==================== RELATIONSHIPS ====================
+Ref: peminjaman.user_id > users.id
+Ref: peminjaman.disetujui_oleh > users.id
+Ref: pengaduan.user_id > users.id
+Ref: catatan_pengaduan.user_id > users.id
+Ref: catatan_pengaduan.pengaduan_id > pengaduan.id
+Ref: maintenance_record.user_id > users.id
+Ref: sarpras.kategori_id > kategori_sarpras.id
+Ref: sarpras_unit.sarpras_id > sarpras.id
+Ref: peminjaman_unit.peminjaman_id > peminjaman.id
+Ref: peminjaman_unit.sarpras_unit_id > sarpras_unit.id
+Ref: pengembalian.peminjaman_id > peminjaman.id

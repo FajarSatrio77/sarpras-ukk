@@ -38,7 +38,7 @@ class LaporanController extends Controller
         // ==========================================
         // DAFTAR ALAT RUSAK (Rusak Berat + Butuh Maintenance)
         // ==========================================
-        $alatRusak = Sarpras::with('kategori')
+        $alatRusak = Sarpras::with(['kategori', 'ruang'])
             ->whereIn('kondisi', ['rusak_berat', 'rusak_ringan', 'butuh_maintenance'])
             ->get()
             ->map(function($sarpras) {
@@ -50,6 +50,7 @@ class LaporanController extends Controller
                 
                 $sarpras->tanggal_rusak = $lastDamage?->tgl_pengembalian;
                 $sarpras->lama_rusak = $lastDamage ? $lastDamage->tgl_pengembalian->diffInDays(now()) : null;
+                $sarpras->catatan_terakhir = $lastDamage?->catatan_alat;
                 return $sarpras;
             });
 
@@ -60,13 +61,14 @@ class LaporanController extends Controller
             ->join('peminjaman', 'pengembalian.peminjaman_id', '=', 'peminjaman.id')
             ->join('sarpras', 'peminjaman.sarpras_id', '=', 'sarpras.id')
             ->join('kategori_sarpras', 'sarpras.kategori_id', '=', 'kategori_sarpras.id')
+            ->leftJoin('ruang', 'sarpras.ruang_id', '=', 'ruang.id')
             ->whereIn('pengembalian.kondisi_alat', ['rusak_ringan', 'rusak_berat', 'hilang'])
             ->whereBetween('pengembalian.tgl_pengembalian', [$tanggalDari, $tanggalSampai])
             ->select(
                 'sarpras.id',
                 'sarpras.kode',
                 'sarpras.nama',
-                'sarpras.lokasi',
+                'ruang.nama as lokasi',
                 'sarpras.kondisi as kondisi_saat_ini',
                 'kategori_sarpras.nama as kategori',
                 DB::raw('COUNT(*) as total_kerusakan'),
@@ -76,7 +78,7 @@ class LaporanController extends Controller
                 DB::raw('MIN(pengembalian.tgl_pengembalian) as pertama_rusak'),
                 DB::raw('MAX(pengembalian.tgl_pengembalian) as terakhir_rusak')
             )
-            ->groupBy('sarpras.id', 'sarpras.kode', 'sarpras.nama', 'sarpras.lokasi', 'sarpras.kondisi', 'kategori_sarpras.nama')
+            ->groupBy('sarpras.id', 'sarpras.kode', 'sarpras.nama', 'ruang.nama', 'sarpras.kondisi', 'kategori_sarpras.nama')
             ->orderBy('total_kerusakan', 'desc')
             ->limit(10)
             ->get();
@@ -185,7 +187,21 @@ class LaporanController extends Controller
             ->where('status', 'hilang')
             ->orWhere('kondisi', 'hilang')
             ->orderBy('updated_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function($unit) {
+                // Cari peminjaman terakhir untuk unit ini yang berujung hilang
+                $lastLoan = \App\Models\PeminjamanUnit::with(['peminjaman.user', 'peminjaman.pengembalian'])
+                    ->where('sarpras_unit_id', $unit->id)
+                    ->whereHas('peminjaman.pengembalian', function($q) {
+                        $q->where('kondisi_alat', 'hilang');
+                    })
+                    ->latest()
+                    ->first();
+                
+                $unit->peminjam_terakhir = $lastLoan?->peminjaman->user->name;
+                $unit->tanggal_kejadian = $lastLoan?->peminjaman->pengembalian->tgl_pengembalian;
+                return $unit;
+            });
 
         return view('laporan.asset-health', compact(
             'statistik',
@@ -489,5 +505,127 @@ class LaporanController extends Controller
             'needsReplacement',
             'stats'
         ));
+    }
+
+    /**
+     * Laporan Peminjaman - Daftar semua peminjaman dengan filter
+     */
+    public function peminjaman(Request $request)
+    {
+        $query = \App\Models\Peminjaman::with(['user', 'sarpras', 'peminjamanUnits.sarprasUnit'])->latest();
+
+        // Filter periode (jika ada)
+        if ($request->filled('periode')) {
+            $tanggalDari = $this->getTanggalDari($request->periode);
+            $query->where('tgl_pinjam', '>=', $tanggalDari);
+        }
+
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter tanggal manual
+        if ($request->filled('dari_tanggal')) {
+            $query->whereDate('tgl_pinjam', '>=', $request->dari_tanggal);
+        }
+        if ($request->filled('sampai_tanggal')) {
+            $query->whereDate('tgl_pinjam', '<=', $request->sampai_tanggal);
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('kode_peminjaman', 'like', "%{$search}%")
+                  ->orWhereHas('user', fn($sq) => $sq->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('sarpras', fn($sq) => $sq->where('nama', 'like', "%{$search}%"));
+            });
+        }
+
+        $peminjaman = $query->paginate(20);
+
+        return view('laporan.peminjaman', compact('peminjaman'));
+    }
+
+    /**
+     * Export Laporan Peminjaman ke CSV
+     */
+    public function exportPeminjaman(Request $request)
+    {
+        $query = \App\Models\Peminjaman::with(['user', 'sarpras', 'approver'])->latest();
+
+        // Apply same filters
+        if ($request->filled('periode')) {
+            $tanggalDari = $this->getTanggalDari($request->periode);
+            $query->where('tgl_pinjam', '>=', $tanggalDari);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('dari_tanggal')) {
+            $query->whereDate('tgl_pinjam', '>=', $request->dari_tanggal);
+        }
+        if ($request->filled('sampai_tanggal')) {
+            $query->whereDate('tgl_pinjam', '<=', $request->sampai_tanggal);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('kode_peminjaman', 'like', "%{$search}%")
+                  ->orWhereHas('user', fn($sq) => $sq->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('sarpras', fn($sq) => $sq->where('nama', 'like', "%{$search}%"));
+            });
+        }
+
+        $data = $query->limit(2000)->get();
+
+        $filename = 'laporan_peminjaman_' . now()->format('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($data) {
+            $file = fopen('php://output', 'w');
+            
+            // Tambahkan BOM untuk Excel agar mengenali UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Header CSV menggunakan pemisah titik koma (;)
+            fputcsv($file, [
+                'Kode Peminjaman', 
+                'Peminjam', 
+                'Barang', 
+                'Jumlah', 
+                'Tgl Pinjam', 
+                'Tgl Kembali (Rencana)', 
+                'Tgl Kembali (Aktual)', 
+                'Status', 
+                'Tujuan',
+                'Disetujui Oleh'
+            ], ';');
+            
+            foreach ($data as $item) {
+                fputcsv($file, [
+                    $item->kode_peminjaman,
+                    $item->user->name ?? '-',
+                    $item->sarpras->nama ?? '-',
+                    $item->jumlah,
+                    $item->tgl_pinjam->format('Y-m-d'),
+                    $item->tgl_kembali_rencana->format('Y-m-d'),
+                    $item->tgl_kembali_aktual ? $item->tgl_kembali_aktual->format('Y-m-d') : '-',
+                    strtoupper($item->status),
+                    $item->tujuan,
+                    $item->approver->name ?? '-'
+                ], ';');
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

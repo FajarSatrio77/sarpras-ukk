@@ -634,7 +634,7 @@
                             </a>
                             @if($user->id !== auth()->id())
                             <form action="{{ route('users.destroy', $user) }}" method="POST" style="display: inline;" 
-                                  onsubmit="return confirm('Hapus user {{ $user->name }}?')">
+                                  onsubmit="return confirmSubmit(this, 'Hapus user {{ $user->name }}?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="action-btn delete" title="Hapus">
@@ -678,7 +678,7 @@
         
         <h3 class="font-bold text-lg mb-4">Import User dari CSV</h3>
         
-        <form action="{{ route('users.import') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('users.import') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirmSubmit(this, 'Lanjutkan import user?')">
             @csrf
             
             <!-- Step 1: Select Role -->

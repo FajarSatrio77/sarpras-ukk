@@ -27,6 +27,9 @@
         }
     </script>
     
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         :root {
             --primary: #1e40af;
@@ -1949,6 +1952,10 @@
 
             @if(auth()->user()->isAdmin())
             <div class="menu-label">Laporan</div>
+            <a href="{{ route('laporan.peminjaman') }}" class="nav-item {{ request()->routeIs('laporan.peminjaman') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Laporan Peminjaman</span>
+            </a>
             <a href="{{ route('laporan.asset-health') }}" class="nav-item {{ request()->routeIs('laporan.asset-health') ? 'active' : '' }}">
                 <i class="bi bi-heart-pulse"></i>
                 <span>Asset Health</span>
@@ -2345,6 +2352,46 @@
                     }
                 });
             });
+
+            // SweetAlert2 Session Flash
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: "{{ session('success') }}",
+                    timer: 3000,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: "{{ session('error') }}",
+                });
+            @endif
+
+            // Global Confirmation Handler
+            window.confirmSubmit = function(form, message = 'Yakin ingin melanjutkan?', subtext = 'Tindakan ini tidak dapat dibatalkan!') {
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1e40af',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Lanjutkan!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+                return false;
+            };
         });
     </script>
     @stack('scripts')

@@ -17,7 +17,7 @@
         </h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('ruang.store') }}" method="POST">
+        <form action="{{ route('ruang.store') }}" method="POST" onsubmit="return confirmSubmit(this, 'Tambah ruang baru?')">
             @csrf
             
             <div style="margin-bottom: 20px;">

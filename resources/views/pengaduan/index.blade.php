@@ -18,7 +18,7 @@
             <i class="bi bi-trash3"></i> Sampah
         </a>
         @endif
-        @if(Auth::user()->isPengguna())
+        @if(Auth::user()->isPeminjam())
         <a href="{{ route('pengaduan.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Buat Pengaduan
         </a>
@@ -160,7 +160,7 @@
                         <a href="{{ route('pengaduan.show', $item) }}" class="btn btn-outline" style="padding: 6px 12px;">
                             <i class="bi bi-eye"></i> Detail
                         </a>
-                        @if(Auth::user()->isPengguna() && $item->status == 'menunggu')
+                        @if(Auth::user()->isPeminjam() && $item->status == 'menunggu')
                         <form action="{{ route('pengaduan.destroy', $item) }}" method="POST" style="display: inline;" 
                               onsubmit="return confirm('Hapus pengaduan ini?')">
                             @csrf
@@ -188,7 +188,7 @@
         <div style="padding: 60px; text-align: center; color: var(--secondary);">
             <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
             <p style="margin: 0;">Belum ada pengaduan</p>
-            @if(Auth::user()->isPengguna())
+            @if(Auth::user()->isPeminjam())
             <a href="{{ route('pengaduan.create') }}" class="btn btn-primary" style="margin-top: 16px;">
                 <i class="bi bi-plus-lg"></i> Buat Pengaduan Pertama
             </a>

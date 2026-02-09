@@ -29,7 +29,7 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('kategori.update', $kategori) }}">
+            <form method="POST" action="{{ route('kategori.update', $kategori) }}" onsubmit="return confirmSubmit(this, 'Simpan perubahan kategori?')">
                 @csrf
                 @method('PUT')
                 

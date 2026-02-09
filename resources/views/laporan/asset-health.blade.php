@@ -57,25 +57,51 @@
     <!-- Alat Perlu Perhatian -->
     <div class="card">
         <div class="card-header">
-            <h5 class="card-title"><i class="bi bi-exclamation-diamond" style="margin-right: 8px; color: var(--warning);"></i>Perlu Perhatian</h5>
+            <h5 class="card-title"><i class="bi bi-exclamation-diamond" style="margin-right: 8px; color: var(--warning);"></i>Daftar Barang Rusak & Maintenance</h5>
             <span class="badge badge-warning">{{ $alatRusak->count() }} item</span>
         </div>
-        <div class="card-body" style="padding: 0; max-height: 400px; overflow-y: auto;">
-            @forelse($alatRusak->take(8) as $item)
-            <div style="padding: 14px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="font-weight: 600; color: var(--dark);">{{ $item->nama }}</div>
-                    <div style="font-size: 0.8rem; color: var(--secondary);">
-                        {{ $item->kode }} • {{ $item->lokasi }}
-                    </div>
+        <div class="card-body" style="padding: 0; max-height: 500px; overflow-y: auto;">
+            @forelse($alatRusak as $item)
+            <div style="padding: 16px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; gap: 16px; align-items: flex-start;">
+                <div style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #f1f5f9;">
+                    @if($item->foto)
+                        <img src="{{ asset('storage/' . $item->foto) }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                    @else
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #cbd5e1;">
+                            <i class="bi bi-image" style="font-size: 1.5rem;"></i>
+                        </div>
+                    @endif
                 </div>
-                @if($item->kondisi == 'rusak_berat')
-                    <span class="badge badge-danger">Rusak Berat</span>
-                @elseif($item->kondisi == 'rusak_ringan')
-                    <span class="badge badge-warning">Rusak Ringan</span>
-                @else
-                    <span class="badge badge-info">Maintenance</span>
-                @endif
+                <div style="flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--dark); font-size: 1rem;">{{ $item->nama }}</div>
+                            <div style="font-size: 0.8rem; color: var(--secondary); margin-bottom: 4px;">
+                                <code style="font-size: 0.75rem;">{{ $item->kode }}</code> • <i class="bi bi-geo-alt"></i> {{ $item->ruang->nama ?? '-' }}
+                            </div>
+                        </div>
+                        @if($item->kondisi == 'rusak_berat')
+                            <span class="badge badge-danger">Rusak Berat</span>
+                        @elseif($item->kondisi == 'rusak_ringan')
+                            <span class="badge badge-warning">Rusak Ringan</span>
+                        @else
+                            <span class="badge badge-info">Maintenance</span>
+                        @endif
+                    </div>
+                    
+                    @if($item->tanggal_rusak)
+                    <div style="font-size: 0.8rem; color: var(--danger); margin-bottom: 4px; font-weight: 500;">
+                        <i class="bi bi-calendar-x"></i> Rusak sejak: {{ $item->tanggal_rusak->format('d M Y') }} 
+                        <span style="color: var(--secondary); font-weight: 400;">({{ $item->lama_rusak }} hari yang lalu)</span>
+                    </div>
+                    @endif
+
+                    @if($item->catatan_terakhir)
+                    <div style="font-size: 0.8rem; padding: 8px 12px; background: #f8fafc; border-radius: 6px; border-left: 3px solid #cbd5e1; color: #475569;">
+                        <strong>Catatan:</strong> {{ $item->catatan_terakhir }}
+                    </div>
+                    @endif
+                </div>
             </div>
             @empty
             <div style="padding: 40px; text-align: center; color: var(--secondary);">
@@ -132,7 +158,8 @@
                         <th>Kode Unit</th>
                         <th>Barang</th>
                         <th>Kategori</th>
-                        <th>Status</th>
+                        <th>Peminjam Terakhir</th>
+                        <th>Tgl Kejadian</th>
                         <th>Catatan</th>
                     </tr>
                 </thead>
@@ -145,7 +172,21 @@
                             <div class="text-xs opacity-70">{{ $unit->sarpras->kode ?? '-' }}</div>
                         </td>
                         <td>{{ $unit->sarpras->kategori->nama ?? '-' }}</td>
-                        <td><span class="badge badge-neutral">Hilang</span></td>
+                        <td>
+                            @if($unit->peminjam_terakhir)
+                                <div class="font-medium"><i class="bi bi-person"></i> {{ $unit->peminjam_terakhir }}</div>
+                            @else
+                                <span class="text-muted italic text-xs">Tidak terekam</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($unit->tanggal_kejadian)
+                                <div class="text-sm"><i class="bi bi-calendar-event"></i> {{ $unit->tanggal_kejadian->format('d/m/Y') }}</div>
+                                <div class="text-xs opacity-60">{{ $unit->tanggal_kejadian->format('H:i') }}</div>
+                            @else
+                                <span class="text-muted italic text-xs">Tidak terekam</span>
+                            @endif
+                        </td>
                         <td class="italic text-sm opacity-80">{{ $unit->catatan ?? '-' }}</td>
                     </tr>
                     @endforeach
@@ -156,36 +197,51 @@
 </div>
 @endif
 
-<!-- Alat Sering Rusak (Compact Table) -->
+<!-- Alat Sering Rusak (Top 10) -->
 @if($alatSeringRusak->count() > 0)
 <div class="card" style="margin-top: 24px;">
     <div class="card-header">
-        <h5 class="card-title"><i class="bi bi-arrow-repeat" style="margin-right: 8px; color: var(--warning);"></i>Aset Sering Bermasalah</h5>
+        <h5 class="card-title"><i class="bi bi-arrow-repeat" style="margin-right: 8px; color: var(--warning);"></i>Top 10 Aset Paling Sering Bermasalah</h5>
+        <span class="badge badge-warning">Periode ini</span>
     </div>
     <div class="card-body" style="padding: 0;">
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
+                        <th style="width: 50px;">Rank</th>
                         <th>Kode</th>
-                        <th>Nama</th>
-                        <th>Total Masalah</th>
-                        <th>Kondisi Saat Ini</th>
+                        <th>Nama Aset</th>
+                        <th>Lokasi</th>
+                        <th>Total Rusak</th>
+                        <th class="text-center">Detail Kondisi</th>
+                        <th>Status Saat Ini</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($alatSeringRusak->take(5) as $item)
+                    @foreach($alatSeringRusak as $index => $item)
                     <tr>
+                        <td class="text-center font-bold">#{{ $index + 1 }}</td>
                         <td><code style="background: rgba(99,102,241,0.1); color: var(--primary); padding: 4px 8px; border-radius: 6px;">{{ $item->kode }}</code></td>
-                        <td>{{ $item->nama }}</td>
-                        <td><span class="badge badge-danger">{{ $item->total_kerusakan }}x</span></td>
                         <td>
-                            @php
-                                $sarpras = App\Models\Sarpras::where('kode', $item->kode)->first();
-                            @endphp
-                            @if($sarpras && $sarpras->kondisi == 'baik')
+                            <div class="font-bold">{{ $item->nama }}</div>
+                            <div class="text-xs opacity-70">{{ $item->kategori }}</div>
+                        </td>
+                        <td><i class="bi bi-geo-alt"></i> {{ $item->lokasi ?? '-' }}</td>
+                        <td>
+                            <span class="badge badge-danger" style="font-size: 0.9rem; padding: 6px 10px;">{{ $item->total_kerusakan }}x</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 4px; justify-content: center;">
+                                @if($item->rusak_ringan > 0) <span class="badge badge-warning" title="Rusak Ringan">{{ $item->rusak_ringan }}R</span> @endif
+                                @if($item->rusak_berat > 0) <span class="badge badge-danger" title="Rusak Berat">{{ $item->rusak_berat }}B</span> @endif
+                                @if($item->hilang > 0) <span class="badge badge-neutral" title="Hilang">{{ $item->hilang }}H</span> @endif
+                            </div>
+                        </td>
+                        <td>
+                            @if($item->kondisi_saat_ini == 'baik')
                                 <span class="badge badge-success">Baik</span>
-                            @elseif($sarpras && $sarpras->kondisi == 'rusak_ringan')
+                            @elseif($item->kondisi_saat_ini == 'rusak_ringan')
                                 <span class="badge badge-warning">Rusak Ringan</span>
                             @else
                                 <span class="badge badge-danger">Rusak Berat</span>

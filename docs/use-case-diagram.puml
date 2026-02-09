@@ -1,0 +1,130 @@
+@startuml Use Case Diagram - Sistem Manajemen SARPRAS
+
+title Sistem Manajemen SARPRAS - Use Case Diagram
+
+left to right direction
+
+' Aktor
+:Siswa: as Siswa
+:Guru: as Guru
+:Petugas SARPRAS: as Petugas
+:Admin: as Admin
+
+' Use Cases - Peminjaman
+usecase "Lihat Katalog Barang" as UC_LihatKatalog
+usecase "Ajukan Peminjaman" as UC_AjukanPeminjaman
+usecase "Lihat Status Peminjaman" as UC_LihatStatusPeminjaman
+usecase "Kembalikan Barang" as UC_KembalikanBarang
+usecase "Validasi Peminjaman" as UC_ValidasiPeminjaman
+usecase "Catat Pengambilan" as UC_CatatPengambilan
+usecase "Catat Pengembalian" as UC_CatatPengembalian
+usecase "Persetujuan Peminjaman" as UC_PersetujuanPeminjaman
+
+' Use Cases - Kerusakan & Laporan
+usecase "Lapor Kerusakan" as UC_LaporKerusakan
+usecase "Lihat Laporan Kerusakan" as UC_LihatLaporanKerusakan
+usecase "Respons Pengaduan" as UC_ReponsPengaduan
+usecase "Verifikasi Kerusakan" as UC_VerifikasiKerusakan
+
+' Use Cases - Maintenance
+usecase "Buat Maintenance Record" as UC_BuatMaintenance
+usecase "Update Status Maintenance" as UC_UpdateStatusMaintenance
+usecase "Lihat Maintenance Log" as UC_LihatMaintenanceLog
+
+' Use Cases - Manajemen Barang
+usecase "Tambah Barang" as UC_TambahBarang
+usecase "Edit Barang" as UC_EditBarang
+usecase "Hapus Barang" as UC_HapusBarang
+usecase "Kelola Unit Barang" as UC_KolaUnitBarang
+usecase "Update Kondisi Barang" as UC_UpdateKondisiBarang
+
+' Use Cases - Manajemen User & Konfigurasi
+usecase "Manage User" as UC_ManageUser
+usecase "Assign Role" as UC_AssignRole
+usecase "Aktivasi User" as UC_AktivasiUser
+usecase "Manage Kategori" as UC_ManageKategori
+usecase "Manage Ruang" as UC_ManageRuang
+usecase "Lihat Activity Log" as UC_LihatActivityLog
+usecase "Lihat Dashboard" as UC_LihatDashboard
+usecase "Berikan Peringatan" as UC_BeriPeringatan
+
+' Use Cases - Utility
+usecase "Upload Foto" as UC_UploadFoto
+usecase "Lihat Riwayat" as UC_LihatRiwayat
+
+' Relasi - SISWA
+Siswa --> UC_LihatKatalog
+Siswa --> UC_AjukanPeminjaman
+Siswa --> UC_LihatStatusPeminjaman
+Siswa --> UC_KembalikanBarang
+Siswa --> UC_LaporKerusakan
+Siswa --> UC_LihatRiwayat
+
+UC_AjukanPeminjaman ..> UC_UploadFoto : <<include>>
+UC_LihatStatusPeminjaman ..> UC_LihatRiwayat : <<include>>
+
+' Relasi - GURU (extends SISWA + approval)
+Guru --> UC_LihatKatalog
+Guru --> UC_AjukanPeminjaman
+Guru --> UC_LihatStatusPeminjaman
+Guru --> UC_KembalikanBarang
+Guru --> UC_LaporKerusakan
+Guru --> UC_LihatRiwayat
+Guru --> UC_PersetujuanPeminjaman
+Guru --> UC_LihatLaporanKerusakan
+Guru --> UC_LihatDashboard
+
+' Relasi - PETUGAS
+Petugas --> UC_LihatKatalog
+Petugas --> UC_TambahBarang
+Petugas --> UC_EditBarang
+Petugas --> UC_HapusBarang
+Petugas --> UC_KolaUnitBarang
+Petugas --> UC_ValidasiPeminjaman
+Petugas --> UC_CatatPengambilan
+Petugas --> UC_CatatPengembalian
+Petugas --> UC_LihatLaporanKerusakan
+Petugas --> UC_ReponsPengaduan
+Petugas --> UC_VerifikasiKerusakan
+Petugas --> UC_BuatMaintenance
+Petugas --> UC_UpdateStatusMaintenance
+Petugas --> UC_LihatMaintenanceLog
+Petugas --> UC_UpdateKondisiBarang
+Petugas --> UC_ManageKategori
+Petugas --> UC_ManageRuang
+Petugas --> UC_LihatDashboard
+
+UC_CatatPengambilan ..> UC_UploadFoto : <<include>>
+UC_CatatPengembalian ..> UC_UploadFoto : <<include>>
+UC_VerifikasiKerusakan ..> UC_UpdateKondisiBarang : <<include>>
+UC_ResonsPengaduan ..> UC_BuatMaintenance : <<extend>>
+
+' Relasi - ADMIN (superuser)
+Admin --> UC_LihatKatalog
+Admin --> UC_TambahBarang
+Admin --> UC_EditBarang
+Admin --> UC_HapusBarang
+Admin --> UC_KolaUnitBarang
+Admin --> UC_ValidasiPeminjaman
+Admin --> UC_CatatPengambilan
+Admin --> UC_CatatPengembalian
+Admin --> UC_LihatLaporanKerusakan
+Admin --> UC_ReponsPengaduan
+Admin --> UC_VerifikasiKerusakan
+Admin --> UC_BuatMaintenance
+Admin --> UC_UpdateStatusMaintenance
+Admin --> UC_LihatMaintenanceLog
+Admin --> UC_UpdateKondisiBarang
+Admin --> UC_ManageKategori
+Admin --> UC_ManageRuang
+Admin --> UC_ManageUser
+Admin --> UC_AssignRole
+Admin --> UC_AktivasiUser
+Admin --> UC_LihatActivityLog
+Admin --> UC_LihatDashboard
+Admin --> UC_BeriPeringatan
+
+UC_ManageUser ..> UC_AssignRole : <<include>>
+UC_ManageUser ..> UC_AktivasiUser : <<include>>
+
+@enduml

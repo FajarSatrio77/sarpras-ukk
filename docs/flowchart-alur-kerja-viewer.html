@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flowchart Alur Kerja - UKK-SARPRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 36px 30px;
+            text-align: center;
+            border-bottom: 4px solid #f39c12;
+        }
+        .header h1 { font-size: 2.2em; margin-bottom: 8px; }
+        .header p { font-size: 1em; opacity: 0.95; }
+        .controls {
+            padding: 16px 30px;
+            display: flex;
+            gap: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary { background: #1e3c72; color: white; }
+        .btn-primary:hover { background: #2a5298; transform: translateY(-2px); }
+        .btn-secondary { background: #f39c12; color: white; }
+        .btn-secondary:hover { background: #e67e22; transform: translateY(-2px); }
+        .content { padding: 24px 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; flex-wrap: wrap; }
+        .tab {
+            padding: 12px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab:hover { background: #e0e0e0; }
+        .tab.active { background: white; border-bottom-color: #1e3c72; color: #1e3c72; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .diagram-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            overflow: auto;
+            min-height: 400px;
+        }
+        .mermaid { display: flex; justify-content: center; background: white; border-radius: 4px; padding: 20px; }
+        .doc-section { margin-bottom: 24px; }
+        .doc-section h3 { color: #1e3c72; margin-bottom: 10px; font-size: 1.2em; border-bottom: 2px solid #eee; padding-bottom: 6px; }
+        .doc-section p, .doc-section li { color: #333; margin-bottom: 8px; line-height: 1.6; }
+        .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 20px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 4px; }
+        .legend-color { width: 28px; height: 28px; border-radius: 4px; }
+        .code-block { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 0.8em; line-height: 1.4; }
+        .footer { background: #f8f9fa; padding: 16px 30px; text-align: center; color: #666; border-top: 1px solid #e0e0e0; font-size: 0.9em; }
+        .info { background: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 12px; margin-bottom: 16px; color: #0d47a1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Flowchart Alur Kerja Web</h1>
+            <p>Sistem Manajemen Sarana dan Prasarana (UKK-SARPRAS)</p>
+        </div>
+        <div class="controls">
+            <button class="btn-primary" onclick="downloadDiagram()">📥 Download SVG</button>
+            <button class="btn-secondary" onclick="window.print()">🖨️ Print</button>
+        </div>
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('diagram')">📊 Diagram</button>
+                <button class="tab" onclick="switchTab('documentation')">📖 Ringkasan Alur</button>
+                <button class="tab" onclick="switchTab('code')">💻 Kode Mermaid</button>
+            </div>
+            <div id="diagram" class="tab-content active">
+                <div class="info">💡 Scroll untuk melihat seluruh flowchart. Diagram menggambarkan alur dari masuk aplikasi, auth, peminjaman, pengembalian, pengaduan, dan menu admin.</div>
+                <div class="diagram-container">
+                    <div class="mermaid" id="mermaidDiagram"></div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color" style="background:#e1f5fe;"></div><span>Masuk & Role</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#f3e5f5;"></div><span>Autentikasi</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#e8f5e9;"></div><span>Peminjaman</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#fff3e0;"></div><span>Pengembalian</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#fce4ec;"></div><span>Pengaduan</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#eceff1;"></div><span>Admin & Petugas</span></div>
+                </div>
+            </div>
+            <div id="documentation" class="tab-content">
+                <div class="doc-section">
+                    <h3>🌐 Masuk Aplikasi</h3>
+                    <p>Pengunjung masuk → cek login → jika belum: Login/Register. Jika Pengguna/Guru dan belum aktivasi → halaman Aktivasi. Setelah login, redirect: <strong>Pengguna/Guru</strong> → Daftar Sarpras (pinjam), <strong>Admin/Petugas</strong> → Dashboard.</p>
+                </div>
+                <div class="doc-section">
+                    <h3>🔐 Autentikasi</h3>
+                    <p><strong>Login:</strong> NISN + Password → valid? → aktivasi? → redirect role.</p>
+                    <p><strong>Register:</strong> Form → simpan user (is_activated: false) → redirect Aktivasi.</p>
+                    <p><strong>Aktivasi:</strong> Form kode → jika OK, is_activated: true.</p>
+                </div>
+                <div class="doc-section">
+                    <h3>📦 Alur Peminjaman</h3>
+                    <p>Daftar Sarpras → Pilih Barang → Form (jumlah, tgl, tujuan, lokasi) → Validasi (stok, double booking, max 7 hari siswa) → Simpan <strong>status: menunggu</strong> → Admin/Petugas: Approve/Reject. Jika Approve → <strong>disetujui</strong> → Handover (pilih unit + foto kondisi) → <strong>dipinjam</strong> → siswa bawa barang → lanjut ke Pengembalian.</p>
+                </div>
+                <div class="doc-section">
+                    <h3>↩️ Alur Pengembalian</h3>
+                    <p>Scan/input kode peminjaman → valid & status dipinjam? → Form pengembalian (tgl, kondisi per unit: baik / rusak_ringan / rusak_berat / hilang) → Simpan → status peminjaman <strong>dikembalikan</strong>, update stok & unit. Jika ada unit hilang → alur Barang Hilang (Ditemukan / Ganti Rugi).</p>
+                </div>
+                <div class="doc-section">
+                    <h3>📋 Alur Pengaduan</h3>
+                    <p>Pengguna/Guru buat pengaduan (sarpras pernah dipinjam, judul, lokasi, deskripsi) → <strong>status: menunggu</strong>. Admin/Petugas update status: diproses (tanggapi + catatan), selesai, atau ditutup.</p>
+                </div>
+                <div class="doc-section">
+                    <h3>⚙️ Admin & Petugas</h3>
+                    <p>Kategori, Ruang, SARPRAS (CRUD + Unit + Trash), User (Admin: CRUD, Import, Role, Aktivasi), Laporan (Kerusakan, Asset Health, Damage Analytics, Asset Lifecycle), Maintenance, Barang Hilang (resolve), Activity Log.</p>
+                </div>
+            </div>
+            <div id="code" class="tab-content">
+                <p style="margin-bottom:10px;">Kode Mermaid disimpan di <code>docs/flowchart-alur-kerja.mmd</code>. Copy dari file tersebut atau dari blok di bawah:</p>
+                <pre class="code-block" id="mermaidCode"></pre>
+            </div>
+        </div>
+        <div class="footer">UKK-SARPRAS | Flowchart Alur Kerja Web | Februari 2026</div>
+    </div>
+    <script>
+        const flowchartCode = `flowchart TB
+    subgraph ENTRY["🌐 MASUK APLIKASI"]
+        A([Pengunjung]) --> B{Sudah Login?}
+        B -->|Tidak| C[/Login atau Register/]
+        B -->|Ya| D{Role?}
+        C --> E[Login / Register]
+        E --> F{User Pengguna/Guru?}
+        F -->|Ya| G{Aktivasi?}
+        G -->|Belum| H[/Aktivasi Akun/]
+        G -->|Sudah| I[/Daftar Sarpras - Pinjam/]
+        H --> I
+        F -->|Tidak| J[/Dashboard Admin-Petugas/]
+        E --> J
+        D -->|Pengguna / Guru| I
+        D -->|Admin / Petugas| J
+    end
+
+    subgraph AUTH["🔐 AUTENTIKASI"]
+        direction TB
+        L1[Form Login - NISN & Password] --> L2{Valid?}
+        L2 -->|Tidak| L1
+        L2 -->|Ya| L3{Aktivasi?}
+        L3 -->|Belum| L4[Tampilkan pesan aktivasi]
+        L3 -->|Sudah| L5[Redirect sesuai role]
+        R1[Form Register] --> R2[Simpan User - is_activated: false]
+        R2 --> R3[Redirect ke Aktivasi]
+        R3 --> A1[Form Aktivasi - Kode]
+        A1 --> A2{Aktivasi OK?}
+        A2 -->|Ya| A3[is_activated: true]
+        A2 -->|Tidak| A1
+    end
+
+    subgraph PEMINJAMAN["📦 ALUR PEMINJAMAN"]
+        direction TB
+        P0[/Daftar Sarpras Tersedia/] --> P1[Pilih Barang]
+        P1 --> P2[Form Ajukan: jumlah, tgl, tujuan, lokasi]
+        P2 --> P3[Validasi: stok, double booking, durasi max 7 hari siswa]
+        P3 --> P4[Simpan - status: menunggu]
+        P4 --> P5[Admin/Petugas: Daftar Peminjaman]
+        P5 --> P6{Approve / Reject?}
+        P6 -->|Reject| P7[status: ditolak + alasan]
+        P6 -->|Approve| P8[status: disetujui]
+        P8 --> P9[/Handover: Pilih Unit + Upload Foto Kondisi/]
+        P9 --> P10[Simpan unit dipinjam, kurangi stok]
+        P10 --> P11[status: dipinjam]
+        P11 --> P12[/Siswa bawa barang/]
+    end
+
+    subgraph PENGEMBALIAN["↩️ ALUR PENGEMBALIAN"]
+        direction TB
+        K0[/Scan Kode / Input Kode Peminjaman/] --> K1{Kode valid & status dipinjam?}
+        K1 -->|Tidak| K0
+        K1 -->|Ya| K2[Form Pengembalian: tgl, kondisi per unit]
+        K2 --> K3[Kondisi: baik / rusak_ringan / rusak_berat / hilang]
+        K3 --> K4[Simpan Pengembalian]
+        K4 --> K5[Update status peminjaman: dikembalikan]
+        K5 --> K6[Update stok & kondisi unit]
+        K6 --> K7{Ada unit hilang?}
+        K7 -->|Ya| K8[/Barang Hilang: Ditemukan / Ganti Rugi/]
+        K7 -->|Tidak| K9[Selesai]
+        K8 --> K9
+    end
+
+    subgraph PENGADUAN["📋 ALUR PENGADUAN"]
+        direction TB
+        AD1[Pengguna/Guru: Buat Pengaduan] --> AD2[Pilih sarpras pernah dipinjam, judul, lokasi, deskripsi]
+        AD2 --> AD3[Simpan - status: menunggu]
+        AD3 --> AD4[Admin/Petugas: Update status]
+        AD4 --> AD5{Status}
+        AD5 -->|diproses| AD6[Tanggapi + Catatan]
+        AD5 -->|selesai| AD7[Pengaduan selesai]
+        AD5 -->|ditutup| AD7
+        AD6 --> AD5
+    end
+
+    subgraph ADMIN["⚙️ ADMIN & PETUGAS"]
+        direction TB
+        M1[Kategori SARPRAS] --> M1a[CRUD Kategori]
+        M2[Ruang] --> M2a[CRUD Ruang]
+        M3[SARPRAS] --> M3a[CRUD Barang + Unit]
+        M3a --> M3b[Trash / Restore]
+        M4[User - Admin only] --> M4a[CRUD User, Import, Assign Role]
+        M4a --> M4b[Aktivasi User]
+        M5[Laporan] --> M5a[Kerusakan, Asset Health]
+        M5 --> M5b[Damage Analytics, Asset Lifecycle]
+        M6[Maintenance] --> M6a[CRUD Maintenance Record]
+        M7[Barang Hilang] --> M7a[Resolve: Ditemukan / Ganti Rugi]
+        M8[Activity Log] --> M8a[Lihat / Export]
+    end
+
+    subgraph LAINNYA["📄 AKSES UMUM"]
+        direction LR
+        V1[Profile] --> V2[Lihat / Edit Profile]
+        V1 --> V3[Ganti Password]
+        T1[Detail Peminjaman] --> T2[Cetak Surat Peminjaman]
+        T3[Riwayat Peminjaman] --> T1
+    end
+
+    J --> P5
+    J --> K0
+    J --> AD4
+    J --> M1
+    I --> P0
+    P12 --> K0
+
+    style ENTRY fill:#e1f5fe
+    style AUTH fill:#f3e5f5
+    style PEMINJAMAN fill:#e8f5e9
+    style PENGEMBALIAN fill:#fff3e0
+    style PENGADUAN fill:#fce4ec
+    style ADMIN fill:#eceff1
+    style LAINNYA fill:#f5f5f5`;
+
+        document.getElementById('mermaidCode').textContent = flowchartCode;
+
+        mermaid.initialize({ startOnLoad: false, theme: 'default', flowchart: { useMaxWidth: true, htmlLabels: true } });
+        document.getElementById('mermaidDiagram').textContent = flowchartCode;
+        mermaid.run({ nodes: [document.getElementById('mermaidDiagram')] }).catch(e => console.warn('Mermaid render:', e));
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        function downloadDiagram() {
+            const svg = document.querySelector('#mermaidDiagram svg');
+            if (!svg) { alert('Diagram belum selesai dirender.'); return; }
+            const s = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([s], { type: 'image/svg+xml' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'flowchart-alur-kerja-sarpras.svg';
+            a.click();
+        }
+    </script>
+</body>
+</html>

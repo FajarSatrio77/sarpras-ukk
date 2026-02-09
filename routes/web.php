@@ -142,6 +142,10 @@ Route::middleware('auth')->group(function () {
         // Laporan Asset Health
         Route::get('/laporan/asset-health', [\App\Http\Controllers\LaporanController::class, 'assetHealth'])->name('laporan.asset-health');
         
+        // Laporan Peminjaman
+        Route::get('/laporan/peminjaman', [\App\Http\Controllers\LaporanController::class, 'peminjaman'])->name('laporan.peminjaman');
+        Route::get('/laporan/peminjaman/export', [\App\Http\Controllers\LaporanController::class, 'exportPeminjaman'])->name('laporan.peminjaman.export');
+        
         // Advanced Analytics (Admin only)
         Route::get('/laporan/damage-analytics', [\App\Http\Controllers\LaporanController::class, 'damageAnalytics'])->name('laporan.damage-analytics');
         Route::get('/laporan/asset-lifecycle', [\App\Http\Controllers\LaporanController::class, 'assetLifecycle'])->name('laporan.asset-lifecycle');

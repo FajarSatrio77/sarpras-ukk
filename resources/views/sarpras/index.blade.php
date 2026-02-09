@@ -465,8 +465,8 @@
                         <span class="location-text">{{ $item->ruang->nama ?? '-' }}</span>
                     </td>
                     <td style="text-align: center;">
-                        <span class="stock-badge {{ $item->jumlah_stok > 0 ? 'available' : 'empty' }}">
-                            {{ $item->jumlah_stok }}
+                        <span class="stock-badge {{ $item->jumlah_tersedia > 0 ? 'available' : 'empty' }}">
+                            {{ $item->jumlah_tersedia }}
                         </span>
                     </td>
                     <td>
@@ -498,7 +498,7 @@
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <form action="{{ route('sarpras.destroy', $item) }}" method="POST" style="display: inline;"
-                                  onsubmit="return confirm('Yakin ingin menghapus sarpras ini?')">
+                                  onsubmit="return confirmSubmit(this, 'Hapus sarpras {{ $item->nama }}?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="action-btn delete" title="Hapus">

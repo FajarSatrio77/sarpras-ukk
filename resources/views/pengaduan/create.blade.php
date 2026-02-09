@@ -214,8 +214,21 @@
                 <h5 class="card-title"><i class="bi bi-megaphone"></i> Form Pengaduan</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('pengaduan.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pengaduan.store') }}" method="POST" enctype="multipart/form-data" 
+                    data-confirm="Apakah Anda yakin data pengaduan sudah benar? Pengaduan yang sudah dikirim akan segera ditindaklanjuti oleh petugas."
+                    data-confirm-title="Kirim Pengaduan">
                     @csrf
+                    
+                    @if ($errors->any())
+                        <div style="background: #fef2f2; border-left: 4px solid var(--danger); padding: 16px; margin-bottom: 24px; border-radius: 8px;">
+                            <h6 style="color: #991b1b; margin: 0 0 8px; font-weight: 700;">Terdapat beberapa kesalahan:</h6>
+                            <ul style="margin: 0; padding-left: 20px; color: #b91c1c; font-size: 0.85rem;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     
                     <!-- 1. Judul Pengaduan -->
                     <div class="form-group">
@@ -343,8 +356,19 @@
                     @endif
 
                     <!-- Hidden fields untuk data yang akan dikirim -->
-                    <input type="hidden" name="jenis_sarpras" id="jenisSarprasInput">
-                    <input type="hidden" name="lokasi" id="lokasiInput">
+                    <input type="hidden" name="jenis_sarpras" id="jenisSarprasInput" value="{{ old('jenis_sarpras') }}">
+                    <input type="hidden" name="lokasi" id="lokasiInput" value="{{ old('lokasi') }}">
+                    
+                    @error('jenis_sarpras')
+                        <div style="color: var(--danger); font-size: 0.8rem; margin-top: -15px; margin-bottom: 15px;">
+                            <i class="bi bi-exclamation-circle"></i> {{ $message }}
+                        </div>
+                    @enderror
+                    @error('lokasi')
+                        <div style="color: var(--danger); font-size: 0.8rem; margin-top: -15px; margin-bottom: 15px;">
+                            <i class="bi bi-exclamation-circle"></i> {{ $message }}
+                        </div>
+                    @enderror
                     
                     <!-- 3. Deskripsi Masalah -->
                     <div class="form-group">
@@ -540,11 +564,33 @@
         }
     }
 
-    // Before form submit, set hidden inputs for umum type
-    document.querySelector('form').addEventListener('submit', function(e) {
+    // Populate hidden inputs before any other logic
+    function syncHiddenInputs() {
         if (tipePengaduanInput.value === 'umum') {
             jenisSarprasInput.value = jenisSarprasManual.value;
             lokasiInput.value = lokasiManual.value;
+        } else {
+            const option = peminjamanSelect.options[peminjamanSelect.selectedIndex];
+            if (option && option.value) {
+                jenisSarprasInput.value = option.dataset.sarpras || '';
+                lokasiInput.value = option.dataset.lokasi || '';
+            }
+        }
+    }
+
+    // Handle manual inputs for umum type
+    jenisSarprasManual.addEventListener('input', syncHiddenInputs);
+    lokasiManual.addEventListener('input', syncHiddenInputs);
+
+    // Before form submit logic
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        syncHiddenInputs();
+        
+        // Basic validation check before showing confirm dialog
+        if (!jenisSarprasInput.value || !lokasiInput.value || !document.getElementById('deskripsiInput').value) {
+            // Let the browser handle standard validation first
+            return;
         }
     });
 </script>

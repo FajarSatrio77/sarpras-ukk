@@ -152,7 +152,7 @@
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <form action="{{ route('ruang.destroy', $item) }}" method="POST" style="display: inline;"
-                                  onsubmit="return confirm('Hapus ruang {{ $item->nama }}? Data sarpras mungkin akan kehilangan lokasi.')">
+                                  onsubmit="return confirmSubmit(this, 'Hapus ruang {{ $item->nama }}?', 'Data sarpras mungkin akan kehilangan lokasi.')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="action-btn delete" title="Hapus">

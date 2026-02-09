@@ -17,6 +17,7 @@ class PeminjamanUnit extends Model
         'kondisi_pinjam',
         'kondisi_kembali',
         'catatan_kembali',
+        'foto_kembali',
     ];
 
     /**

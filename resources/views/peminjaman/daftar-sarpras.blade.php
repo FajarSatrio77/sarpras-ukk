@@ -128,7 +128,7 @@
             
             <!-- Stock Badge -->
             <div class="absolute top-3 right-3 px-2.5 py-1 bg-emerald-500 text-white text-xs font-semibold rounded-md shadow-sm">
-                Stok: {{ $item->jumlah_stok }}
+                Stok: {{ $item->jumlah_tersedia }}
             </div>
         </div>
         

@@ -16,8 +16,8 @@ class PeminjamanController extends Controller
     public function daftarSarpras(Request $request)
     {
         $query = Sarpras::with('kategori')
-            ->tersedia()
-            ->tersediaUntukUser(auth()->user()); // Filter berdasarkan role (guru bisa lihat sekali pakai)
+            ->tersedia() // Menggunakan scope tersedia baru yang cek unit baik/rusak_ringan
+            ->tersediaUntukUser(auth()->user());
 
         // Filter berdasarkan kategori
         if ($request->filled('kategori')) {
@@ -32,7 +32,7 @@ class PeminjamanController extends Controller
             });
         }
 
-        $sarpras = $query->where('kondisi', 'baik')->latest()->paginate(12)->withQueryString();
+        $sarpras = $query->latest()->paginate(12)->withQueryString();
         $kategori = \App\Models\KategoriSarpras::all();
 
         return view('peminjaman.daftar-sarpras', compact('sarpras', 'kategori'));
@@ -43,10 +43,10 @@ class PeminjamanController extends Controller
      */
     public function create(Sarpras $sarpras)
     {
-        // Pastikan sarpras tersedia
-        if ($sarpras->jumlah_stok <= 0) {
+        // Pastikan sarpras memiliki unit yang tersedia untuk dipinjam
+        if ($sarpras->jumlah_tersedia <= 0) {
             return redirect()->route('peminjaman.daftar')
-                ->with('error', 'Barang tidak tersedia untuk dipinjam.');
+                ->with('error', 'Barang tidak tersedia untuk dipinjam atau sedang dalam kondisi rusak berat.');
         }
 
         return view('peminjaman.create', compact('sarpras'));
@@ -111,16 +111,18 @@ class PeminjamanController extends Controller
 
         $sarpras = Sarpras::findOrFail($request->sarpras_id);
 
-        // Cek ketersediaan stok
-        if ($request->jumlah > $sarpras->jumlah_stok) {
+        // Cek ketersediaan stok fisik yang bisa dipinjam (baik/rusak_ringan)
+        if ($request->jumlah > $sarpras->jumlah_tersedia) {
             return back()->withErrors([
-                'jumlah' => 'Jumlah melebihi stok tersedia (' . $sarpras->jumlah_stok . ' unit).'
+                'jumlah' => 'Jumlah melebihi stok tersedia saat ini (' . $sarpras->jumlah_tersedia . ' unit).'
             ])->withInput();
         }
 
         // Cek double booking
+        // Kita hanya menghitung peminjaman yang masih dalam status 'menunggu' atau 'disetujui'
+        // 'dipinjam' tidak dihitung karena barangnya sudah keluar (stok sarpras sudah berkurang di database)
         $existingBooking = Peminjaman::where('sarpras_id', $sarpras->id)
-            ->whereIn('status', ['menunggu', 'disetujui', 'dipinjam'])
+            ->whereIn('status', ['menunggu', 'disetujui'])
             ->where(function ($q) use ($request) {
                 $q->whereBetween('tgl_pinjam', [$request->tgl_pinjam, $request->tgl_kembali_rencana])
                   ->orWhereBetween('tgl_kembali_rencana', [$request->tgl_pinjam, $request->tgl_kembali_rencana])
@@ -131,7 +133,7 @@ class PeminjamanController extends Controller
             })
             ->sum('jumlah');
 
-        $availableStock = $sarpras->jumlah_stok - $existingBooking;
+        $availableStock = $sarpras->jumlah_tersedia - $existingBooking;
         if ($request->jumlah > $availableStock) {
             return back()->withErrors([
                 'jumlah' => 'Stok tidak cukup untuk tanggal tersebut. Tersedia: ' . $availableStock . ' unit.'

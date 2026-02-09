@@ -19,7 +19,7 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('password.update') }}">
+            <form method="POST" action="{{ route('password.update') }}" onsubmit="return confirmSubmit(this, 'Yakin ingin mengubah password?')">
                 @csrf
                 
                 <div style="margin-bottom: 20px;">

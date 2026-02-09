@@ -398,7 +398,8 @@
                                         <tr style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
                                             <th style="width: 120px; font-size: 0.75rem;">KODE UNIT</th>
                                             <th style="width: 100px; font-size: 0.75rem;">SAAT PINJAM</th>
-                                            <th style="font-size: 0.75rem;">KONDISI SEKARANG</th>
+                                            <th style="width: 150px; font-size: 0.75rem;">KONDISI</th>
+                                            <th style="width: 200px; font-size: 0.75rem;">FOTO UNIT</th>
                                             <th style="font-size: 0.75rem;">CATATAN</th>
                                         </tr>
                                     </thead>
@@ -418,6 +419,18 @@
                                                     <option value="rusak_berat" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_berat' ? 'selected' : '' }}>❌ Rusak Berat</option>
                                                     <option value="hilang" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'hilang' ? 'selected' : '' }}>❓ Hilang</option>
                                                 </select>
+                                            </td>
+                                            <td>
+                                                <div class="unit-photo-upload">
+                                                    <input type="file" name="unit_foto[{{ $pu->sarpras_unit_id }}]" 
+                                                           class="form-control" accept="image/*" 
+                                                           style="padding: 4px 8px; font-size: 0.75rem;"
+                                                           onchange="previewUnitPhoto(this, '{{ $pu->sarpras_unit_id }}')">
+                                                    <div id="preview-container-{{ $pu->sarpras_unit_id }}" style="margin-top: 5px; display: none;">
+                                                        <img id="preview-{{ $pu->sarpras_unit_id }}" src="" alt="Preview" 
+                                                             style="width: 100%; max-height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td>
                                                 <input type="text" name="unit_catatan[{{ $pu->sarpras_unit_id }}]" 
@@ -618,6 +631,22 @@
         // Add class based on current value
         if (select.value) {
             select.classList.add('kondisi-' + select.value);
+        }
+    }
+
+    function previewUnitPhoto(input, unitId) {
+        const container = document.getElementById(`preview-container-${unitId}`);
+        const preview = document.getElementById(`preview-${unitId}`);
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                container.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            container.style.display = 'none';
         }
     }
     

@@ -56,8 +56,8 @@
                 <tr>
                     <td style="padding: 10px 0; color: var(--secondary);">Jumlah Stok</td>
                     <td style="padding: 10px 0;">
-                        <span class="badge {{ $sarpras->jumlah_stok > 0 ? 'badge-success' : 'badge-danger' }}">
-                            {{ $sarpras->jumlah_stok }} unit tersedia
+                        <span class="badge {{ $sarpras->jumlah_tersedia > 0 ? 'badge-success' : 'badge-danger' }}">
+                            {{ $sarpras->jumlah_tersedia }} unit tersedia
                         </span>
                         <span class="badge badge-secondary" style="margin-left: 4px;">
                             {{ $sarpras->units->count() }} total unit

@@ -139,6 +139,8 @@ class PengembalianController extends Controller
             'unit_kondisi' => 'required|array',
             'unit_kondisi.*' => 'required|in:baik,rusak_ringan,rusak_berat,hilang',
             'unit_catatan' => 'nullable|array',
+            'unit_foto' => 'nullable|array',
+            'unit_foto.*' => 'nullable|image|max:2048',
             'foto' => 'nullable|image|max:2048',
             'catatan_petugas' => 'nullable|string',
         ], [
@@ -178,10 +180,17 @@ class PengembalianController extends Controller
                 $kondisi = $request->unit_kondisi[$unitId] ?? 'baik';
                 $catatan = $request->unit_catatan[$unitId] ?? null;
 
+                // Handle unit photo upload
+                $unitFotoPath = null;
+                if ($request->hasFile("unit_foto.$unitId")) {
+                    $unitFotoPath = $request->file("unit_foto.$unitId")->store('pengembalian/units', 'public');
+                }
+
                 // Update peminjaman_unit record
                 $pu->update([
                     'kondisi_kembali' => $kondisi,
                     'catatan_kembali' => $catatan,
+                    'foto_kembali' => $unitFotoPath,
                 ]);
 
                 // Tentukan status baru berdasarkan kondisi

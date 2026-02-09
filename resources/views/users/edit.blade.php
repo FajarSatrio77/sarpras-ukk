@@ -15,7 +15,7 @@
             <h5 class="card-title"><i class="bi bi-pencil"></i> Edit User</h5>
         </div>
         <div class="card-body">
-            <form action="{{ route('users.update', $user) }}" method="POST">
+            <form action="{{ route('users.update', $user) }}" method="POST" onsubmit="return confirmSubmit(this, 'Simpan perubahan data user?')">
                 @csrf
                 @method('PUT')
                 

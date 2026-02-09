@@ -298,7 +298,7 @@
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <form action="{{ route('kategori.destroy', $item) }}" method="POST" style="display: inline;"
-                                  onsubmit="return confirm('Yakin ingin menghapus kategori ini?')">
+                                  onsubmit="return confirmSubmit(this, 'Hapus kategori {{ $item->nama }}?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="action-btn delete" title="Hapus">

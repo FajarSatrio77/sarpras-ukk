@@ -92,8 +92,11 @@ class ActivityLogController extends Controller
         $callback = function() use ($logs) {
             $file = fopen('php://output', 'w');
             
-            // Header CSV
-            fputcsv($file, ['Waktu', 'User', 'Role', 'Aksi', 'Deskripsi', 'IP Address']);
+            // Tambahkan BOM untuk Excel agar mengenali UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Header CSV menggunakan titik koma (;)
+            fputcsv($file, ['Waktu', 'User', 'Role', 'Aksi', 'Deskripsi', 'IP Address'], ';');
             
             foreach ($logs as $log) {
                 fputcsv($file, [
@@ -103,7 +106,7 @@ class ActivityLogController extends Controller
                     $log->aksi,
                     $log->deskripsi,
                     $log->ip_address ?? '-'
-                ]);
+                ], ';');
             }
             
             fclose($file);

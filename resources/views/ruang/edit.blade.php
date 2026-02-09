@@ -17,7 +17,7 @@
         </h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('ruang.update', $ruang) }}" method="POST">
+        <form action="{{ route('ruang.update', $ruang) }}" method="POST" onsubmit="return confirmSubmit(this, 'Simpan perubahan data ruang?')">
             @csrf
             @method('PUT')
             

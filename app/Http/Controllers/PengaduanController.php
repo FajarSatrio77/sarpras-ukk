@@ -20,8 +20,8 @@ class PengaduanController extends Controller
     {
         $query = Pengaduan::with(['user']);
 
-        // Jika pengguna biasa, hanya tampilkan pengaduan milik sendiri
-        if (Auth::user()->isPengguna()) {
+        // Jika pengguna/guru, hanya tampilkan pengaduan milik sendiri
+        if (Auth::user()->isPeminjam()) {
             $query->where('user_id', Auth::id());
         }
 
@@ -43,7 +43,7 @@ class PengaduanController extends Controller
         $pengaduan = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistik
-        $baseQuery = Auth::user()->isPengguna() ? Pengaduan::where('user_id', Auth::id()) : Pengaduan::query();
+        $baseQuery = Auth::user()->isPeminjam() ? Pengaduan::where('user_id', Auth::id()) : Pengaduan::query();
         $statistik = [
             'total' => (clone $baseQuery)->count(),
             'menunggu' => (clone $baseQuery)->where('status', 'menunggu')->count(),

@@ -29,7 +29,7 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('sarpras.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('sarpras.store') }}" enctype="multipart/form-data" onsubmit="return confirmSubmit(this, 'Simpan data sarpras baru?')">
                 @csrf
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">

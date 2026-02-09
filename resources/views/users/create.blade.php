@@ -15,7 +15,7 @@
             <h5 class="card-title"><i class="bi bi-person-plus"></i> Tambah User Baru</h5>
         </div>
         <div class="card-body">
-            <form action="{{ route('users.store') }}" method="POST">
+            <form action="{{ route('users.store') }}" method="POST" onsubmit="return confirmSubmit(this, 'Simpan user baru?')">
                 @csrf
                 
                 <div style="margin-bottom: 20px;">

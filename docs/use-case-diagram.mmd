@@ -1,0 +1,176 @@
+%% Use Case Diagram - UKK-SARPRAS (sesuai project)
+%% Aktor: Siswa (pengguna), Guru, Petugas SARPRAS, Admin
+
+graph TB
+    subgraph Actors["🎭 AKTOR"]
+        Siswa["👤 Siswa / Pengguna"]
+        Guru["👨‍🏫 Guru"]
+        Petugas["🔧 Petugas SARPRAS"]
+        Admin["👨‍💼 Admin"]
+    end
+
+    subgraph Katalog["📚 Manajemen Katalog"]
+        UC_LihatDaftarSarpras["Lihat Daftar Sarpras"]
+        UC_TambahSarpras["Tambah Barang SARPRAS"]
+        UC_EditSarpras["Edit Barang SARPRAS"]
+        UC_HapusSarpras["Hapus Barang SARPRAS"]
+        UC_KelolaUnit["Kelola Unit Barang"]
+        UC_TrashRestore["Trash / Restore Barang"]
+        UC_ManageKategori["Kelola Kategori"]
+        UC_ManageRuang["Kelola Ruang"]
+    end
+
+    subgraph Peminjaman["📦 Peminjaman"]
+        UC_DaftarPinjam["Lihat Daftar Barang untuk Pinjam"]
+        UC_AjukanPeminjaman["Ajukan Peminjaman"]
+        UC_LihatRiwayatPeminjaman["Lihat Riwayat Peminjaman"]
+        UC_LihatDetailPeminjaman["Lihat Detail Peminjaman"]
+        UC_CetakPeminjaman["Cetak Surat Peminjaman"]
+        UC_DaftarPeminjaman["Daftar Peminjaman"]
+        UC_ApproveReject["Setujui / Tolak Peminjaman"]
+        UC_Handover["Handover Serah Terima Barang"]
+    end
+
+    subgraph Pengembalian["↩️ Pengembalian"]
+        UC_ScanPengembalian["Scan / Input Kode Peminjaman"]
+        UC_CatatPengembalian["Catat Pengembalian"]
+        UC_DaftarPengembalian["Daftar Pengembalian"]
+    end
+
+    subgraph Pengaduan["📋 Pengaduan"]
+        UC_BuatPengaduan["Buat Pengaduan"]
+        UC_LihatPengaduan["Lihat Daftar Pengaduan"]
+        UC_DetailPengaduan["Lihat Detail Pengaduan"]
+        UC_UpdateStatusPengaduan["Update Status Pengaduan"]
+        UC_TambahCatatanPengaduan["Tambah Catatan Pengaduan"]
+    end
+
+    subgraph BarangHilang["🔍 Barang Hilang"]
+        UC_DaftarBarangHilang["Daftar Barang Hilang"]
+        UC_SelesaikanBarangHilang["Selesaikan Kasus Ditemukan / Ganti Rugi"]
+    end
+
+    subgraph Maintenance["🔧 Maintenance"]
+        UC_CRUDMaintenance["Kelola Maintenance"]
+    end
+
+    subgraph Laporan["📊 Laporan"]
+        UC_LaporanKerusakan["Laporan Kerusakan"]
+        UC_LaporanAssetHealth["Laporan Asset Health"]
+        UC_DamageAnalytics["Damage Analytics"]
+        UC_AssetLifecycle["Asset Lifecycle"]
+        UC_RiwayatKondisi["Riwayat Kondisi Sarpras"]
+    end
+
+    subgraph AdminOnly["⚙️ Khusus Admin"]
+        UC_ManageUser["Kelola User"]
+        UC_ImportUser["Import User"]
+        UC_AssignRole["Assign Role"]
+        UC_AktivasiUser["Aktivasi User"]
+        UC_ActivityLog["Activity Log"]
+    end
+
+    subgraph Umum["📄 Umum"]
+        UC_Dashboard["Dashboard"]
+        UC_Profile["Profile"]
+        UC_GantiPassword["Ganti Password"]
+    end
+
+    %% ========== SISWA / PENGGUNA ==========
+    Siswa -->|uses| UC_LihatDaftarSarpras
+    Siswa -->|uses| UC_DaftarPinjam
+    Siswa -->|uses| UC_AjukanPeminjaman
+    Siswa -->|uses| UC_LihatRiwayatPeminjaman
+    Siswa -->|uses| UC_LihatDetailPeminjaman
+    Siswa -->|uses| UC_CetakPeminjaman
+    Siswa -->|uses| UC_BuatPengaduan
+    Siswa -->|uses| UC_LihatPengaduan
+    Siswa -->|uses| UC_DetailPengaduan
+    Siswa -->|uses| UC_Profile
+    Siswa -->|uses| UC_GantiPassword
+
+    %% ========== GURU ==========
+    Guru -->|uses| UC_LihatDaftarSarpras
+    Guru -->|uses| UC_DaftarPinjam
+    Guru -->|uses| UC_AjukanPeminjaman
+    Guru -->|uses| UC_LihatRiwayatPeminjaman
+    Guru -->|uses| UC_LihatDetailPeminjaman
+    Guru -->|uses| UC_CetakPeminjaman
+    Guru -->|uses| UC_BuatPengaduan
+    Guru -->|uses| UC_LihatPengaduan
+    Guru -->|uses| UC_DetailPengaduan
+    Guru -->|uses| UC_Profile
+    Guru -->|uses| UC_GantiPassword
+
+    %% ========== PETUGAS ==========
+    Petugas -->|uses| UC_Dashboard
+    Petugas -->|uses| UC_Profile
+    Petugas -->|uses| UC_GantiPassword
+    Petugas -->|uses| UC_ManageKategori
+    Petugas -->|uses| UC_ManageRuang
+    Petugas -->|uses| UC_LihatDaftarSarpras
+    Petugas -->|uses| UC_TambahSarpras
+    Petugas -->|uses| UC_EditSarpras
+    Petugas -->|uses| UC_HapusSarpras
+    Petugas -->|uses| UC_KelolaUnit
+    Petugas -->|uses| UC_TrashRestore
+    Petugas -->|uses| UC_DaftarPeminjaman
+    Petugas -->|uses| UC_ApproveReject
+    Petugas -->|uses| UC_Handover
+    Petugas -->|uses| UC_DaftarPengembalian
+    Petugas -->|uses| UC_ScanPengembalian
+    Petugas -->|uses| UC_CatatPengembalian
+    Petugas -->|uses| UC_DaftarBarangHilang
+    Petugas -->|uses| UC_SelesaikanBarangHilang
+    Petugas -->|uses| UC_LihatPengaduan
+    Petugas -->|uses| UC_UpdateStatusPengaduan
+    Petugas -->|uses| UC_TambahCatatanPengaduan
+    Petugas -->|uses| UC_CRUDMaintenance
+    Petugas -->|uses| UC_RiwayatKondisi
+    Petugas -->|uses| UC_LaporanKerusakan
+    Petugas -->|uses| UC_LaporanAssetHealth
+
+    %% ========== ADMIN (semua akses Petugas + User & Activity Log) ==========
+    Admin -->|uses| UC_Dashboard
+    Admin -->|uses| UC_Profile
+    Admin -->|uses| UC_GantiPassword
+    Admin -->|uses| UC_ManageKategori
+    Admin -->|uses| UC_ManageRuang
+    Admin -->|uses| UC_LihatDaftarSarpras
+    Admin -->|uses| UC_TambahSarpras
+    Admin -->|uses| UC_EditSarpras
+    Admin -->|uses| UC_HapusSarpras
+    Admin -->|uses| UC_KelolaUnit
+    Admin -->|uses| UC_TrashRestore
+    Admin -->|uses| UC_DaftarPeminjaman
+    Admin -->|uses| UC_ApproveReject
+    Admin -->|uses| UC_Handover
+    Admin -->|uses| UC_DaftarPengembalian
+    Admin -->|uses| UC_ScanPengembalian
+    Admin -->|uses| UC_CatatPengembalian
+    Admin -->|uses| UC_DaftarBarangHilang
+    Admin -->|uses| UC_SelesaikanBarangHilang
+    Admin -->|uses| UC_LihatPengaduan
+    Admin -->|uses| UC_UpdateStatusPengaduan
+    Admin -->|uses| UC_TambahCatatanPengaduan
+    Admin -->|uses| UC_CRUDMaintenance
+    Admin -->|uses| UC_RiwayatKondisi
+    Admin -->|uses| UC_LaporanKerusakan
+    Admin -->|uses| UC_LaporanAssetHealth
+    Admin -->|uses| UC_DamageAnalytics
+    Admin -->|uses| UC_AssetLifecycle
+    Admin -->|uses| UC_ManageUser
+    Admin -->|uses| UC_ImportUser
+    Admin -->|uses| UC_AssignRole
+    Admin -->|uses| UC_AktivasiUser
+    Admin -->|uses| UC_ActivityLog
+
+    %% Include/Extend (opsional)
+    UC_AjukanPeminjaman -.->|include| UC_LihatDaftarSarpras
+    UC_Handover -.->|include| UC_DaftarPeminjaman
+    UC_CatatPengembalian -.->|include| UC_ScanPengembalian
+    UC_ManageUser -.->|include| UC_AssignRole
+    UC_ManageUser -.->|include| UC_AktivasiUser
+
+    classDef actor fill:#4A90E2,stroke:#2E5C8A,stroke-width:2px,color:#fff
+    class Siswa,Guru,Petugas,Admin actor

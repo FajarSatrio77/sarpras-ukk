@@ -39,7 +39,7 @@
                     <p style="font-size: 0.85rem; color: var(--secondary); margin-bottom: 8px;">
                         <i class="bi bi-geo-alt"></i> {{ $sarpras->lokasi }}
                     </p>
-                    <span class="badge badge-success">Tersedia: {{ $sarpras->jumlah_stok }} unit</span>
+                    <span class="badge badge-success">Tersedia: {{ $sarpras->jumlah_tersedia }} unit</span>
                 </div>
             </div>
         </div>
@@ -73,11 +73,11 @@
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Jumlah yang Dipinjam <span style="color: var(--danger);">*</span>
                     </label>
-                    <input type="number" name="jumlah" value="{{ old('jumlah', 1) }}" min="1" max="{{ $sarpras->jumlah_stok }}"
+                    <input type="number" name="jumlah" value="{{ old('jumlah', 1) }}" min="1" max="{{ $sarpras->jumlah_tersedia }}"
                            style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
                            required>
                     <p style="font-size: 0.8rem; color: var(--secondary); margin-top: 6px;">
-                        Maksimal {{ $sarpras->jumlah_stok }} unit
+                        Maksimal {{ $sarpras->jumlah_tersedia }} unit
                     </p>
                 </div>
 

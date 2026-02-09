@@ -50,11 +50,23 @@ class Sarpras extends Model
     }
 
     /**
-     * Scope: Filter sarpras yang tersedia (stok > 0)
+     * Scope: Filter sarpras yang tersedia untuk dipinjam
+     * (memiliki unit dengan kondisi baik/rusak_ringan yang berstatus tersedia)
      */
     public function scopeTersedia($query)
     {
-        return $query->where('jumlah_stok', '>', 0);
+        return $query->whereHas('units', function($q) {
+            $q->tersedia();
+        });
+    }
+
+    /**
+     * Get jumlah unit yang benar-benar bisa dipinjam saat ini
+     * (Status: tersedia DAN Kondisi: baik/rusak_ringan)
+     */
+    public function getJumlahTersediaAttribute()
+    {
+        return $this->units()->tersedia()->count();
     }
 
     /**
@@ -94,23 +106,26 @@ class Sarpras extends Model
      */
     public static function generateKode($kategoriId)
     {
-        $prefix = 'ATL';
+        $kategori = KategoriSarpras::find($kategoriId);
+        $prefix = $kategori ? $kategori->kode : 'BRG';
 
-        // Cari nomor urut terakhir dengan prefix ATL
+        // Cari nomor urut terakhir dengan prefix kategori tersebut
         $lastKode = self::where('kode', 'like', $prefix . '-%')
             ->orderBy('kode', 'desc')
             ->value('kode');
 
         if ($lastKode) {
             // Extract angka dari kode terakhir
-            $lastNumber = (int) substr($lastKode, -3);
+            // Mengambil bagian setelah karakter dash (-) terakhir
+            $parts = explode('-', $lastKode);
+            $lastNumber = (int) end($parts);
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
         }
 
-        // Format: ATL-001
-        return $prefix . '-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+        // Format: PREFIX-001
+        return strtoupper($prefix) . '-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
     }
 
     /**

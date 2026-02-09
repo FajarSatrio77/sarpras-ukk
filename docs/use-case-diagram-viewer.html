@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use Case Diagram - Sistem Manajemen SARPRAS</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            border-bottom: 4px solid #f39c12;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        .controls {
+            padding: 20px 30px;
+            display: flex;
+            gap: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+        
+        .btn-info {
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85em;
+        }
+        
+        .btn-info:hover {
+            background: #2980b9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .diagram-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+        
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            background: white;
+            border-radius: 4px;
+            padding: 20px;
+        }
+        
+        .documentation {
+            line-height: 1.8;
+        }
+        
+        .doc-section {
+            margin-bottom: 30px;
+        }
+        
+        .doc-section h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        
+        .doc-section p {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .actor-box {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .actor-box strong {
+            color: #667eea;
+        }
+        
+        .usecase-list {
+            list-style: none;
+            margin: 10px 0;
+            padding-left: 0;
+        }
+        
+        .usecase-list li {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 3px solid #7ED321;
+            color: #333;
+        }
+        
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 10px 0;
+            color: #856404;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #17a2b8;
+            color: #0c5460;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .controls button {
+                justify-content: center;
+            }
+            
+            .legend {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Use Case Diagram</h1>
+            <p>Sistem Manajemen Sarana dan Prasarana Sekolah (SARPRAS)</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-primary" onclick="downloadDiagram()">📥 Download Diagram</button>
+            <button class="btn-secondary" onclick="printDiagram()">🖨️ Print</button>
+            <button class="btn-info" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        </div>
+        
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('diagram')">📊 Diagram</button>
+                <button class="tab" onclick="switchTab('documentation')">📖 Dokumentasi</button>
+                <button class="tab" onclick="switchTab('code')">💻 Kode Diagram</button>
+            </div>
+            
+            <!-- TAB 1: DIAGRAM -->
+            <div id="diagram" class="tab-content active">
+                <div class="alert info">
+                    💡 <strong>Tips:</strong> Gunakan scroll untuk melihat diagram secara keseluruhan. Klik pada elemen diagram untuk melihat lebih detail.
+                </div>
+                
+                <div class="diagram-container">
+                    <div class="mermaid" id="mermaidDiagram">
+graph TB
+    subgraph Actors["🎭 AKTOR"]
+        Siswa["👤 Siswa / Pengguna"]
+        Guru["👨‍🏫 Guru"]
+        Petugas["🔧 Petugas SARPRAS"]
+        Admin["👨‍💼 Admin"]
+    end
+
+    subgraph Katalog["📚 Manajemen Katalog"]
+        UC_LihatDaftarSarpras["Lihat Daftar Sarpras"]
+        UC_TambahSarpras["Tambah Barang SARPRAS"]
+        UC_EditSarpras["Edit Barang SARPRAS"]
+        UC_HapusSarpras["Hapus Barang SARPRAS"]
+        UC_KelolaUnit["Kelola Unit Barang"]
+        UC_TrashRestore["Trash / Restore Barang"]
+        UC_ManageKategori["Kelola Kategori"]
+        UC_ManageRuang["Kelola Ruang"]
+    end
+
+    subgraph Peminjaman["📦 Peminjaman"]
+        UC_DaftarPinjam["Lihat Daftar Barang untuk Pinjam"]
+        UC_AjukanPeminjaman["Ajukan Peminjaman"]
+        UC_LihatRiwayatPeminjaman["Lihat Riwayat Peminjaman"]
+        UC_LihatDetailPeminjaman["Lihat Detail Peminjaman"]
+        UC_CetakPeminjaman["Cetak Surat Peminjaman"]
+        UC_DaftarPeminjaman["Daftar Peminjaman"]
+        UC_ApproveReject["Setujui / Tolak Peminjaman"]
+        UC_Handover["Handover Serah Terima Barang"]
+    end
+
+    subgraph Pengembalian["↩️ Pengembalian"]
+        UC_ScanPengembalian["Scan / Input Kode Peminjaman"]
+        UC_CatatPengembalian["Catat Pengembalian"]
+        UC_DaftarPengembalian["Daftar Pengembalian"]
+    end
+
+    subgraph Pengaduan["📋 Pengaduan"]
+        UC_BuatPengaduan["Buat Pengaduan"]
+        UC_LihatPengaduan["Lihat Daftar Pengaduan"]
+        UC_DetailPengaduan["Lihat Detail Pengaduan"]
+        UC_UpdateStatusPengaduan["Update Status Pengaduan"]
+        UC_TambahCatatanPengaduan["Tambah Catatan Pengaduan"]
+    end
+
+    subgraph BarangHilang["🔍 Barang Hilang"]
+        UC_DaftarBarangHilang["Daftar Barang Hilang"]
+        UC_SelesaikanBarangHilang["Selesaikan Kasus Ditemukan / Ganti Rugi"]
+    end
+
+    subgraph Maintenance["🔧 Maintenance"]
+        UC_CRUDMaintenance["Kelola Maintenance"]
+    end
+
+    subgraph Laporan["📊 Laporan"]
+        UC_LaporanKerusakan["Laporan Kerusakan"]
+        UC_LaporanAssetHealth["Laporan Asset Health"]
+        UC_DamageAnalytics["Damage Analytics"]
+        UC_AssetLifecycle["Asset Lifecycle"]
+        UC_RiwayatKondisi["Riwayat Kondisi Sarpras"]
+    end
+
+    subgraph AdminOnly["⚙️ Khusus Admin"]
+        UC_ManageUser["Kelola User"]
+        UC_ImportUser["Import User"]
+        UC_AssignRole["Assign Role"]
+        UC_AktivasiUser["Aktivasi User"]
+        UC_ActivityLog["Activity Log"]
+    end
+
+    subgraph Umum["📄 Umum"]
+        UC_Dashboard["Dashboard"]
+        UC_Profile["Profile"]
+        UC_GantiPassword["Ganti Password"]
+    end
+
+    Siswa -->|uses| UC_LihatDaftarSarpras
+    Siswa -->|uses| UC_DaftarPinjam
+    Siswa -->|uses| UC_AjukanPeminjaman
+    Siswa -->|uses| UC_LihatRiwayatPeminjaman
+    Siswa -->|uses| UC_LihatDetailPeminjaman
+    Siswa -->|uses| UC_CetakPeminjaman
+    Siswa -->|uses| UC_BuatPengaduan
+    Siswa -->|uses| UC_LihatPengaduan
+    Siswa -->|uses| UC_DetailPengaduan
+    Siswa -->|uses| UC_Profile
+    Siswa -->|uses| UC_GantiPassword
+
+    Guru -->|uses| UC_LihatDaftarSarpras
+    Guru -->|uses| UC_DaftarPinjam
+    Guru -->|uses| UC_AjukanPeminjaman
+    Guru -->|uses| UC_LihatRiwayatPeminjaman
+    Guru -->|uses| UC_LihatDetailPeminjaman
+    Guru -->|uses| UC_CetakPeminjaman
+    Guru -->|uses| UC_BuatPengaduan
+    Guru -->|uses| UC_LihatPengaduan
+    Guru -->|uses| UC_DetailPengaduan
+    Guru -->|uses| UC_Profile
+    Guru -->|uses| UC_GantiPassword
+
+    Petugas -->|uses| UC_Dashboard
+    Petugas -->|uses| UC_Profile
+    Petugas -->|uses| UC_GantiPassword
+    Petugas -->|uses| UC_ManageKategori
+    Petugas -->|uses| UC_ManageRuang
+    Petugas -->|uses| UC_LihatDaftarSarpras
+    Petugas -->|uses| UC_TambahSarpras
+    Petugas -->|uses| UC_EditSarpras
+    Petugas -->|uses| UC_HapusSarpras
+    Petugas -->|uses| UC_KelolaUnit
+    Petugas -->|uses| UC_TrashRestore
+    Petugas -->|uses| UC_DaftarPeminjaman
+    Petugas -->|uses| UC_ApproveReject
+    Petugas -->|uses| UC_Handover
+    Petugas -->|uses| UC_DaftarPengembalian
+    Petugas -->|uses| UC_ScanPengembalian
+    Petugas -->|uses| UC_CatatPengembalian
+    Petugas -->|uses| UC_DaftarBarangHilang
+    Petugas -->|uses| UC_SelesaikanBarangHilang
+    Petugas -->|uses| UC_LihatPengaduan
+    Petugas -->|uses| UC_UpdateStatusPengaduan
+    Petugas -->|uses| UC_TambahCatatanPengaduan
+    Petugas -->|uses| UC_CRUDMaintenance
+    Petugas -->|uses| UC_RiwayatKondisi
+    Petugas -->|uses| UC_LaporanKerusakan
+    Petugas -->|uses| UC_LaporanAssetHealth
+
+    Admin -->|uses| UC_Dashboard
+    Admin -->|uses| UC_Profile
+    Admin -->|uses| UC_GantiPassword
+    Admin -->|uses| UC_ManageKategori
+    Admin -->|uses| UC_ManageRuang
+    Admin -->|uses| UC_LihatDaftarSarpras
+    Admin -->|uses| UC_TambahSarpras
+    Admin -->|uses| UC_EditSarpras
+    Admin -->|uses| UC_HapusSarpras
+    Admin -->|uses| UC_KelolaUnit
+    Admin -->|uses| UC_TrashRestore
+    Admin -->|uses| UC_DaftarPeminjaman
+    Admin -->|uses| UC_ApproveReject
+    Admin -->|uses| UC_Handover
+    Admin -->|uses| UC_DaftarPengembalian
+    Admin -->|uses| UC_ScanPengembalian
+    Admin -->|uses| UC_CatatPengembalian
+    Admin -->|uses| UC_DaftarBarangHilang
+    Admin -->|uses| UC_SelesaikanBarangHilang
+    Admin -->|uses| UC_LihatPengaduan
+    Admin -->|uses| UC_UpdateStatusPengaduan
+    Admin -->|uses| UC_TambahCatatanPengaduan
+    Admin -->|uses| UC_CRUDMaintenance
+    Admin -->|uses| UC_RiwayatKondisi
+    Admin -->|uses| UC_LaporanKerusakan
+    Admin -->|uses| UC_LaporanAssetHealth
+    Admin -->|uses| UC_DamageAnalytics
+    Admin -->|uses| UC_AssetLifecycle
+    Admin -->|uses| UC_ManageUser
+    Admin -->|uses| UC_ImportUser
+    Admin -->|uses| UC_AssignRole
+    Admin -->|uses| UC_AktivasiUser
+    Admin -->|uses| UC_ActivityLog
+
+    UC_AjukanPeminjaman -.->|include| UC_LihatDaftarSarpras
+    UC_Handover -.->|include| UC_DaftarPeminjaman
+    UC_CatatPengembalian -.->|include| UC_ScanPengembalian
+    UC_ManageUser -.->|include| UC_AssignRole
+    UC_ManageUser -.->|include| UC_AktivasiUser
+
+    classDef actor fill:#4A90E2,stroke:#2E5C8A,stroke-width:2px,color:#fff
+    class Siswa,Guru,Petugas,Admin actor
+                    </div>
+                </div>
+                
+                <div class="legend" style="margin-top: 30px;">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4A90E2;">👤</div>
+                        <span><strong>Aktor</strong> - Pengguna sistem</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #7ED321;">◯</div>
+                        <span><strong>Use Case</strong> - Fungsionalitas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #50E3C2;">━</div>
+                        <span><strong>Association</strong> - Relasi aktor</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #999;">⋯</div>
+                        <span><strong>Include</strong> - Dependensi</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB 2: DOCUMENTATION -->
+            <div id="documentation" class="tab-content">
+                <div class="documentation">
+                    <div class="doc-section">
+                        <h3>📋 Pengenalan Use Case Diagram</h3>
+                        <p>Use Case Diagram menggambarkan interaksi antara aktor (pengguna/sistem) dengan sistem SARPRAS. Diagram ini menampilkan:</p>
+                        <ul class="usecase-list">
+                            <li>✅ 4 Aktor: Siswa, Guru, Petugas SARPRAS, Admin</li>
+                            <li>✅ 30+ Use Case (Fungsionalitas sistem)</li>
+                            <li>✅ 7 Kelompok Fungsi: Katalog, Peminjaman, Kerusakan, Maintenance, Admin, Laporan</li>
+                            <li>✅ Relasi dan Dependensi antar use case</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="doc-section">
+                        <h3>👥 Daftar Aktor</h3>
+                        
+                        <div class="actor-box">
+                            <strong>👤 SISWA</strong><br>
+                            Pengguna utama sistem yang dapat meminjam barang untuk keperluan akademik.
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Lihat Katalog Barang</li>
+                                <li>Ajukan Peminjaman</li>
+                                <li>Lihat Status Peminjaman</li>
+                                <li>Kembalikan Barang</li>
+                                <li>Lapor Kerusakan</li>
+                                <li>Lihat Riwayat</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>👨‍🏫 GURU</strong><br>
+                            Pendidik yang dapat meminjam dalam jumlah besar dan menyetujui peminjaman siswa.
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Semua fungsi Siswa +</li>
+                                <li>Persetujuan Peminjaman</li>
+                                <li>Lihat Laporan Kerusakan</li>
+                                <li>Lihat Dashboard</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>🔧 PETUGAS SARPRAS</strong><br>
+                            Operator yang mengelola barang, peminjaman, dan maintenance.
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Manajemen Katalog (CRUD)</li>
+                                <li>Validasi & Catat Peminjaman</li>
+                                <li>Verifikasi Kerusakan</li>
+                                <li>Buat & Update Maintenance</li>
+                                <li>Manajemen Kategori & Ruang</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>👨‍💼 ADMIN</strong><br>
+                            Pengelola sistem dengan privilege tertinggi.
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Semua fungsi Petugas +</li>
+                                <li>User Management (CRUD)</li>
+                                <li>Assign Role & Aktivasi</li>
+                                <li>Lihat Activity Log</li>
+                                <li>Berikan Peringatan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="doc-section">
+                        <h3>📚 Kelompok Use Case</h3>
+                        
+                        <div class="actor-box">
+                            <strong>📚 Manajemen Katalog</strong>
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Lihat Katalog Barang</li>
+                                <li>Tambah Barang</li>
+                                <li>Edit Barang</li>
+                                <li>Hapus Barang</li>
+                                <li>Upload Foto</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>📦 Peminjaman</strong>
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Ajukan Peminjaman</li>
+                                <li>Lihat Status Peminjaman</li>
+                                <li>Persetujuan Peminjaman (Guru/Petugas)</li>
+                                <li>Validasi Peminjaman (Petugas)</li>
+                                <li>Catat Pengambilan</li>
+                                <li>Kembalikan Barang</li>
+                                <li>Catat Pengembalian</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>🚨 Laporan Kerusakan</strong>
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Lapor Kerusakan</li>
+                                <li>Lihat Laporan Kerusakan</li>
+                                <li>Verifikasi Kerusakan (Petugas)</li>
+                                <li>Respons Pengaduan (Petugas)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>🔧 Maintenance</strong>
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Buat Maintenance Record</li>
+                                <li>Update Status Maintenance</li>
+                                <li>Lihat Maintenance Log</li>
+                                <li>Update Kondisi Barang</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>⚙️ Manajemen Admin</strong>
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Manage User (CRUD)</li>
+                                <li>Assign Role</li>
+                                <li>Aktivasi User</li>
+                                <li>Manage Kategori</li>
+                                <li>Manage Ruang</li>
+                                <li>Berikan Peringatan</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="actor-box">
+                            <strong>📊 Laporan & Monitoring</strong>
+                            <ul class="usecase-list" style="margin-top: 8px;">
+                                <li>Lihat Riwayat</li>
+                                <li>Lihat Activity Log</li>
+                                <li>Lihat Dashboard</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="doc-section">
+                        <h3>🔗 Relasi Antar Use Case</h3>
+                        <p><strong>Include Relationship (⋯→):</strong> Use case yang harus dijalankan sebagai bagian dari use case lain</p>
+                        <ul class="usecase-list">
+                            <li>Ajukan Peminjaman <strong>includes</strong> Upload Foto</li>
+                            <li>Catat Pengambilan <strong>includes</strong> Upload Foto</li>
+                            <li>Catat Pengembalian <strong>includes</strong> Upload Foto</li>
+                        </ul>
+                        
+                        <p style="margin-top: 15px;"><strong>Extend Relationship:</strong> Kondisional atau tambahan fungsionalitas</p>
+                        <ul class="usecase-list">
+                            <li>Respons Pengaduan dapat <strong>extends</strong> ke Buat Maintenance (jika perlu perbaikan)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB 3: CODE -->
+            <div id="code" class="tab-content">
+                <div class="doc-section">
+                    <h3>📝 PlantUML Code</h3>
+                    <p>Gunakan kode di bawah untuk membuat diagram menggunakan PlantUML:</p>
+                    <div class="code-block">
+@startuml Use Case Diagram - Sistem Manajemen SARPRAS
+title Sistem Manajemen SARPRAS - Use Case Diagram
+left to right direction
+
+' Aktor
+:Siswa: as Siswa
+:Guru: as Guru
+:Petugas SARPRAS: as Petugas
+:Admin: as Admin
+
+' Use Cases - Peminjaman
+usecase "Lihat Katalog Barang" as UC_LihatKatalog
+usecase "Ajukan Peminjaman" as UC_AjukanPeminjaman
+usecase "Lihat Status Peminjaman" as UC_LihatStatusPeminjaman
+usecase "Kembalikan Barang" as UC_KembalikanBarang
+usecase "Persetujuan Peminjaman" as UC_PersetujuanPeminjaman
+
+' Relasi - SISWA
+Siswa --> UC_LihatKatalog
+Siswa --> UC_AjukanPeminjaman
+Siswa --> UC_LihatStatusPeminjaman
+Siswa --> UC_KembalikanBarang
+
+' Relasi - GURU
+Guru --> UC_LihatKatalog
+Guru --> UC_AjukanPeminjaman
+Guru --> UC_PersetujuanPeminjaman
+
+UC_AjukanPeminjaman ..> UC_CatatPengambilan : <<include>>
+
+@enduml
+                    </div>
+                </div>
+                
+                <div class="doc-section">
+                    <h3>📊 Mermaid Code</h3>
+                    <p>Gunakan kode di bawah untuk membuat diagram menggunakan Mermaid:</p>
+                    <div class="code-block">
+graph TB
+    subgraph Actors
+        Siswa["👤 Siswa"]
+        Guru["👨‍🏫 Guru"]
+        Petugas["🔧 Petugas"]
+        Admin["👨‍💼 Admin"]
+    end
+
+    subgraph Borrowing["📦 Peminjaman"]
+        UC_Ajukan["Ajukan Peminjaman"]
+        UC_Status["Lihat Status"]
+        UC_Kembali["Kembalikan Barang"]
+    end
+
+    Siswa --> UC_Ajukan
+    Siswa --> UC_Status
+    Siswa --> UC_Kembali
+    Guru --> UC_Ajukan
+                    </div>
+                </div>
+                
+                <div class="alert success">
+                    ✅ <strong>Info File:</strong> Kode lenglap juga disimpan di:
+                    <ul style="margin-top: 8px;">
+                        <li><code>docs/use-case-diagram.puml</code> (PlantUML)</li>
+                        <li><code>docs/use-case-diagram.mmd</code> (Mermaid)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Sistem Manajemen SARPRAS - UKK 2026 | Generated on 8 Februari 2026</p>
+        </div>
+    </div>
+    
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function downloadDiagram() {
+            const svgElement = document.querySelector('.mermaid svg');
+            if (!svgElement) {
+                alert('Diagram belum ter-render. Silakan tunggu beberapa saat.');
+                return;
+            }
+            
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgString], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'use-case-diagram-sarpras.svg';
+            link.click();
+        }
+        
+        function printDiagram() {
+            window.print();
+        }
+        
+        function toggleFullscreen() {
+            const container = document.querySelector('.diagram-container');
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else {
+                alert('Fullscreen tidak didukung di browser ini');
+            }
+        }
+    </script>
+</body>
+</html>

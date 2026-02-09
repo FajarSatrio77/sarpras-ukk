@@ -36,12 +36,12 @@ class SarprasUnit extends Model
     }
 
     /**
-     * Scope: Filter unit yang tersedia
+     * Scope: Filter unit yang tersedia untuk dipinjam
      */
     public function scopeTersedia($query)
     {
         return $query->where('status', 'tersedia')
-                     ->where('kondisi', '!=', 'hilang');
+                     ->whereIn('kondisi', ['baik', 'rusak_ringan']);
     }
 
     /**
