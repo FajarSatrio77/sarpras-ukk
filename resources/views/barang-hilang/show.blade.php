@@ -61,23 +61,6 @@
             <!-- Section Penyelesaian (Jika Belum Selesai) -->
             @if(!isset($pengaduan) || $pengaduan->status != 'selesai')
             <div class="card bg-purple-50 border border-purple-100 shadow-sm">
-                <div class="card-body p-6">
-                    <h3 class="font-bold text-lg text-purple-900 mb-2">Tindakan Penyelesaian</h3>
-                    <p class="text-sm text-purple-700 mb-4">Pilih tindakan untuk menyelesaikan kasus kehilangan ini. Tindakan akan memperbarui stok dan peringatan siswa secara otomatis.</p>
-                    
-                    <div class="flex flex-wrap gap-3">
-                        <form action="{{ route('barang-hilang.resolve-found', $pengembalian->id) }}" method="POST" class="flex-1" onsubmit="return confirm('Yakin barang ditemukan? Stok akan kembali.')">
-                            @csrf
-                            <button type="submit" class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-0 w-full gap-2">
-                                <i class="bi bi-check-lg"></i> Ditemukan Kembali
-                            </button>
-                        </form>
-
-                        <button onclick="document.getElementById('modalGantiRugi').showModal()" class="btn bg-blue-600 hover:bg-blue-700 text-white border-0 flex-1 gap-2">
-                            <i class="bi bi-cash-stack"></i> Ganti Rugi
-                        </button>
-                    </div>
-                </div>
             </div>
             @else
             <div class="alert alert-success shadow-sm">

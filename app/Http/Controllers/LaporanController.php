@@ -549,7 +549,7 @@ class LaporanController extends Controller
     }
 
     /**
-     * Export Laporan Peminjaman ke CSV
+     * Export Laporan Peminjaman ke Excel
      */
     public function exportPeminjaman(Request $request)
     {
@@ -582,50 +582,71 @@ class LaporanController extends Controller
 
         $data = $query->limit(2000)->get();
 
-        $filename = 'laporan_peminjaman_' . now()->format('Y-m-d_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
+        $filename = 'laporan_peminjaman_' . now()->format('Y-m-d_His') . '.xls';
+
+        // Build HTML table that Excel can read natively
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        $html .= '<head><meta charset="UTF-8">';
+        $html .= '<style>';
+        $html .= 'table { border-collapse: collapse; width: 100%; }';
+        $html .= 'th { background-color: #1e40af; color: #ffffff; font-weight: bold; padding: 10px 12px; border: 1px solid #cbd5e1; text-align: center; font-size: 12px; }';
+        $html .= 'td { padding: 8px 12px; border: 1px solid #e2e8f0; font-size: 11px; vertical-align: top; }';
+        $html .= 'tr:nth-child(even) td { background-color: #f8fafc; }';
+        $html .= '.title { font-size: 16px; font-weight: bold; margin-bottom: 4px; }';
+        $html .= '.subtitle { font-size: 11px; color: #64748b; margin-bottom: 16px; }';
+        $html .= '.text-center { text-align: center; }';
+        $html .= '.text-right { text-align: right; }';
+        $html .= '.mono { mso-number-format: "\@"; }'; // Force text format in Excel
+        $html .= '</style>';
+        $html .= '</head><body>';
+
+        // Header info
+        $html .= '<table>';
+        $html .= '<tr><td colspan="11" class="title">LAPORAN PEMINJAMAN SARANA DAN PRASARANA</td></tr>';
+        $html .= '<tr><td colspan="11" class="subtitle">SMK Negeri 1 Boyolangu - Tanggal Cetak: ' . now()->format('d F Y H:i') . '</td></tr>';
+        $html .= '<tr><td colspan="11"></td></tr>';
+        $html .= '</table>';
+
+        // Data table
+        $html .= '<table>';
+        $html .= '<thead><tr>';
+        $html .= '<th>No</th>';
+        $html .= '<th>Kode Peminjaman</th>';
+        $html .= '<th>Peminjam</th>';
+        $html .= '<th>Barang</th>';
+        $html .= '<th>Jumlah</th>';
+        $html .= '<th>Tgl Pinjam</th>';
+        $html .= '<th>Tgl Kembali (Rencana)</th>';
+        $html .= '<th>Tgl Kembali (Aktual)</th>';
+        $html .= '<th>Status</th>';
+        $html .= '<th>Tujuan</th>';
+        $html .= '<th>Disetujui Oleh</th>';
+        $html .= '</tr></thead>';
+        $html .= '<tbody>';
+
+        foreach ($data as $i => $item) {
+            $html .= '<tr>';
+            $html .= '<td class="text-center">' . ($i + 1) . '</td>';
+            $html .= '<td class="mono">' . e($item->kode_peminjaman) . '</td>';
+            $html .= '<td>' . e($item->user->name ?? '-') . '</td>';
+            $html .= '<td>' . e($item->sarpras->nama ?? '-') . '</td>';
+            $html .= '<td class="text-center">' . $item->jumlah . '</td>';
+            $html .= '<td class="text-center">' . $item->tgl_pinjam->format('d/m/Y') . '</td>';
+            $html .= '<td class="text-center">' . $item->tgl_kembali_rencana->format('d/m/Y') . '</td>';
+            $html .= '<td class="text-center">' . ($item->tgl_kembali_aktual ? $item->tgl_kembali_aktual->format('d/m/Y') : '-') . '</td>';
+            $html .= '<td class="text-center">' . strtoupper($item->status) . '</td>';
+            $html .= '<td>' . e($item->tujuan) . '</td>';
+            $html .= '<td>' . e($item->approver->name ?? '-') . '</td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '</tbody></table>';
+        $html .= '</body></html>';
+
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function() use ($data) {
-            $file = fopen('php://output', 'w');
-            
-            // Tambahkan BOM untuk Excel agar mengenali UTF-8
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Header CSV menggunakan pemisah titik koma (;)
-            fputcsv($file, [
-                'Kode Peminjaman', 
-                'Peminjam', 
-                'Barang', 
-                'Jumlah', 
-                'Tgl Pinjam', 
-                'Tgl Kembali (Rencana)', 
-                'Tgl Kembali (Aktual)', 
-                'Status', 
-                'Tujuan',
-                'Disetujui Oleh'
-            ], ';');
-            
-            foreach ($data as $item) {
-                fputcsv($file, [
-                    $item->kode_peminjaman,
-                    $item->user->name ?? '-',
-                    $item->sarpras->nama ?? '-',
-                    $item->jumlah,
-                    $item->tgl_pinjam->format('Y-m-d'),
-                    $item->tgl_kembali_rencana->format('Y-m-d'),
-                    $item->tgl_kembali_aktual ? $item->tgl_kembali_aktual->format('Y-m-d') : '-',
-                    strtoupper($item->status),
-                    $item->tujuan,
-                    $item->approver->name ?? '-'
-                ], ';');
-            }
-            
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+            'Cache-Control' => 'max-age=0',
+        ]);
     }
 }

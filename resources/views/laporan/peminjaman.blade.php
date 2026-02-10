@@ -103,7 +103,7 @@
         <div style="display: flex; align-items: center; gap: 20px;">
             <img src="{{ asset('images/logosmea.png') }}" alt="Logo" style="width: 80px; height: 80px;">
             <div>
-                <h1 style="font-size: 24px; font-weight: 800; color: #1e40af; margin: 0; text-transform: uppercase; letter-spacing: 1px;">SARPRAS SMK NEGERI 1 CERME</h1>
+                <h1 style="font-size: 24px; font-weight: 800; color: #1e40af; margin: 0; text-transform: uppercase; letter-spacing: 1px;">SARPRAS SMK NEGERI 1 boyolangu</h1>
                 <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">Laporan Data Peminjaman Sarana dan Prasarana</p>
                 <p style="margin: 2px 0 0 0; color: #94a3b8; font-size: 12px;">Tanggal Cetak: {{ date('d F Y H:i') }}</p>
             </div>
@@ -228,42 +228,109 @@
     </div>
 </div>
 
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="{{ asset('js/html2canvas.min.js') }}"></script>
 <script>
-document.getElementById('downloadImage').addEventListener('click', function() {
-    const container = document.getElementById('reportContainer');
-    const header = document.getElementById('printHeader');
-    const footer = document.getElementById('printFooter');
-    
-    // Show header & footer for capture
-    header.style.display = 'block';
-    footer.style.display = 'block';
-    
-    // Add temporary styling for high quality capture
-    const originalWidth = container.style.width;
-    container.style.width = '1200px';
-    container.style.backgroundColor = 'white';
-    
-    // Hide pagination and action columns from capture
-    const actionElements = container.querySelectorAll('.text-end, th:last-child, td:last-child, .card-footer');
-    actionElements.forEach(el => el.style.display = 'none');
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('downloadImage');
+    if (!btn) return;
 
-    html2canvas(container, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff'
-    }).then(canvas => {
-        // Restore UI
-        header.style.display = 'none';
-        footer.style.display = 'none';
-        container.style.width = originalWidth;
-        actionElements.forEach(el => el.style.display = '');
-        
-        // Download
-        const link = document.createElement('a');
-        link.download = 'Laporan-Peminjaman-{{ date("Ymd-His") }}.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+    // Preload logo as base64 to avoid CORS/taint issues
+    let logoBase64 = '';
+    const logoImg = document.querySelector('#printHeader img');
+    if (logoImg) {
+        const tempImg = new Image();
+        tempImg.crossOrigin = 'anonymous';
+        tempImg.onload = function() {
+            try {
+                const c = document.createElement('canvas');
+                c.width = tempImg.naturalWidth;
+                c.height = tempImg.naturalHeight;
+                c.getContext('2d').drawImage(tempImg, 0, 0);
+                logoBase64 = c.toDataURL('image/png');
+            } catch(e) {
+                console.warn('Could not preload logo as base64:', e);
+            }
+        };
+        tempImg.src = logoImg.src;
+    }
+
+    btn.addEventListener('click', function() {
+        if (typeof html2canvas === 'undefined') {
+            alert('Gagal memuat library. Pastikan server berjalan.');
+            return;
+        }
+
+        const container = document.getElementById('reportContainer');
+        const header = document.getElementById('printHeader');
+        const footer = document.getElementById('printFooter');
+        if (!container || !header || !footer) return;
+
+        // Loading state
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Memproses...';
+        btn.disabled = true;
+
+        // Show header & footer
+        header.style.display = 'block';
+        footer.style.display = 'block';
+
+        // Temporarily fix width
+        const originalWidth = container.style.width;
+        const originalOverflow = container.style.overflow;
+        container.style.width = '1200px';
+        container.style.overflow = 'visible';
+        container.style.backgroundColor = 'white';
+
+        // Hide action columns
+        const hideElements = container.querySelectorAll('.text-end, th:last-child, td:last-child, .card-footer');
+        hideElements.forEach(el => el.style.display = 'none');
+
+        function restoreUI() {
+            header.style.display = 'none';
+            footer.style.display = 'none';
+            container.style.width = originalWidth;
+            container.style.overflow = originalOverflow;
+            hideElements.forEach(el => el.style.display = '');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
+        setTimeout(function() {
+            html2canvas(container, {
+                scale: 2,
+                useCORS: false,
+                allowTaint: false,
+                backgroundColor: '#ffffff',
+                logging: false,
+                windowWidth: 1200,
+                onclone: function(clonedDoc) {
+                    // Replace images with base64 in cloned DOM to avoid taint
+                    const imgs = clonedDoc.querySelectorAll('#printHeader img');
+                    imgs.forEach(function(img) {
+                        if (logoBase64) {
+                            img.src = logoBase64;
+                        } else {
+                            img.remove(); // Remove if can't convert
+                        }
+                    });
+                }
+            }).then(function(canvas) {
+                restoreUI();
+                try {
+                    const link = document.createElement('a');
+                    link.download = 'Laporan-Peminjaman-{{ date("Ymd-His") }}.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch(e) {
+                    console.error('toDataURL error:', e);
+                    alert('Gagal menyimpan gambar.');
+                }
+            }).catch(function(err) {
+                restoreUI();
+                console.error('html2canvas error:', err);
+                alert('Gagal mengunduh gambar: ' + err.message);
+            });
+        }, 300);
     });
 });
 </script>
