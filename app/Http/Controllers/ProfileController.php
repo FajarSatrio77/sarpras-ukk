@@ -54,11 +54,16 @@ class ProfileController extends Controller
             'name.required' => 'Nama wajib diisi',
         ]);
         
+        $namaLama = $user->name;
+
         $user->update([
             'name' => $request->name,
         ]);
         
-        ActivityLog::log('ubah_profil', 'User mengubah profil');
+        ActivityLog::log('ubah_profil', 'User mengubah profil', null, [
+            'nama_lama' => $namaLama,
+            'nama_baru' => $request->name,
+        ]);
         
         return redirect()->route('profile.index')
             ->with('success', 'Profil berhasil diperbarui');

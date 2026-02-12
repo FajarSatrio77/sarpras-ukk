@@ -75,9 +75,12 @@
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Password <span style="color: var(--danger);">*</span>
                     </label>
-                    <input type="password" name="password"
-                        style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                        placeholder="Minimal 6 karakter" required>
+                    <div class="input-icon-wrapper">
+                        <input type="password" name="password"
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                            placeholder="Minimal 6 karakter" required>
+                        <i class="bi bi-eye password-toggle"></i>
+                    </div>
                     @error('password')
                         <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
                     @enderror
@@ -87,9 +90,12 @@
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Konfirmasi Password <span style="color: var(--danger);">*</span>
                     </label>
-                    <input type="password" name="password_confirmation"
-                        style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                        placeholder="Ulangi password" required>
+                    <div class="input-icon-wrapper">
+                        <input type="password" name="password_confirmation"
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                            placeholder="Ulangi password" required>
+                        <i class="bi bi-eye password-toggle"></i>
+                    </div>
                 </div>
                 
                 <div style="display: flex; gap: 12px;">

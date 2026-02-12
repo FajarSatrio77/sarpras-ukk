@@ -96,16 +96,30 @@ class ActivityLogController extends Controller
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
             
             // Header CSV menggunakan titik koma (;)
-            fputcsv($file, ['Waktu', 'User', 'Role', 'Aksi', 'Deskripsi', 'IP Address'], ';');
+            fputcsv($file, ['Waktu', 'User', 'Role', 'Aksi', 'Deskripsi', 'IP Address', 'Browser', 'Device', 'Source', 'Metadata'], ';');
             
             foreach ($logs as $log) {
+                // Format metadata as readable string
+                $metadataStr = '-';
+                if ($log->metadata) {
+                    $parts = [];
+                    foreach ($log->metadata as $key => $value) {
+                        $parts[] = str_replace('_', ' ', ucwords($key, '_')) . ': ' . $value;
+                    }
+                    $metadataStr = implode(' | ', $parts);
+                }
+
                 fputcsv($file, [
                     $log->created_at->format('Y-m-d H:i:s'),
                     $log->user->name ?? 'System',
                     $log->user->role ?? '-',
                     $log->aksi,
                     $log->deskripsi,
-                    $log->ip_address ?? '-'
+                    $log->ip_address ?? '-',
+                    $log->browser ?? '-',
+                    $log->device ?? '-',
+                    $log->source ?? '-',
+                    $metadataStr,
                 ], ';');
             }
             

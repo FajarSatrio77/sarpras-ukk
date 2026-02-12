@@ -15,9 +15,17 @@ class PeminjamanController extends Controller
      */
     public function daftarSarpras(Request $request)
     {
+        $user = auth()->user();
+        
+        // Cari ID sarpras yang sedang dipinjam atau sedang diajukan oleh user ini
+        $sedangDipinjamIds = \App\Models\Peminjaman::where('user_id', $user->id)
+            ->whereIn('status', ['menunggu', 'disetujui', 'dipinjam'])
+            ->pluck('sarpras_id');
+
         $query = Sarpras::with('kategori')
             ->tersedia() // Menggunakan scope tersedia baru yang cek unit baik/rusak_ringan
-            ->tersediaUntukUser(auth()->user());
+            ->tersediaUntukUser($user)
+            ->whereNotIn('id', $sedangDipinjamIds); // Sembunyikan barang yang sedang dipinjam/diajukan
 
         // Filter berdasarkan kategori
         if ($request->filled('kategori')) {
@@ -62,7 +70,7 @@ class PeminjamanController extends Controller
             'jumlah' => 'required|integer|min:1',
             'tgl_pinjam' => 'required|date|after_or_equal:today',
             'tgl_kembali_rencana' => 'required|date|after:tgl_pinjam',
-            'tujuan' => 'required|string|min:10',
+            'tujuan' => 'required|string',
             'lokasi_pemakaian' => 'required|string|min:3',
         ], [
             'sarpras_id.required' => 'Sarpras wajib dipilih.',
@@ -73,13 +81,24 @@ class PeminjamanController extends Controller
             'tgl_kembali_rencana.required' => 'Tanggal kembali wajib diisi.',
             'tgl_kembali_rencana.after' => 'Tanggal kembali harus setelah tanggal pinjam.',
             'tujuan.required' => 'Tujuan peminjaman wajib diisi.',
-            'tujuan.min' => 'Tujuan peminjaman minimal 10 karakter.',
             'lokasi_pemakaian.required' => 'Lokasi pemakaian wajib diisi.',
             'lokasi_pemakaian.min' => 'Lokasi pemakaian minimal 3 karakter.',
         ]);
 
-        // Batas durasi peminjaman untuk siswa (pengguna) adalah 7 hari
         $user = Auth::user();
+
+        // Validasi double booking: cek apakah user sudah meminjam barang ini dan belum dikembalikan
+        $exists = Peminjaman::where('user_id', $user->id)
+            ->where('sarpras_id', $request->sarpras_id)
+            ->whereIn('status', ['menunggu', 'disetujui', 'dipinjam'])
+            ->exists();
+        
+        if ($exists) {
+            return back()->withErrors([
+                'sarpras_id' => 'Anda sudah memiliki peminjaman aktif untuk barang ini. Selesaikan peminjaman sebelumnya terlebih dahulu.'
+            ])->withInput();
+        }
+
         $tglPinjam = \Carbon\Carbon::parse($request->tgl_pinjam);
         $tglKembali = \Carbon\Carbon::parse($request->tgl_kembali_rencana);
         
@@ -153,7 +172,14 @@ class PeminjamanController extends Controller
             'status' => 'menunggu',
         ]);
 
-        ActivityLog::log('ajukan_peminjaman', 'Mengajukan peminjaman: ' . $peminjaman->kode_peminjaman);
+        ActivityLog::log('ajukan_peminjaman', 'Mengajukan peminjaman: ' . $peminjaman->kode_peminjaman, null, [
+            'kode_peminjaman' => $peminjaman->kode_peminjaman,
+            'sarpras' => $sarpras->nama,
+            'jumlah' => $request->jumlah,
+            'tgl_pinjam' => $request->tgl_pinjam,
+            'tgl_kembali' => $request->tgl_kembali_rencana,
+            'tujuan' => $request->tujuan,
+        ]);
 
         return redirect()->route('peminjaman.riwayat')
             ->with('success', 'Peminjaman berhasil diajukan. Menunggu persetujuan admin.');
@@ -245,7 +271,13 @@ class PeminjamanController extends Controller
             'disetujui_oleh' => Auth::id(),
         ]);
 
-        ActivityLog::log('setujui_peminjaman', 'Menyetujui peminjaman: ' . $peminjaman->kode_peminjaman);
+        ActivityLog::log('setujui_peminjaman', 'Menyetujui peminjaman: ' . $peminjaman->kode_peminjaman, null, [
+            'kode_peminjaman' => $peminjaman->kode_peminjaman,
+            'peminjam' => $peminjaman->user->name ?? '-',
+            'sarpras' => $peminjaman->sarpras->nama ?? '-',
+            'status_sebelum' => 'Menunggu',
+            'status_sesudah' => 'Disetujui',
+        ]);
 
         return back()->with('success', 'Peminjaman berhasil disetujui.');
     }
@@ -260,10 +292,10 @@ class PeminjamanController extends Controller
         }
 
         $request->validate([
-            'alasan' => 'required|string|min:10',
+            'alasan' => 'required|string|min:20',
         ], [
             'alasan.required' => 'Alasan penolakan wajib diisi.',
-            'alasan.min' => 'Alasan penolakan minimal 10 karakter.',
+            'alasan.min' => 'Alasan penolakan minimal 20 karakter.',
         ]);
 
         $peminjaman->update([
@@ -272,7 +304,14 @@ class PeminjamanController extends Controller
             'disetujui_oleh' => Auth::id(),
         ]);
 
-        ActivityLog::log('tolak_peminjaman', 'Menolak peminjaman: ' . $peminjaman->kode_peminjaman);
+        ActivityLog::log('tolak_peminjaman', 'Menolak peminjaman: ' . $peminjaman->kode_peminjaman, null, [
+            'kode_peminjaman' => $peminjaman->kode_peminjaman,
+            'peminjam' => $peminjaman->user->name ?? '-',
+            'sarpras' => $peminjaman->sarpras->nama ?? '-',
+            'alasan' => $request->alasan,
+            'status_sebelum' => 'Menunggu',
+            'status_sesudah' => 'Ditolak',
+        ]);
 
         return back()->with('success', 'Peminjaman berhasil ditolak.');
     }
@@ -363,7 +402,15 @@ class PeminjamanController extends Controller
                 'foto_kondisi_pinjam' => $fotoPath,
             ]);
 
-            ActivityLog::log('serahkan_barang', 'Menyerahkan barang peminjaman: ' . $peminjaman->kode_peminjaman . ' (Unit: ' . $units->pluck('kode_unit')->join(', ') . ')');
+            ActivityLog::log('serahkan_barang', 'Menyerahkan barang peminjaman: ' . $peminjaman->kode_peminjaman . ' (Unit: ' . $units->pluck('kode_unit')->join(', ') . ')', null, [
+                'kode_peminjaman' => $peminjaman->kode_peminjaman,
+                'peminjam' => $peminjaman->user->name ?? '-',
+                'sarpras' => $peminjaman->sarpras->nama ?? '-',
+                'unit' => $units->pluck('kode_unit')->join(', '),
+                'jumlah' => $peminjaman->jumlah,
+                'status_sebelum' => 'Disetujui',
+                'status_sesudah' => 'Dipinjam',
+            ]);
 
             \Illuminate\Support\Facades\DB::commit();
 
@@ -389,7 +436,14 @@ class PeminjamanController extends Controller
             'status' => 'dipinjam',
         ]);
 
-        ActivityLog::log('serahkan_barang', 'Menyerahkan barang peminjaman: ' . $peminjaman->kode_peminjaman);
+        ActivityLog::log('serahkan_barang', 'Menyerahkan barang peminjaman: ' . $peminjaman->kode_peminjaman, null, [
+            'kode_peminjaman' => $peminjaman->kode_peminjaman,
+            'peminjam' => $peminjaman->user->name ?? '-',
+            'sarpras' => $sarpras->nama ?? '-',
+            'jumlah' => $peminjaman->jumlah,
+            'status_sebelum' => 'Disetujui',
+            'status_sesudah' => 'Dipinjam',
+        ]);
 
         return redirect()->route('peminjaman.show', $peminjaman)
             ->with('success', 'Barang telah diserahkan. Status diubah menjadi "Dipinjam".');
@@ -421,7 +475,11 @@ class PeminjamanController extends Controller
         $kode = $peminjaman->kode_peminjaman;
         $peminjaman->delete();
 
-        ActivityLog::log('hapus_peminjaman', 'Menghapus data peminjaman: ' . $kode);
+        ActivityLog::log('hapus_peminjaman', 'Menghapus data peminjaman: ' . $kode, null, [
+            'kode_peminjaman' => $kode,
+            'peminjam' => $peminjaman->user->name ?? '-',
+            'sarpras' => $peminjaman->sarpras->nama ?? '-',
+        ]);
 
         return back()->with('success', 'Data peminjaman berhasil dihapus.');
     }
@@ -447,7 +505,9 @@ class PeminjamanController extends Controller
         $peminjaman = Peminjaman::onlyTrashed()->findOrFail($id);
         $peminjaman->restore();
 
-        ActivityLog::log('pulihkan_peminjaman', 'Memulihkan data peminjaman: ' . $peminjaman->kode_peminjaman);
+        ActivityLog::log('pulihkan_peminjaman', 'Memulihkan data peminjaman: ' . $peminjaman->kode_peminjaman, null, [
+            'kode_peminjaman' => $peminjaman->kode_peminjaman,
+        ]);
 
         return back()->with('success', 'Data peminjaman berhasil dipulihkan.');
     }
@@ -461,7 +521,9 @@ class PeminjamanController extends Controller
         $kode = $peminjaman->kode_peminjaman;
         $peminjaman->forceDelete();
 
-        ActivityLog::log('hapus_permanen_peminjaman', 'Menghapus permanen data peminjaman: ' . $kode);
+        ActivityLog::log('hapus_permanen_peminjaman', 'Menghapus permanen data peminjaman: ' . $kode, null, [
+            'kode_peminjaman' => $kode,
+        ]);
 
         return back()->with('success', 'Data peminjaman berhasil dihapus permanen.');
     }

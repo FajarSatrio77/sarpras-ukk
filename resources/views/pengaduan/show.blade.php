@@ -6,6 +6,68 @@
 <style>
     /* Page-specific styles for Pengaduan Detail */
     
+    /* WhatsApp style chat */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        background: #f0f2f5;
+        border-radius: 12px;
+        max-height: 500px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+    
+    .chat-bubble {
+        max-width: 80%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        position: relative;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .chat-bubble.sent {
+        align-self: flex-end;
+        background: #dcf8c6;
+        color: #000;
+        border-bottom-right-radius: 2px;
+    }
+    
+    .chat-bubble.received {
+        align-self: flex-start;
+        background: #fff;
+        color: #000;
+        border-bottom-left-radius: 2px;
+    }
+    
+    .chat-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 4px;
+        font-size: 0.75rem;
+    }
+    
+    .chat-user {
+        font-weight: 700;
+    }
+    
+    .chat-time {
+        color: #667781;
+    }
+    
+    .sent .chat-user { color: #075e54; }
+    .received .chat-user { color: #3b82f6; }
+    
+    .chat-message {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
     /* Timeline styles */
     .timeline {
         position: relative;
@@ -217,29 +279,66 @@
             </div>
         </div>
         
-        <!-- Timeline Catatan -->
-        @if($pengaduan->catatan->count() > 0)
+        <!-- Diskusi Pengaduan -->
         <div class="card card-animated" style="margin-top: 24px;">
             <div class="card-header">
-                <h5 class="card-title"><i class="bi bi-chat-square-text"></i> Catatan Tindak Lanjut</h5>
+                <h5 class="card-title"><i class="bi bi-chat-square-dots"></i> Diskusi Pengaduan</h5>
             </div>
-            <div class="card-body">
-                <div class="timeline">
-                    @foreach($pengaduan->catatan->sortByDesc('created_at') as $catatan)
-                    <div class="timeline-item">
-                        <div class="timeline-content">
-                            <div class="timeline-meta">
-                                <strong>{{ $catatan->user->name }}</strong> • 
-                                {{ $catatan->created_at->format('d M Y, H:i') }}
+            <div class="card-body" style="padding: 0;">
+                <div class="chat-container" id="chatContainer">
+                    @if($pengaduan->catatan->count() > 0)
+                        @foreach($pengaduan->catatan->sortBy('created_at') as $catatan)
+                        <div class="chat-bubble {{ $catatan->user_id === Auth::id() ? 'sent' : 'received' }}">
+                            <div class="chat-info">
+                                <span class="chat-user">
+                                    {{ $catatan->user->name }}
+                                    @if($catatan->user_id === $pengaduan->user_id)
+                                        <span style="font-weight: 400; font-size: 0.7rem; opacity: 0.8;">(Pelapor)</span>
+                                    @else
+                                        <span style="font-weight: 400; font-size: 0.7rem; opacity: 0.8;">(Admin/Petugas)</span>
+                                    @endif
+                                </span>
+                                <span class="chat-time">{{ $catatan->created_at->format('H:i') }}</span>
                             </div>
-                            <p style="margin: 0; color: #475569;">{{ $catatan->catatan }}</p>
+                            <div class="chat-message">{{ $catatan->catatan }}</div>
+                            <div style="font-size: 0.65rem; color: #667781; margin-top: 4px; text-align: right;">
+                                {{ $catatan->created_at->format('d M Y') }}
+                            </div>
                         </div>
-                    </div>
-                    @endforeach
+                        @endforeach
+                    @else
+                        <div style="text-align: center; padding: 40px 20px; color: var(--secondary);">
+                            <i class="bi bi-chat-dots" style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.3;"></i>
+                            <p style="margin: 0; font-style: italic;">Belum ada diskusi. Silakan tulis pesan untuk memulai.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div style="padding: 20px; border-top: 1px solid #e2e8f0; background: white;">
+                    <!-- Form Diskusi -->
+                    @if(!in_array($pengaduan->status, ['selesai', 'ditutup']))
+                        @if(Auth::user()->canManage() || $pengaduan->user_id === Auth::id())
+                        <form action="{{ route('pengaduan.add-catatan', $pengaduan) }}" method="POST">
+                            @csrf
+                            <div style="display: flex; gap: 12px; align-items: flex-end;">
+                                <textarea name="catatan" rows="1" required
+                                    style="flex: 1; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 24px; font-size: 0.95rem; transition: all 0.3s ease; resize: none;"
+                                    placeholder="Tulis pesan..."
+                                    oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                                <button type="submit" class="btn btn-primary" style="border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-bottom: 2px;">
+                                    <i class="bi bi-send-fill" style="font-size: 1.2rem;"></i>
+                                </button>
+                            </div>
+                        </form>
+                        @endif
+                    @else
+                        <div style="background: #f8fafc; border: 1px dashed #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; color: var(--secondary);">
+                            <i class="bi bi-lock-fill"></i> Diskusi ditutup
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
-        @endif
     </div>
     
     <!-- Status & Actions -->
@@ -282,6 +381,7 @@
             </div>
             <div class="card-body">
                 <!-- Update Status -->
+                @if(!in_array($pengaduan->status, ['selesai', 'ditutup']))
                 <form action="{{ route('pengaduan.update-status', $pengaduan) }}" method="POST" style="margin-bottom: 24px;">
                     @csrf
                     @method('PATCH')
@@ -295,7 +395,7 @@
                     </select>
                     
                     <label style="display: block; margin-bottom: 8px; font-weight: 500;">Catatan</label>
-                    <textarea name="catatan" rows="3" 
+                    <textarea name="catatan" rows="3" required
                         style="width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px;"
                         placeholder="Tambahkan catatan untuk perubahan status..."></textarea>
                     
@@ -303,6 +403,14 @@
                         <span><i class="bi bi-check-lg"></i> Update Status</span>
                     </button>
                 </form>
+                @else
+                <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 16px; text-align: center;">
+                    <p style="margin: 0; color: #166534; font-weight: 500;">
+                        <i class="bi bi-check-circle-fill"></i> Status Akhir: {{ ucfirst($pengaduan->status) }}
+                    </p>
+                    <small style="color: #15803d; display: block; margin-top: 4px;">Status tidak dapat diubah lagi.</small>
+                </div>
+                @endif
                 
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
                 
@@ -331,4 +439,14 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatContainer = document.getElementById('chatContainer');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    });
+</script>
+@endpush
 @endsection

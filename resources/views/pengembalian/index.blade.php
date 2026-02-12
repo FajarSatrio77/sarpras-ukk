@@ -125,14 +125,14 @@
                     <td>{{ $item->tgl_pengembalian->format('d/m/Y') }}</td>
                     <td>
                         <span style="font-family: monospace; font-size: 0.875rem; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
-                            {{ $item->peminjaman->kode_peminjaman }}
+                            {{ $item->peminjaman?->kode_peminjaman ?? '-' }}
                         </span>
                     </td>
                     <td>
-                        <strong>{{ $item->peminjaman->sarpras->nama ?? '-' }}</strong>
-                        <br><small style="color: var(--secondary);">{{ $item->peminjaman->jumlah }} unit</small>
+                        <strong>{{ $item->peminjaman?->sarpras?->nama ?? '-' }}</strong>
+                        <br><small style="color: var(--secondary);">{{ $item->peminjaman?->jumlah ?? 0 }} unit</small>
                     </td>
-                    <td>{{ $item->peminjaman->user->name ?? '-' }}</td>
+                    <td>{{ $item->peminjaman?->user?->name ?? '-' }}</td>
                     <td>
                         @switch($item->kondisi_alat)
                             @case('baik')
@@ -155,9 +155,11 @@
                             <a href="{{ route('pengembalian.show', $item) }}" class="btn btn-outline" style="padding: 6px 12px;">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            @if($item->peminjaman?->sarpras_id)
                             <a href="{{ route('sarpras.riwayat-kondisi', $item->peminjaman->sarpras_id) }}" class="btn btn-outline" style="padding: 6px 12px;" title="Riwayat Kondisi">
                                 <i class="bi bi-clock-history"></i>
                             </a>
+                            @endif
                         </div>
                     </td>
                 </tr>

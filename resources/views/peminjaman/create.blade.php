@@ -137,9 +137,6 @@
                     <textarea name="tujuan" rows="4"
                               style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; resize: vertical;"
                               placeholder="Jelaskan untuk apa barang ini akan digunakan..." required>{{ old('tujuan') }}</textarea>
-                    <p style="font-size: 0.8rem; color: var(--secondary); margin-top: 6px;">
-                        Minimal 10 karakter
-                    </p>
                 </div>
 
                 <div style="display: flex; gap: 12px;">

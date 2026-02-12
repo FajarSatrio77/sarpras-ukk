@@ -107,16 +107,17 @@
     }
     
     .damage-fields {
-        display: none;
+        display: block;
         margin-top: 16px;
         padding: 20px;
-        background: #fef3c7;
+        background: #f8fafc;
         border-radius: 12px;
-        border: 1px solid #fcd34d;
+        border: 1px solid #e2e8f0;
     }
     
-    .damage-fields.show {
-        display: block;
+    .damage-fields.warning-bg {
+        background: #fef3c7;
+        border-color: #fcd34d;
     }
     
     .form-group {
@@ -396,11 +397,11 @@
                                 <table class="table" style="margin: 0;">
                                     <thead>
                                         <tr style="background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
-                                            <th style="width: 120px; font-size: 0.75rem;">KODE UNIT</th>
-                                            <th style="width: 100px; font-size: 0.75rem;">SAAT PINJAM</th>
-                                            <th style="width: 150px; font-size: 0.75rem;">KONDISI</th>
-                                            <th style="width: 200px; font-size: 0.75rem;">FOTO UNIT</th>
-                                            <th style="font-size: 0.75rem;">CATATAN</th>
+                                            <th style="width: 120px; font-size: 0.75rem; white-space: nowrap;">KODE UNIT</th>
+                                            <th style="width: 100px; font-size: 0.75rem; white-space: nowrap;">SAAT PINJAM</th>
+                                            <th style="width: 250px; font-size: 0.75rem; white-space: nowrap;">KONDISI</th>
+                                            <th style="width: 200px; font-size: 0.75rem; white-space: nowrap;">FOTO UNIT</th>
+                                            <th style="font-size: 0.75rem; white-space: nowrap;">CATATAN</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -413,7 +414,9 @@
                                             </td>
                                             <td>{!! $pu->kondisi_pinjam_label !!}</td>
                                             <td>
-                                                <select name="unit_kondisi[{{ $pu->sarpras_unit_id }}]" class="form-control kondisi-select" style="padding: 8px 12px; font-size: 0.85rem;" required>
+                                                <select name="unit_kondisi[{{ $pu->sarpras_unit_id }}]" class="form-control kondisi-select" 
+                                                    style="padding: 8px 12px; font-size: 0.85rem;" required
+                                                    onchange="updateSelectStyling(this); checkPerUnitPhotoVisibility();">
                                                     <option value="baik" {{ old("unit_kondisi.{$pu->sarpras_unit_id}", 'baik') == 'baik' ? 'selected' : '' }}>✅ Baik</option>
                                                     <option value="rusak_ringan" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_ringan' ? 'selected' : '' }}>⚠️ Rusak Ringan</option>
                                                     <option value="rusak_berat" {{ old("unit_kondisi.{$pu->sarpras_unit_id}") == 'rusak_berat' ? 'selected' : '' }}>❌ Rusak Berat</option>
@@ -447,15 +450,6 @@
                             @error('unit_kondisi')
                                 <span style="color: var(--danger); font-size: 0.8rem; display: block; margin-top: 8px;">{{ $message }}</span>
                             @enderror
-                        </div>
-
-                        <div class="form-group" id="perUnitPhotoField">
-                            <label class="form-label">Foto Dokumentasi Pengembalian</label>
-                            <input type="file" name="foto" class="form-control" accept="image/*" onchange="previewPhoto(this)">
-                            <small style="color: var(--secondary);">Format: JPG, PNG (max 2MB) - Untuk bukti visual kondisi alat</small>
-                            <div id="photoPreview" style="margin-top: 12px; display: none;">
-                                <img id="previewImg" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-                            </div>
                         </div>
                     @else
                         {{-- Legacy Single Condition Form --}}
@@ -573,19 +567,36 @@
         const damageFields = document.getElementById('damageFields');
         const legacyPhotoField = document.getElementById('legacyPhotoField');
         
+        // Toggle background color based on condition
         if (kondisi === 'rusak_ringan' || kondisi === 'rusak_berat' || kondisi === 'hilang') {
-            damageFields.classList.add('show');
+            damageFields.classList.add('warning-bg');
             
-            // Logic: Hide photo if 'hilang', show otherwise (if damageFields is shown)
+            // Logic: Show photo if 'hilang' or 'rusak_berat' (Mandatory evidence)
             if (legacyPhotoField) {
-                if (kondisi === 'hilang') {
-                    legacyPhotoField.style.display = 'none';
+                legacyPhotoField.style.display = 'block';
+                if (kondisi === 'hilang' || kondisi === 'rusak_berat') {
+                    const photoInput = legacyPhotoField.querySelector('input[type="file"]');
+                    if (photoInput) photoInput.setAttribute('required', 'required');
+                    const label = legacyPhotoField.querySelector('.form-label');
+                    if (label) label.innerHTML = 'Foto Dokumentasi Pengembalian *';
                 } else {
-                    legacyPhotoField.style.display = 'block';
+                    // Rusak Ringan -> Optional
+                    const photoInput = legacyPhotoField.querySelector('input[type="file"]');
+                    if (photoInput) photoInput.removeAttribute('required');
+                    const label = legacyPhotoField.querySelector('.form-label');
+                    if (label) label.innerHTML = 'Foto Dokumentasi Pengembalian (Opsional)';
                 }
             }
         } else {
-            damageFields.classList.remove('show');
+            // Baik
+            damageFields.classList.remove('warning-bg');
+            if (legacyPhotoField) {
+                legacyPhotoField.style.display = 'block';
+                const photoInput = legacyPhotoField.querySelector('input[type="file"]');
+                if (photoInput) photoInput.removeAttribute('required');
+                const label = legacyPhotoField.querySelector('.form-label');
+                if (label) label.innerHTML = 'Foto Dokumentasi Pengembalian (Opsional)';
+            }
         }
     }
 
@@ -594,17 +605,26 @@
         const photoField = document.getElementById('perUnitPhotoField');
         if (!photoField) return;
 
-        // Check if ANY unit is damaged (rusak_ringan OR rusak_berat)
-        // If only 'baik' or 'hilang', we don't need photo
-        const hasDamage = Array.from(document.querySelectorAll('.kondisi-select')).some(select => {
-            return ['rusak_ringan', 'rusak_berat'].includes(select.value);
-        });
+        const selects = Array.from(document.querySelectorAll('.kondisi-select'));
+        
+        // Check if ANY unit is hilang or rusak_berat (Mandatory)
+        const hasSevere = selects.some(select => ['hilang', 'rusak_berat'].includes(select.value));
 
-        if (hasDamage) {
-            photoField.style.display = 'block';
-        } else {
-            photoField.style.display = 'none';
-        }
+        // Update individual unit photo requirements
+        selects.forEach(select => {
+            const unitId = select.name.match(/\[(.*?)\]/)[1];
+            const unitPhotoInput = document.querySelector(`input[name="unit_foto[${unitId}]"]`);
+            if (unitPhotoInput) {
+                const label = unitPhotoInput.previousElementSibling; // If there's a label
+                if (['hilang', 'rusak_berat'].includes(select.value)) {
+                    unitPhotoInput.setAttribute('required', 'required');
+                    unitPhotoInput.style.borderColor = 'var(--danger)';
+                } else {
+                    unitPhotoInput.removeAttribute('required');
+                    unitPhotoInput.style.borderColor = '#e2e8f0';
+                }
+            }
+        });
     }
     
     function previewPhoto(input) {

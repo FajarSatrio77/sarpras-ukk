@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BAB V - Test Report SARPRAS</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            margin: 60px 70px;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 14pt;
+            margin-bottom: 2px;
+        }
+
+        h3 {
+            text-align: center;
+            font-size: 14pt;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            font-size: 12pt;
+            margin-top: 25px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            text-align: justify;
+            text-indent: 40px;
+        }
+
+        p.no-indent {
+            text-indent: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 11pt;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 5px 7px;
+            vertical-align: top;
+        }
+
+        th {
+            text-align: center;
+            font-weight: bold;
+            background-color: #f2f2f2;
+        }
+
+        .col-no {
+            width: 35px;
+            text-align: center;
+        }
+
+        .col-fitur {
+            width: 110px;
+        }
+
+        .col-skenario {
+            width: 140px;
+        }
+
+        .col-diharapkan {
+            width: 130px;
+        }
+
+        .col-hasil {
+            width: 110px;
+        }
+
+        .col-status {
+            width: 70px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>BAB V</h2>
+    <h3>TEST REPORT</h3>
+
+    <p>Bab ini memuat laporan hasil pengujian aplikasi Sistem Manajemen SARPRAS SMK Negeri 1 Boyolangu. Pengujian
+        dilakukan menggunakan metode <i>Black Box Testing</i>, di mana fokus pengujian dititikberatkan pada
+        fungsionalitas fitur aplikasi untuk memastikan sistem berjalan sesuai dengan kebutuhan pengguna.</p>
+
+    <h4>5.1 Tabel Pengujian Fitur</h4>
+
+    <table>
+        <thead>
+            <tr>
+                <th class="col-no">No</th>
+                <th class="col-fitur">Fitur</th>
+                <th class="col-skenario">Skenario Pengujian</th>
+                <th class="col-diharapkan">Hasil yang Diharapkan</th>
+                <th class="col-hasil">Hasil Pengujian</th>
+                <th class="col-status">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <!-- AUTENTIKASI -->
+            <tr>
+                <td class="col-no">1</td>
+                <td class="col-fitur">Login Admin</td>
+                <td>Admin memasukkan username dan password valid lalu klik tombol Masuk.</td>
+                <td>Sistem memvalidasi kredensial dan mengarahkan ke halaman Dashboard Admin.</td>
+                <td>Halaman Dashboard Admin berhasil ditampilkan setelah login.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">2</td>
+                <td class="col-fitur">Login Petugas</td>
+                <td>Petugas mengisi kolom username dan password dengan data yang sesuai, kemudian menekan Masuk.</td>
+                <td>Akun terverifikasi dan diarahkan ke Dashboard Petugas.</td>
+                <td>Petugas berhasil masuk dan melihat Dashboard.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">3</td>
+                <td class="col-fitur">Login Siswa</td>
+                <td>Siswa memasukkan NISN 10 digit sebagai username beserta password, lalu klik Masuk.</td>
+                <td>Sistem mengenali format NISN dan membuka halaman utama Siswa.</td>
+                <td>Siswa diarahkan ke halaman utama sesuai role pengguna.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">4</td>
+                <td class="col-fitur">Login Guru</td>
+                <td>Guru menggunakan NIP 18 digit sebagai username dan memasukkan password yang benar.</td>
+                <td>Sistem membaca format NIP dan menampilkan halaman utama Guru.</td>
+                <td>Guru dapat mengakses halaman utama dengan fitur sesuai perannya.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">5</td>
+                <td class="col-fitur">Validasi Login</td>
+                <td>Memasukkan username yang tidak terdaftar atau password yang keliru pada form login.</td>
+                <td>Sistem menolak proses login dan memunculkan notifikasi kesalahan.</td>
+                <td>Pesan error "Username atau password salah" muncul di layar.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">6</td>
+                <td class="col-fitur">Login Akun Nonaktif</td>
+                <td>User mencoba masuk menggunakan akun yang belum mendapat aktivasi dari Admin.</td>
+                <td>Akses ditolak disertai pemberitahuan bahwa akun belum diaktivasi.</td>
+                <td>Muncul peringatan akun belum aktif dan login tidak diproses.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">7</td>
+                <td class="col-fitur">Register Siswa</td>
+                <td>Calon pengguna mengisi formulir pendaftaran dengan NISN 10 digit, nama lengkap, kelas, dan password.
+                </td>
+                <td>Data tersimpan ke database dengan status akun belum aktif.</td>
+                <td>Akun baru tercatat di sistem dan menunggu persetujuan Admin.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">8</td>
+                <td class="col-fitur">Register Guru</td>
+                <td>Guru baru mendaftar dengan mengisi NIP 18 digit, nama lengkap, dan membuat password.</td>
+                <td>Pendaftaran berhasil dengan status nonaktif hingga Admin mengaktivasi.</td>
+                <td>Data guru tersimpan dan muncul pada daftar user yang menunggu aktivasi.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">9</td>
+                <td class="col-fitur">Ganti Password</td>
+                <td>User membuka menu profil, mengisi password lama dengan benar, lalu menentukan password baru.</td>
+                <td>Password lama dicocokkan dan diganti dengan password baru yang diinputkan.</td>
+                <td>Password tersimpan, login berikutnya menggunakan password baru.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">10</td>
+                <td class="col-fitur">Logout</td>
+                <td>User menekan tombol Logout yang tersedia di navbar.</td>
+                <td>Sesi pengguna dihapus dan halaman kembali ke form login.</td>
+                <td>User keluar dari sistem, halaman login ditampilkan kembali.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- PROFIL -->
+            <tr>
+                <td class="col-no">11</td>
+                <td class="col-fitur">Lihat Profil</td>
+                <td>User mengklik menu Profil Saya pada navigasi.</td>
+                <td>Halaman profil menampilkan informasi pribadi, foto, dan ringkasan statistik.</td>
+                <td>Seluruh data profil dan statistik ditampilkan dengan benar.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">12</td>
+                <td class="col-fitur">Edit Profil</td>
+                <td>User memperbarui nama tampilan dan mengunggah foto profil baru, kemudian menyimpan perubahan.</td>
+                <td>Informasi profil diperbarui sesuai input dan foto baru terpasang.</td>
+                <td>Nama dan foto profil berhasil berubah setelah halaman dimuat ulang.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- DASHBOARD -->
+            <tr>
+                <td class="col-no">13</td>
+                <td class="col-fitur">Dashboard</td>
+                <td>Admin/Petugas mengakses halaman Dashboard setelah berhasil login.</td>
+                <td>Halaman menampilkan ringkasan statistik berupa total barang, peminjaman aktif, pengaduan, dan
+                    grafik.</td>
+                <td>Semua widget statistik dan grafik menampilkan data terkini dari database.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">14</td>
+                <td class="col-fitur">Pembatasan Dashboard</td>
+                <td>Siswa atau Guru mencoba membuka URL halaman Dashboard secara langsung.</td>
+                <td>Sistem memblokir akses dan mengarahkan ke halaman yang sesuai dengan role.</td>
+                <td>Pengguna dialihkan, Dashboard tidak dapat dibuka oleh Siswa/Guru.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- KATEGORI -->
+            <tr>
+                <td class="col-no">15</td>
+                <td class="col-fitur">Lihat Kategori</td>
+                <td>Admin/Petugas mengakses menu Kategori pada sidebar navigasi.</td>
+                <td>Seluruh kategori barang yang terdaftar ditampilkan dalam bentuk tabel.</td>
+                <td>Tabel kategori muncul beserta jumlah barang di masing-masing kategori.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">16</td>
+                <td class="col-fitur">Tambah Kategori</td>
+                <td>Admin/Petugas menekan tombol Tambah, mengisi nama kategori, dan menyimpannya.</td>
+                <td>Kategori baru muncul pada daftar setelah penyimpanan berhasil.</td>
+                <td>Entri kategori baru terlihat di tabel tanpa perlu memuat ulang halaman.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">17</td>
+                <td class="col-fitur">Edit Kategori</td>
+                <td>Admin/Petugas mengklik ikon edit pada kategori tertentu, mengubah namanya, lalu menyimpan.</td>
+                <td>Nama kategori yang ditampilkan berubah sesuai data yang baru dimasukkan.</td>
+                <td>Perubahan nama kategori langsung terlihat pada daftar.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">18</td>
+                <td class="col-fitur">Hapus Kategori</td>
+                <td>Admin/Petugas menekan tombol hapus pada kategori yang dipilih dan mengonfirmasi penghapusan.</td>
+                <td>Kategori hilang dari daftar setelah konfirmasi.</td>
+                <td>Kategori tidak lagi ditampilkan di tabel setelah proses penghapusan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- RUANG -->
+            <tr>
+                <td class="col-no">19</td>
+                <td class="col-fitur">Lihat Ruang</td>
+                <td>Admin/Petugas membuka halaman pengelolaan Ruang melalui sidebar.</td>
+                <td>Daftar ruang penyimpanan ditampilkan secara lengkap.</td>
+                <td>Semua ruang yang terdaftar muncul pada tabel dengan informasi yang tepat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">20</td>
+                <td class="col-fitur">Tambah Ruang</td>
+                <td>Admin/Petugas membuka form tambah ruang, mengisikan nama lokasi, dan menekan Simpan.</td>
+                <td>Lokasi ruang baru tercatat dalam database.</td>
+                <td>Ruang baru tampil di daftar segera setelah disimpan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">21</td>
+                <td class="col-fitur">Edit Ruang</td>
+                <td>Admin/Petugas memilih ruang yang ingin diubah, memperbarui informasinya, dan menyimpan.</td>
+                <td>Data ruang diperbarui sesuai perubahan yang dilakukan.</td>
+                <td>Informasi ruang yang diperbarui langsung terlihat pada tabel.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">22</td>
+                <td class="col-fitur">Hapus Ruang</td>
+                <td>Admin/Petugas menghapus ruang tertentu dengan mengklik tombol hapus dan konfirmasi.</td>
+                <td>Ruang dihapus dari sistem dan tidak lagi muncul di daftar.</td>
+                <td>Entri ruang berhasil dihilangkan dari tabel.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- INVENTARIS SARPRAS -->
+            <tr>
+                <td class="col-no">23</td>
+                <td class="col-fitur">Lihat Daftar Barang</td>
+                <td>Admin/Petugas membuka halaman Inventaris SARPRAS dari menu utama.</td>
+                <td>Semua barang inventaris ditampilkan dalam tabel lengkap dengan kolom kode, nama, kategori, dan stok.
+                </td>
+                <td>Tabel inventaris menunjukkan seluruh data barang secara lengkap.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">24</td>
+                <td class="col-fitur">Pencarian Barang</td>
+                <td>Mengetikkan kata kunci pada kolom pencarian di halaman inventaris.</td>
+                <td>Tabel memfilter dan hanya menampilkan barang yang sesuai kata kunci.</td>
+                <td>Hasil pencarian menampilkan barang yang relevan dengan cepat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">25</td>
+                <td class="col-fitur">Tambah Barang</td>
+                <td>Admin/Petugas mengisi formulir barang baru (kode, nama, kategori, lokasi, jumlah, foto) lalu menekan
+                    Simpan.</td>
+                <td>Data barang baru masuk ke database dan tampil di tabel inventaris.</td>
+                <td>Barang baru muncul di daftar inventaris dengan data yang sesuai.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">26</td>
+                <td class="col-fitur">Edit Barang</td>
+                <td>Admin/Petugas membuka detail barang, mengklik Edit, memperbarui informasi, dan menyimpan.</td>
+                <td>Perubahan data barang tersimpan dan terlihat pada halaman detail.</td>
+                <td>Detail barang menunjukkan informasi terbaru setelah penyimpanan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">27</td>
+                <td class="col-fitur">Hapus Barang</td>
+                <td>Admin/Petugas memilih barang dan menekan tombol Hapus, lalu mengonfirmasi tindakan.</td>
+                <td>Barang dipindahkan ke Trash (soft delete) dan hilang dari daftar utama.</td>
+                <td>Barang tidak lagi terlihat di inventaris tetapi masih ada di halaman Trash.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">28</td>
+                <td class="col-fitur">Detail Barang</td>
+                <td>Admin/Petugas mengklik salah satu baris barang pada tabel inventaris.</td>
+                <td>Halaman detail menampilkan spesifikasi barang, foto, dan daftar unit individu.</td>
+                <td>Informasi detail, daftar unit, dan foto barang tampil dengan benar.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">29</td>
+                <td class="col-fitur">Tambah Unit Barang</td>
+                <td>Pada halaman detail barang, Admin/Petugas menekan tombol Tambah Unit.</td>
+                <td>Unit baru dibuat dengan kode unik otomatis dan jumlah stok bertambah.</td>
+                <td>Unit baru muncul pada daftar unit dan stok barang meningkat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">30</td>
+                <td class="col-fitur">Hapus Unit Barang</td>
+                <td>Admin/Petugas menghapus salah satu unit individual dari halaman detail barang.</td>
+                <td>Unit terhapus dari daftar dan jumlah stok barang berkurang secara otomatis.</td>
+                <td>Unit hilang dari daftar, stok tercatat berkurang sesuai jumlah unit dihapus.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- PEMINJAMAN USER -->
+            <tr>
+                <td class="col-no">31</td>
+                <td class="col-fitur">Katalog Pinjam</td>
+                <td>Siswa/Guru membuka halaman Daftar Barang untuk Pinjam melalui menu navigasi.</td>
+                <td>Hanya barang dengan ketersediaan stok lebih dari nol yang ditampilkan.</td>
+                <td>Katalog menampilkan barang-barang yang tersedia untuk dipinjam.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">32</td>
+                <td class="col-fitur">Pengajuan Peminjaman</td>
+                <td>User memilih barang, mengisi jumlah, tanggal pinjam, tanggal kembali, tujuan, dan lokasi penggunaan.
+                </td>
+                <td>Pengajuan tercatat di sistem dengan status awal "Menunggu Persetujuan".</td>
+                <td>Data peminjaman tersimpan dan status tertulis "Menunggu Persetujuan".</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">33</td>
+                <td class="col-fitur">Validasi Stok Pinjam</td>
+                <td>User mencoba mengajukan peminjaman dengan jumlah melebihi stok yang ada.</td>
+                <td>Pengajuan ditolak oleh sistem disertai pemberitahuan stok tidak mencukupi.</td>
+                <td>Form menampilkan pesan kesalahan bahwa jumlah melebihi ketersediaan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">34</td>
+                <td class="col-fitur">Validasi Durasi Pinjam</td>
+                <td>User mengatur rentang tanggal peminjaman lebih dari 7 hari.</td>
+                <td>Sistem menampilkan peringatan bahwa durasi peminjaman melebihi batas maksimal.</td>
+                <td>Pesan validasi muncul dan pengajuan tidak dapat dikirim.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">35</td>
+                <td class="col-fitur">Riwayat Peminjaman</td>
+                <td>User mengakses halaman Riwayat Peminjaman untuk melihat daftar peminjaman miliknya.</td>
+                <td>Hanya peminjaman milik user yang sedang login yang ditampilkan.</td>
+                <td>Daftar peminjaman tampil sesuai data milik user tersebut.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">36</td>
+                <td class="col-fitur">Detail Peminjaman</td>
+                <td>User menekan salah satu item pada riwayat untuk melihat informasi selengkapnya.</td>
+                <td>Halaman detail menampilkan seluruh informasi peminjaman termasuk status terkini.</td>
+                <td>Data detail peminjaman ditampilkan secara utuh dan akurat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">37</td>
+                <td class="col-fitur">Cetak Surat Peminjaman</td>
+                <td>User menekan tombol Cetak pada halaman detail peminjaman yang sudah disetujui.</td>
+                <td>File PDF surat peminjaman ter-generate lengkap dengan kode dan QR Code.</td>
+                <td>Dokumen PDF terbuka dengan informasi peminjaman yang lengkap dan rapi.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">38</td>
+                <td class="col-fitur">Pinjam Consumable (Guru)</td>
+                <td>Guru memilih barang bertipe consumable/sekali pakai dari katalog dan mengajukan peminjaman.</td>
+                <td>Pengajuan peminjaman barang consumable diterima oleh sistem untuk role Guru.</td>
+                <td>Peminjaman barang sekali pakai berhasil diajukan oleh Guru.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">39</td>
+                <td class="col-fitur">Pinjam Consumable (Siswa)</td>
+                <td>Siswa berusaha meminjam barang bertipe consumable dari katalog.</td>
+                <td>Sistem memblokir akses karena Siswa tidak diizinkan meminjam barang sekali pakai.</td>
+                <td>Barang consumable tidak muncul di katalog Siswa atau akses peminjaman ditolak.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- PEMINJAMAN ADMIN -->
+            <tr>
+                <td class="col-no">40</td>
+                <td class="col-fitur">Kelola Peminjaman</td>
+                <td>Admin/Petugas membuka halaman manajemen peminjaman dari sidebar.</td>
+                <td>Seluruh data peminjaman dari semua pengguna ditampilkan dalam satu tabel.</td>
+                <td>Tabel memuat semua peminjaman lengkap dengan status dan informasi peminjam.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">41</td>
+                <td class="col-fitur">Filter Peminjaman</td>
+                <td>Admin/Petugas menggunakan opsi filter berdasarkan status, rentang tanggal, kelas peminjam, dan kode
+                    barang.</td>
+                <td>Tabel hanya menampilkan data yang cocok dengan kriteria filter yang dipilih.</td>
+                <td>Data pada tabel berubah sesuai kombinasi filter yang diterapkan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">42</td>
+                <td class="col-fitur">Approval Peminjaman</td>
+                <td>Admin/Petugas menekan tombol Setujui pada peminjaman berstatus Menunggu.</td>
+                <td>Status berubah menjadi "Disetujui" dan kode unik beserta QR Code otomatis dibuat.</td>
+                <td>Status terupdate, kode peminjaman dan QR Code tampil pada halaman detail.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">43</td>
+                <td class="col-fitur">Tolak Peminjaman</td>
+                <td>Admin/Petugas menolak pengajuan dengan menuliskan alasan penolakan pada form yang tersedia.</td>
+                <td>Status peminjaman berubah menjadi "Ditolak" dan alasan tersimpan.</td>
+                <td>Peminjaman berstatus Ditolak dengan alasan yang dapat dilihat oleh peminjam.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">44</td>
+                <td class="col-fitur">Serah Terima Barang</td>
+                <td>Admin/Petugas membuka form handover, memilih unit-unit spesifik, dan mengunggah foto kondisi awal
+                    barang.</td>
+                <td>Status peminjaman berubah menjadi "Dipinjam", unit terkunci, dan stok berkurang.</td>
+                <td>Proses serah terima tercatat, stok berkurang, dan unit telah dialokasikan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">45</td>
+                <td class="col-fitur">Hapus Peminjaman</td>
+                <td>Admin/Petugas menghapus data peminjaman tertentu dari daftar.</td>
+                <td>Data dipindahkan ke Trash dan tidak tampil di halaman utama peminjaman.</td>
+                <td>Peminjaman masuk ke Trash dan bisa di-restore kapan saja jika diperlukan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- PENGEMBALIAN -->
+            <tr>
+                <td class="col-no">46</td>
+                <td class="col-fitur">Scan Pengembalian</td>
+                <td>Admin/Petugas mengarahkan kamera ke QR Code peminjaman atau memasukkan kode secara manual.</td>
+                <td>Sistem mengidentifikasi peminjaman dan menampilkan daftar unit yang sedang dipinjam.</td>
+                <td>Detail peminjaman dan unit-unit yang harus dikembalikan tampil di layar.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">47</td>
+                <td class="col-fitur">Kembalikan Kondisi Baik</td>
+                <td>Admin/Petugas memproses pengembalian dan menandai kondisi unit sebagai "Baik".</td>
+                <td>Unit kembali tersedia di inventaris dan stok barang bertambah.</td>
+                <td>Stok barang bertambah kembali dan unit berstatus tersedia.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">48</td>
+                <td class="col-fitur">Kembalikan Kondisi Rusak</td>
+                <td>Admin/Petugas mencatat bahwa unit dikembalikan dalam keadaan rusak beserta foto bukti.</td>
+                <td>Unit ditandai rusak pada sistem dan tercatat dalam laporan kerusakan.</td>
+                <td>Kondisi unit berubah menjadi rusak, data masuk ke record kerusakan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">49</td>
+                <td class="col-fitur">Kembalikan Kondisi Hilang</td>
+                <td>Admin/Petugas melaporkan bahwa unit tidak dikembalikan karena hilang.</td>
+                <td>Unit masuk ke modul Barang Hilang dan kasus baru otomatis dibuat.</td>
+                <td>Data unit muncul di halaman Barang Hilang dengan status kasus aktif.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">50</td>
+                <td class="col-fitur">Foto Pengembalian</td>
+                <td>Admin/Petugas mengunggah foto kondisi barang saat proses pengembalian.</td>
+                <td>Foto tersimpan dan dapat dilihat pada halaman detail pengembalian.</td>
+                <td>Gambar berhasil diunggah dan ditampilkan pada catatan pengembalian.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">51</td>
+                <td class="col-fitur">Daftar Pengembalian</td>
+                <td>Admin/Petugas membuka menu Pengembalian untuk melihat rekap seluruh pengembalian.</td>
+                <td>Tabel menampilkan semua catatan pengembalian yang pernah dilakukan.</td>
+                <td>Seluruh history pengembalian tersedia dalam tabel dengan data yang akurat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">52</td>
+                <td class="col-fitur">Detail Pengembalian</td>
+                <td>Admin/Petugas mengklik item pengembalian untuk melihat rinciannya.</td>
+                <td>Halaman detail menunjukkan informasi peminjam, unit, kondisi, dan foto.</td>
+                <td>Semua rincian pengembalian termasuk foto kondisi ditampilkan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- BARANG HILANG -->
+            <tr>
+                <td class="col-no">53</td>
+                <td class="col-fitur">Daftar Barang Hilang</td>
+                <td>Admin/Petugas mengakses halaman Barang Hilang dari sidebar.</td>
+                <td>Daftar unit yang dilaporkan hilang saat pengembalian ditampilkan.</td>
+                <td>Semua kasus barang hilang dengan status aktif muncul pada tabel.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">54</td>
+                <td class="col-fitur">Detail Barang Hilang</td>
+                <td>Admin/Petugas membuka salah satu kasus untuk melihat kronologi dan data terkait.</td>
+                <td>Informasi lengkap kasus ditampilkan termasuk peminjam, tanggal, dan unit terkait.</td>
+                <td>Detail kasus tersaji dengan lengkap termasuk riwayat peminjaman terkait.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">55</td>
+                <td class="col-fitur">Selesai — Ditemukan</td>
+                <td>Admin/Petugas menutup kasus karena barang berhasil ditemukan kembali.</td>
+                <td>Kasus ditandai selesai, unit dikembalikan ke inventaris dengan status tersedia.</td>
+                <td>Status kasus berubah selesai dan stok unit kembali bertambah.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">56</td>
+                <td class="col-fitur">Selesai — Ganti Rugi</td>
+                <td>Admin/Petugas menyelesaikan kasus dengan mencatat penggantian atau kompensasi dari peminjam.</td>
+                <td>Kasus ditandai selesai dengan keterangan ganti rugi yang tercatat.</td>
+                <td>Catatan ganti rugi tersimpan dan kasus berstatus selesai.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- PENGADUAN -->
+            <tr>
+                <td class="col-no">57</td>
+                <td class="col-fitur">Buat Pengaduan</td>
+                <td>Siswa/Guru memilih barang dari riwayat pinjaman, menulis judul dan deskripsi kerusakan, lalu
+                    mengirim.</td>
+                <td>Pengaduan tercatat dengan status awal "Menunggu" dan terhubung ke data peminjaman.</td>
+                <td>Laporan pengaduan tersimpan dan muncul di daftar pengaduan user.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">58</td>
+                <td class="col-fitur">Auto-fill Pengaduan</td>
+                <td>Saat membuat pengaduan, user memilih item dari dropdown riwayat peminjaman.</td>
+                <td>Kolom tanggal pinjam, tujuan, dan lokasi terisi otomatis berdasarkan data peminjaman.</td>
+                <td>Field-field terkait langsung terisi tanpa perlu input manual.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">59</td>
+                <td class="col-fitur">Daftar Pengaduan</td>
+                <td>User membuka menu Pengaduan dari navigasi utama.</td>
+                <td>Siswa/Guru melihat pengaduan miliknya; Petugas/Admin melihat semua pengaduan.</td>
+                <td>Daftar pengaduan ditampilkan sesuai hak akses masing-masing role.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">60</td>
+                <td class="col-fitur">Detail Pengaduan</td>
+                <td>User mengklik salah satu pengaduan pada tabel untuk membuka halaman detailnya.</td>
+                <td>Menampilkan judul, deskripsi, status, catatan diskusi, dan informasi peminjaman terkait.</td>
+                <td>Seluruh informasi pengaduan dan peminjaman terkait ditampilkan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">61</td>
+                <td class="col-fitur">Catatan Pengaduan</td>
+                <td>User atau Admin menambahkan komentar baru pada halaman detail pengaduan.</td>
+                <td>Catatan tersimpan dan ditampilkan dalam daftar diskusi pengaduan.</td>
+                <td>Komentar baru muncul secara kronologis pada halaman detail.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">62</td>
+                <td class="col-fitur">Update Status Pengaduan</td>
+                <td>Admin/Petugas mengubah status pengaduan dari Menunggu ke Diproses, kemudian ke Selesai.</td>
+                <td>Status pengaduan diperbarui dan perubahan terlihat pada daftar maupun detail.</td>
+                <td>Perubahan status tercatat di sistem dan tampil secara real-time.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">63</td>
+                <td class="col-fitur">Hapus Pengaduan</td>
+                <td>User menghapus pengaduan yang pernah dibuatnya melalui tombol hapus.</td>
+                <td>Pengaduan dipindahkan ke Trash dan tidak tampil di daftar aktif.</td>
+                <td>Pengaduan hilang dari daftar utama dan dapat ditemukan di Trash.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- MAINTENANCE -->
+            <tr>
+                <td class="col-no">64</td>
+                <td class="col-fitur">Daftar Maintenance</td>
+                <td>Admin/Petugas membuka halaman Maintenance dari menu sidebar.</td>
+                <td>Seluruh catatan perawatan dan perbaikan barang ditampilkan.</td>
+                <td>Tabel maintenance menampilkan data perawatan dengan informasi lengkap.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">65</td>
+                <td class="col-fitur">Tambah Maintenance</td>
+                <td>Admin/Petugas mengisi form maintenance dengan jenis perawatan, biaya, tanggal, dan status, lalu
+                    menyimpan.</td>
+                <td>Record maintenance baru tercatat dalam sistem.</td>
+                <td>Catatan maintenance baru tampil pada daftar dengan data yang sesuai.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">66</td>
+                <td class="col-fitur">Edit Maintenance</td>
+                <td>Admin/Petugas memperbarui informasi pada catatan maintenance yang sudah ada.</td>
+                <td>Perubahan data maintenance tersimpan ke database.</td>
+                <td>Data yang diperbarui terlihat pada halaman detail dan daftar maintenance.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">67</td>
+                <td class="col-fitur">Hapus Maintenance</td>
+                <td>Admin/Petugas menghapus catatan maintenance yang sudah tidak diperlukan.</td>
+                <td>Record maintenance dihapus dari daftar.</td>
+                <td>Catatan maintenance tidak lagi muncul pada halaman daftar.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- LAPORAN -->
+            <tr>
+                <td class="col-no">68</td>
+                <td class="col-fitur">Riwayat Kondisi</td>
+                <td>Admin/Petugas membuka halaman Riwayat Kondisi Sarpras untuk melihat perubahan kondisi tiap barang.
+                </td>
+                <td>Timeline perubahan kondisi setiap barang ditampilkan secara kronologis.</td>
+                <td>Riwayat kondisi barang tersaji dengan urutan waktu yang tepat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">69</td>
+                <td class="col-fitur">Laporan Kerusakan</td>
+                <td>Admin/Petugas mengakses halaman laporan yang merangkum data kerusakan barang.</td>
+                <td>Laporan menunjukkan barang-barang yang mengalami kerusakan dan tindak lanjutnya.</td>
+                <td>Data kerusakan beserta status penanganannya tampil dengan benar.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">70</td>
+                <td class="col-fitur">Laporan Asset Health</td>
+                <td>Admin/Petugas membuka dashboard kesehatan aset secara keseluruhan.</td>
+                <td>Visualisasi kondisi aset (baik, rusak, hilang) ditampilkan dalam bentuk grafik dan tabel.</td>
+                <td>Grafik dan tabel kesehatan aset menunjukkan data yang konsisten.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">71</td>
+                <td class="col-fitur">Laporan Peminjaman</td>
+                <td>Admin/Petugas membuka halaman laporan peminjaman dan menerapkan filter periode waktu.</td>
+                <td>Statistik peminjaman ditampilkan berdasarkan filter yang dipilih.</td>
+                <td>Data statistik dan grafik peminjaman sesuai dengan periode filter.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">72</td>
+                <td class="col-fitur">Export Laporan</td>
+                <td>Admin/Petugas menekan tombol Export untuk mengunduh data laporan.</td>
+                <td>File laporan berhasil di-generate dan terunduh ke perangkat.</td>
+                <td>File laporan terdownload dalam format yang sesuai.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">73</td>
+                <td class="col-fitur">Damage Analytics</td>
+                <td>Admin membuka halaman analitik kerusakan yang hanya tersedia untuk role Admin.</td>
+                <td>Analisis mendalam tentang pola dan tren kerusakan barang ditampilkan.</td>
+                <td>Grafik analitik dan data tren kerusakan tampil dengan akurat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">74</td>
+                <td class="col-fitur">Asset Lifecycle</td>
+                <td>Admin membuka halaman siklus hidup aset untuk melihat perjalanan barang dari awal hingga akhir.</td>
+                <td>Timeline siklus hidup asset ditampilkan dari pengadaan hingga penghapusan.</td>
+                <td>Data lifecycle aset tersaji lengkap dengan milestone setiap tahapan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- MANAJEMEN USER -->
+            <tr>
+                <td class="col-no">75</td>
+                <td class="col-fitur">Daftar User</td>
+                <td>Admin membuka menu Manajemen Pengguna dari sidebar.</td>
+                <td>Tabel menampilkan seluruh pengguna terdaftar beserta role dan status aktivasi.</td>
+                <td>Daftar pengguna lengkap dengan informasi role dan status muncul.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">76</td>
+                <td class="col-fitur">Tambah User</td>
+                <td>Admin mengisi formulir pengguna baru dengan nama, username, password, role, dan kelas/NIP.</td>
+                <td>User baru terdaftar di sistem dan muncul pada daftar pengguna.</td>
+                <td>Akun baru tersimpan dan terlihat dalam tabel manajemen pengguna.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">77</td>
+                <td class="col-fitur">Edit User</td>
+                <td>Admin memilih pengguna yang akan diubah datanya, memperbarui informasi, dan menyimpan.</td>
+                <td>Perubahan data user tersimpan dan terlihat pada daftar.</td>
+                <td>Informasi pengguna yang diubah berhasil diperbarui di database.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">78</td>
+                <td class="col-fitur">Hapus User</td>
+                <td>Admin menghapus akun pengguna tertentu setelah konfirmasi penghapusan.</td>
+                <td>Akun dihapus dari sistem dan tidak bisa digunakan untuk login.</td>
+                <td>Akun pengguna terhapus dari daftar dan tidak bisa mengakses sistem.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">79</td>
+                <td class="col-fitur">Detail User</td>
+                <td>Admin mengklik nama pengguna untuk melihat profil lengkapnya.</td>
+                <td>Informasi detail pengguna ditampilkan termasuk riwayat aktivitas.</td>
+                <td>Profil lengkap pengguna tersaji dengan data yang akurat.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">80</td>
+                <td class="col-fitur">Import User Excel</td>
+                <td>Admin mengunggah file Excel berisi data siswa atau guru untuk impor massal.</td>
+                <td>Semua data dari file berhasil diimpor dan akun-akun baru terdaftar.</td>
+                <td>Proses impor selesai, akun-akun baru muncul di daftar pengguna.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">81</td>
+                <td class="col-fitur">Assign Role</td>
+                <td>Admin mengubah role pengguna melalui dropdown pilihan role pada halaman edit user.</td>
+                <td>Role pengguna diperbarui dan hak aksesnya menyesuaikan role baru.</td>
+                <td>Role berhasil berubah dan akses menu pengguna menyesuaikan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">82</td>
+                <td class="col-fitur">Aktivasi User</td>
+                <td>Admin menekan tombol aktivasi pada akun yang baru mendaftar.</td>
+                <td>Status akun berubah menjadi aktif dan pengguna dapat login.</td>
+                <td>Pengguna yang diaktivasi berhasil login ke sistem.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">83</td>
+                <td class="col-fitur">Deaktivasi User</td>
+                <td>Admin menonaktifkan akun pengguna tertentu melalui tombol deaktivasi.</td>
+                <td>Akun menjadi nonaktif dan pengguna tersebut tidak dapat login.</td>
+                <td>Login pengguna yang dinonaktifkan ditolak oleh sistem.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- ACTIVITY LOG -->
+            <tr>
+                <td class="col-no">84</td>
+                <td class="col-fitur">Lihat Activity Log</td>
+                <td>Admin membuka halaman Activity Log dari menu khusus Admin.</td>
+                <td>Seluruh log aktivitas pengguna ditampilkan secara kronologis.</td>
+                <td>Log aktivitas tersaji lengkap dengan timestamp dan nama pengguna.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">85</td>
+                <td class="col-fitur">Filter Activity Log</td>
+                <td>Admin menyaring log berdasarkan rentang tanggal, nama user, atau jenis aksi tertentu.</td>
+                <td>Log yang ditampilkan sesuai dengan kriteria filter yang diterapkan.</td>
+                <td>Hasil filter menunjukkan log yang relevan dengan parameter yang dipilih.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">86</td>
+                <td class="col-fitur">Detail Metadata Log</td>
+                <td>Admin mengklik salah satu entri log untuk melihat perubahan data secara mendetail.</td>
+                <td>Modal detail menampilkan data sebelum dan sesudah perubahan dilakukan.</td>
+                <td>Perbandingan data sebelum/sesudah ditampilkan dengan jelas.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">87</td>
+                <td class="col-fitur">Export Activity Log</td>
+                <td>Admin menekan tombol Export untuk mengunduh seluruh data log aktivitas.</td>
+                <td>File log berhasil di-generate dan siap diunduh.</td>
+                <td>File activity log terdownload sesuai format yang diharapkan.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- TRASH -->
+            <tr>
+                <td class="col-no">88</td>
+                <td class="col-fitur">Trash Terpadu</td>
+                <td>Admin/Petugas membuka halaman Trash yang menampilkan data terhapus secara terpadu.</td>
+                <td>Tab-tab terpisah menampilkan data Sarpras, Peminjaman, dan Pengaduan yang sudah dihapus.</td>
+                <td>Halaman Trash menampilkan data terhapus dari ketiga modul dalam tab terpisah.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">89</td>
+                <td class="col-fitur">Restore Data</td>
+                <td>Admin/Petugas memilih data di Trash dan menekan tombol Restore.</td>
+                <td>Data dikembalikan ke halaman utama dan kembali dapat diakses secara normal.</td>
+                <td>Data yang di-restore kembali muncul di halaman utama modul terkait.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">90</td>
+                <td class="col-fitur">Hapus Permanen</td>
+                <td>Admin/Petugas menghapus data secara permanen dari Trash setelah konfirmasi.</td>
+                <td>Data dihapus selamanya dari database dan tidak bisa dikembalikan.</td>
+                <td>Data hilang permanen dari Trash maupun halaman utama.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+            <!-- OTORISASI -->
+            <tr>
+                <td class="col-no">91</td>
+                <td class="col-fitur">Batasan Kelola Barang</td>
+                <td>Siswa/Guru mencoba mengakses URL halaman kelola inventaris barang secara langsung.</td>
+                <td>Sistem memblokir akses dan mengarahkan ke halaman yang sesuai role.</td>
+                <td>Akses ke halaman inventaris ditolak untuk role Siswa dan Guru.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">92</td>
+                <td class="col-fitur">Batasan Approval</td>
+                <td>Siswa/Guru mencoba mengakses fungsi persetujuan atau penolakan peminjaman.</td>
+                <td>Sistem mencegah aksi tersebut karena bukan wewenang Siswa/Guru.</td>
+                <td>Tombol dan akses approval tidak tersedia untuk role Siswa/Guru.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">93</td>
+                <td class="col-fitur">Batasan Kelola User</td>
+                <td>Petugas mencoba membuka halaman Manajemen Pengguna yang khusus Admin.</td>
+                <td>Akses ditolak karena fitur ini eksklusif untuk role Admin.</td>
+                <td>Petugas tidak dapat melihat atau mengakses halaman manajemen user.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">94</td>
+                <td class="col-fitur">Batasan Activity Log</td>
+                <td>Petugas mencoba mengakses halaman Activity Log melalui URL langsung.</td>
+                <td>Sistem menolak dan mengalihkan ke halaman yang sesuai hak akses.</td>
+                <td>Petugas tidak bisa membuka halaman Activity Log.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+            <tr>
+                <td class="col-no">95</td>
+                <td class="col-fitur">Session Expired</td>
+                <td>User membiarkan sesi idle terlalu lama lalu mencoba mengakses halaman tertentu.</td>
+                <td>Sistem secara otomatis mengarahkan ke halaman login karena sesi sudah berakhir.</td>
+                <td>Redirect ke halaman login terjadi secara otomatis saat sesi habis.</td>
+                <td class="col-status">Berhasil</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <br>
+    <p class="no-indent"><b>Keterangan:</b></p>
+    <p class="no-indent">Berhasil = Fitur berjalan sesuai yang diharapkan</p>
+    <p class="no-indent">Gagal = Fitur tidak berjalan sesuai yang diharapkan</p>
+
+    <br>
+    <p class="no-indent"><b>Penguji:</b> ____________________</p>
+    <p class="no-indent"><b>Tanggal:</b> 12 Februari 2026</p>
+    <p class="no-indent"><b>Tanda Tangan:</b> ____________________</p>
+
+</body>
+
+</html>

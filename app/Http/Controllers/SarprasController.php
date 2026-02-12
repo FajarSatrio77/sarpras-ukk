@@ -113,7 +113,12 @@ class SarprasController extends Controller
             $this->generateUnits($sarpras, $request->jumlah_stok, $request->kondisi);
         }
 
-        ActivityLog::log('tambah_sarpras', 'Menambah sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ') dengan ' . $request->jumlah_stok . ' unit');
+        ActivityLog::log('tambah_sarpras', 'Menambah sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ') dengan ' . $request->jumlah_stok . ' unit', null, [
+            'kode' => $sarpras->kode,
+            'nama' => $sarpras->nama,
+            'kondisi' => $sarpras->kondisi,
+            'jumlah_unit' => $request->jumlah_stok,
+        ]);
 
         return redirect()->route('sarpras.index')
             ->with('success', 'Sarpras berhasil ditambahkan dengan ' . $request->jumlah_stok . ' unit.');
@@ -197,9 +202,19 @@ class SarprasController extends Controller
             $data['foto'] = $request->file('foto')->store('sarpras', 'public');
         }
 
+        $dataLama = [
+            'kode_lama' => $sarpras->kode,
+            'nama_lama' => $sarpras->nama,
+            'kondisi_lama' => $sarpras->kondisi,
+        ];
+
         $sarpras->update($data);
 
-        ActivityLog::log('ubah_sarpras', 'Mengubah sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ')');
+        ActivityLog::log('ubah_sarpras', 'Mengubah sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ')', null, array_merge($dataLama, [
+            'kode_baru' => $sarpras->kode,
+            'nama_baru' => $sarpras->nama,
+            'kondisi_baru' => $sarpras->kondisi,
+        ]));
 
         return redirect()->route('sarpras.show', $sarpras)
             ->with('success', 'Sarpras berhasil diperbarui.');
@@ -220,7 +235,11 @@ class SarprasController extends Controller
                 ->with('error', 'Sarpras tidak dapat dihapus karena masih memiliki peminjaman aktif.');
         }
 
-        ActivityLog::log('hapus_sarpras', 'Menghapus sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ')');
+        ActivityLog::log('hapus_sarpras', 'Menghapus sarpras: ' . $sarpras->nama . ' (' . $sarpras->kode . ')', null, [
+            'kode' => $sarpras->kode,
+            'nama' => $sarpras->nama,
+            'jumlah_unit' => $sarpras->units()->count(),
+        ]);
         
         // Soft delete - tidak hapus foto
         $sarpras->delete();
@@ -250,7 +269,10 @@ class SarprasController extends Controller
         $sarpras = Sarpras::onlyTrashed()->findOrFail($id);
         $sarpras->restore();
 
-        ActivityLog::log('pulihkan_sarpras', 'Memulihkan sarpras: ' . $sarpras->nama);
+        ActivityLog::log('pulihkan_sarpras', 'Memulihkan sarpras: ' . $sarpras->nama, null, [
+            'kode' => $sarpras->kode,
+            'nama' => $sarpras->nama,
+        ]);
 
         return back()->with('success', 'Sarpras berhasil dipulihkan.');
     }
@@ -270,7 +292,9 @@ class SarprasController extends Controller
         $nama = $sarpras->nama;
         $sarpras->forceDelete();
 
-        ActivityLog::log('hapus_permanen_sarpras', 'Menghapus permanen sarpras: ' . $nama);
+        ActivityLog::log('hapus_permanen_sarpras', 'Menghapus permanen sarpras: ' . $nama, null, [
+            'nama' => $nama,
+        ]);
 
         return back()->with('success', 'Sarpras berhasil dihapus permanen.');
     }
@@ -296,7 +320,15 @@ class SarprasController extends Controller
         // Sync jumlah_stok dengan jumlah unit tersedia
         $this->syncStock($sarpras);
 
-        ActivityLog::log('tambah_unit', 'Menambah unit ' . $unit->kode_unit . ' ke sarpras ' . $sarpras->nama);
+        $totalUnitSebelum = $sarpras->units()->count() - 1; // -1 karena unit baru sudah dibuat
+
+        ActivityLog::log('tambah_unit', 'Menambah unit ' . $unit->kode_unit . ' ke sarpras ' . $sarpras->nama, null, [
+            'kode_unit' => $unit->kode_unit,
+            'kondisi' => $unit->kondisi,
+            'sarpras' => $sarpras->nama,
+            'total_unit_sebelum' => $totalUnitSebelum,
+            'total_unit_sesudah' => $totalUnitSebelum + 1,
+        ]);
 
         return redirect()->route('sarpras.show', $sarpras)
             ->with('success', 'Unit ' . $unit->kode_unit . ' berhasil ditambahkan.');
@@ -325,7 +357,14 @@ class SarprasController extends Controller
         // Sync jumlah_stok dengan jumlah unit tersedia
         $this->syncStock($sarpras);
 
-        ActivityLog::log('hapus_unit', 'Menghapus unit ' . $kodeUnit . ' dari sarpras ' . $sarpras->nama);
+        $totalUnitSesudah = $sarpras->units()->count();
+
+        ActivityLog::log('hapus_unit', 'Menghapus unit ' . $kodeUnit . ' dari sarpras ' . $sarpras->nama, null, [
+            'kode_unit' => $kodeUnit,
+            'sarpras' => $sarpras->nama,
+            'total_unit_sebelum' => $totalUnitSesudah + 1,
+            'total_unit_sesudah' => $totalUnitSesudah,
+        ]);
 
         return redirect()->route('sarpras.show', $sarpras)
             ->with('success', 'Unit ' . $kodeUnit . ' berhasil dihapus.');

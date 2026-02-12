@@ -49,7 +49,11 @@ class KategoriController extends Controller
             'maintenance_period' => $request->maintenance_period,
         ]);
 
-        ActivityLog::log('tambah_kategori', 'Menambah kategori: ' . $kategori->nama);
+        ActivityLog::log('tambah_kategori', 'Menambah kategori: ' . $kategori->nama, null, [
+            'kode' => $kategori->kode,
+            'nama' => $kategori->nama,
+            'deskripsi' => $kategori->deskripsi ?? '-',
+        ]);
 
         return redirect()->route('kategori.index')
             ->with('success', 'Kategori berhasil ditambahkan.');
@@ -80,6 +84,12 @@ class KategoriController extends Controller
             'nama.unique' => 'Nama kategori sudah ada.',
         ]);
 
+        $dataLama = [
+            'kode_lama' => $kategori->kode,
+            'nama_lama' => $kategori->nama,
+            'deskripsi_lama' => $kategori->deskripsi ?? '-',
+        ];
+
         $kategori->update([
             'kode' => strtoupper($request->kode),
             'nama' => $request->nama,
@@ -87,7 +97,11 @@ class KategoriController extends Controller
             'maintenance_period' => $request->maintenance_period,
         ]);
 
-        ActivityLog::log('ubah_kategori', 'Mengubah kategori: ' . $kategori->nama);
+        ActivityLog::log('ubah_kategori', 'Mengubah kategori: ' . $kategori->nama, null, array_merge($dataLama, [
+            'kode_baru' => $kategori->kode,
+            'nama_baru' => $kategori->nama,
+            'deskripsi_baru' => $kategori->deskripsi ?? '-',
+        ]));
 
         return redirect()->route('kategori.index')
             ->with('success', 'Kategori berhasil diperbarui.');
@@ -104,7 +118,10 @@ class KategoriController extends Controller
                 ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki data sarpras.');
         }
 
-        ActivityLog::log('hapus_kategori', 'Menghapus kategori: ' . $kategori->nama);
+        ActivityLog::log('hapus_kategori', 'Menghapus kategori: ' . $kategori->nama, null, [
+            'kode' => $kategori->kode,
+            'nama' => $kategori->nama,
+        ]);
         
         $kategori->delete();
 

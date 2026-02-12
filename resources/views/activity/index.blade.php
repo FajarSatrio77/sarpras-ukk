@@ -120,6 +120,7 @@
                     <th style="width: 150px;">Aksi</th>
                     <th>Deskripsi</th>
                     <th style="width: 120px;">IP Address</th>
+                    <th style="width: 70px; text-align: center;">Detail</th>
                 </tr>
             </thead>
             <tbody>
@@ -160,10 +161,27 @@
                     <td>
                         <code style="font-size: 0.75rem; background: var(--light); padding: 2px 6px; border-radius: 4px;">{{ $log->ip_address ?? '-' }}</code>
                     </td>
+                    <td style="text-align: center;">
+                        <button type="button" class="btn-detail-log"
+                            data-waktu="{{ $log->created_at->format('d M Y, H:i:s') }}"
+                            data-user="{{ $log->user->name ?? 'User dihapus' }}"
+                            data-role="{{ $log->user->role ?? '-' }}"
+                            data-aksi="{{ ucwords(str_replace('_', ' ', $log->aksi)) }}"
+                            data-deskripsi="{{ $log->deskripsi }}"
+                            data-ip="{{ $log->ip_address ?? '-' }}"
+                            data-browser="{{ $log->browser ?? '-' }}"
+                            data-device="{{ $log->device ?? '-' }}"
+                            data-source="{{ $log->source ?? '-' }}"
+                            data-metadata="{{ $log->metadata ? json_encode($log->metadata) : '' }}"
+                            style="background: rgba(30, 64, 175, 0.08); color: var(--primary); border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;"
+                            title="Lihat Detail">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 40px; color: var(--secondary);">
+                    <td colspan="6" style="text-align: center; padding: 40px; color: var(--secondary);">
                         <i class="bi bi-activity" style="font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.5;"></i>
                         Tidak ada aktivitas ditemukan
                     </td>
@@ -179,6 +197,122 @@
         {{ $logs->appends(request()->query())->links() }}
     </div>
     @endif
+</div>
+
+<!-- Detail Modal -->
+<div id="logDetailModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;">
+    <div id="logDetailOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"></div>
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 520px;">
+        <div class="card" style="box-shadow: 0 25px 60px rgba(0,0,0,0.2); border: none; border-radius: 16px; overflow: hidden;">
+            <div class="card-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; padding: 18px 24px;">
+                <h5 class="card-title" style="color: white; font-size: 1rem;">
+                    <i class="bi bi-info-circle" style="margin-right: 8px;"></i>
+                    Detail Aktivitas
+                </h5>
+                <button id="logDetailClose" type="button" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="card-body" style="padding: 24px;">
+                <div style="display: grid; gap: 16px;">
+                    <!-- Waktu -->
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(30, 64, 175, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-clock" style="color: var(--primary);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600;">Waktu</div>
+                            <div id="detail-waktu" style="font-weight: 500; color: var(--gray-700);"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- User -->
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-person" style="color: var(--success);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600;">User</div>
+                            <div style="font-weight: 500; color: var(--gray-700);"><span id="detail-user"></span> <span id="detail-role" style="font-size: 0.75rem; color: var(--gray-500);"></span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Aksi & Deskripsi -->
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-lightning" style="color: var(--warning);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600;">Aksi</div>
+                            <div id="detail-aksi" style="font-weight: 600; color: var(--gray-700);"></div>
+                            <div id="detail-deskripsi" style="font-size: 0.85rem; color: var(--gray-500); margin-top: 2px;"></div>
+                        </div>
+                    </div>
+
+                    <hr style="border: none; border-top: 1px solid var(--gray-100); margin: 4px 0;">
+
+                    <!-- IP Address -->
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(139, 92, 246, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-hdd-network" style="color: var(--purple);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600;">IP Address</div>
+                            <code id="detail-ip" style="font-size: 0.85rem; background: var(--gray-50); padding: 2px 8px; border-radius: 6px;"></code>
+                        </div>
+                    </div>
+
+                    <!-- Device -->
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div id="detail-device-icon-wrapper" style="width: 36px; height: 36px; border-radius: 10px; background: rgba(6, 182, 212, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i id="detail-device-icon" class="bi bi-display" style="color: var(--info);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600;">Device</div>
+                            <div id="detail-device" style="font-weight: 500; color: var(--gray-700);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Browser -->
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-globe2" style="color: var(--success);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600;">Browser</div>
+                            <div id="detail-browser" style="font-weight: 500; color: var(--gray-700);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Source Code -->
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-code-slash" style="color: var(--warning);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600;">Source Code</div>
+                            <code id="detail-source" style="font-size: 0.85rem; background: rgba(245, 158, 11, 0.08); color: var(--warning); padding: 3px 10px; border-radius: 6px;"></code>
+                        </div>
+                    </div>
+
+                    <!-- Metadata / Info Tambahan -->
+                    <div id="detail-metadata-section" style="display: none;">
+                        <hr style="border: none; border-top: 1px solid var(--gray-100); margin: 4px 0;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px; margin-top: 16px;">
+                            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(239, 68, 68, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-journal-text" style="color: var(--danger);"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); font-weight: 600; margin-bottom: 8px;">Info Tambahan</div>
+                                <div id="detail-metadata-content" style="display: grid; gap: 6px;"></div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -254,6 +388,127 @@ document.addEventListener('DOMContentLoaded', function() {
         sampaiTanggal.value = '';
         submitForm();
     });
+
+    // ============================
+    // Detail Modal
+    // ============================
+    const modal = document.getElementById('logDetailModal');
+    const overlay = document.getElementById('logDetailOverlay');
+    const closeBtn = document.getElementById('logDetailClose');
+
+    // Label mapping untuk metadata keys
+    const metadataLabels = {
+        'password_lama': 'Password Lama',
+        'password_baru': 'Password Baru',
+        'nama_lama': 'Nama Lama',
+        'nama_baru': 'Nama Baru',
+        'kode': 'Kode',
+        'nama': 'Nama',
+        'kode_lama': 'Kode Lama',
+        'kode_baru': 'Kode Baru',
+        'deskripsi': 'Deskripsi',
+        'deskripsi_lama': 'Deskripsi Lama',
+        'deskripsi_baru': 'Deskripsi Baru',
+        'kondisi': 'Kondisi',
+        'kondisi_lama': 'Kondisi Lama',
+        'kondisi_baru': 'Kondisi Baru',
+        'jumlah_unit': 'Jumlah Unit',
+        'kode_unit': 'Kode Unit',
+        'sarpras': 'Sarpras',
+        'total_unit_sebelum': 'Total Unit Sebelum',
+        'total_unit_sesudah': 'Total Unit Sesudah',
+        'kode_peminjaman': 'Kode Peminjaman',
+        'peminjam': 'Peminjam',
+        'jumlah': 'Jumlah',
+        'tgl_pinjam': 'Tgl Pinjam',
+        'tgl_kembali': 'Tgl Kembali',
+        'tujuan': 'Tujuan',
+        'alasan': 'Alasan',
+        'unit': 'Unit',
+        'status_sebelum': 'Status Sebelum',
+        'status_sesudah': 'Status Sesudah',
+        'user': 'User',
+        'email': 'Email',
+        'role': 'Role',
+    };
+
+    function openModal(data) {
+        document.getElementById('detail-waktu').textContent = data.waktu;
+        document.getElementById('detail-user').textContent = data.user;
+        document.getElementById('detail-role').textContent = '(' + data.role + ')';
+        document.getElementById('detail-aksi').textContent = data.aksi;
+        document.getElementById('detail-deskripsi').textContent = data.deskripsi;
+        document.getElementById('detail-ip').textContent = data.ip;
+        document.getElementById('detail-browser').textContent = data.browser;
+        document.getElementById('detail-device').textContent = data.device;
+        document.getElementById('detail-source').textContent = data.source;
+
+        // Update device icon
+        const deviceIcon = document.getElementById('detail-device-icon');
+        if (data.device === 'Mobile') {
+            deviceIcon.className = 'bi bi-phone';
+        } else if (data.device === 'Tablet') {
+            deviceIcon.className = 'bi bi-tablet';
+        } else {
+            deviceIcon.className = 'bi bi-display';
+        }
+
+        // Render metadata
+        const metaSection = document.getElementById('detail-metadata-section');
+        const metaContent = document.getElementById('detail-metadata-content');
+        metaContent.innerHTML = '';
+
+        if (data.metadata && Object.keys(data.metadata).length > 0) {
+            metaSection.style.display = 'block';
+            for (const [key, value] of Object.entries(data.metadata)) {
+                const label = metadataLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                const row = document.createElement('div');
+                row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--gray-50); border-radius: 8px;';
+                row.innerHTML = '<span style="font-size: 0.8rem; color: var(--gray-500);">' + label + '</span>' +
+                    '<code style="font-size: 0.8rem; background: rgba(239, 68, 68, 0.08); color: var(--danger); padding: 2px 8px; border-radius: 6px;">' + value + '</code>';
+                metaContent.appendChild(row);
+            }
+        } else {
+            metaSection.style.display = 'none';
+        }
+
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    // Bind detail buttons
+    document.querySelectorAll('.btn-detail-log').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            let metadata = {};
+            try {
+                if (this.dataset.metadata) metadata = JSON.parse(this.dataset.metadata);
+            } catch(e) {}
+
+            openModal({
+                waktu: this.dataset.waktu,
+                user: this.dataset.user,
+                role: this.dataset.role,
+                aksi: this.dataset.aksi,
+                deskripsi: this.dataset.deskripsi,
+                ip: this.dataset.ip,
+                browser: this.dataset.browser,
+                device: this.dataset.device,
+                source: this.dataset.source,
+                metadata: metadata
+            });
+        });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
 });
 </script>
 
@@ -263,7 +518,15 @@ document.addEventListener('DOMContentLoaded', function() {
     outline: none;
     box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
 }
+.btn-detail-log:hover {
+    background: rgba(30, 64, 175, 0.15) !important;
+    transform: scale(1.05);
+}
+#logDetailClose:hover {
+    background: rgba(255,255,255,0.35) !important;
+}
 </style>
 @endpush
 @endsection
+
 

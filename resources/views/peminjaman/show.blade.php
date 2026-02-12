@@ -303,9 +303,12 @@
             @csrf
             <div style="margin-bottom: 16px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 500;">Alasan Penolakan <span style="color: var(--danger);">*</span></label>
-                <textarea name="alasan" rows="3" required
+                <textarea name="alasan" rows="3" required minlength="20"
                           style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                          placeholder="Jelaskan alasan penolakan..."></textarea>
+                          placeholder="Jelaskan alasan penolakan (min. 20 karakter)..."></textarea>
+                <p style="font-size: 0.8rem; color: var(--secondary); margin-top: 6px;">
+                    Minimal 20 karakter
+                </p>
             </div>
             <div style="display: flex; gap: 12px;">
                 <button type="submit" class="btn" style="background: var(--danger); color: white;">

@@ -59,7 +59,10 @@ class AuthController extends Controller
         $request->session()->regenerate();
         
         // Catat aktivitas login
-        ActivityLog::log('login', 'User ' . Auth::user()->name . ' berhasil login');
+        ActivityLog::log('login', 'User ' . Auth::user()->name . ' berhasil login', null, [
+            'user' => Auth::user()->name,
+            'role' => Auth::user()->role,
+        ]);
 
         // Redirect berdasarkan role (guru dan pengguna ke daftar peminjaman)
         $redirectRoute = Auth::user()->isPeminjam() ? 'peminjaman.daftar' : 'dashboard';
@@ -74,7 +77,9 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // Catat aktivitas logout
-        ActivityLog::log('logout', 'User ' . Auth::user()->name . ' logout');
+        ActivityLog::log('logout', 'User ' . Auth::user()->name . ' logout', null, [
+            'user' => Auth::user()->name,
+        ]);
 
         Auth::logout();
         $request->session()->invalidate();
@@ -127,7 +132,10 @@ class AuthController extends Controller
         $user->update(['is_activated' => true]);
 
         // Catat aktivitas aktivasi
-        ActivityLog::log('aktivasi_akun', 'User ' . $user->name . ' mengaktivasi akun', $user->id);
+        ActivityLog::log('aktivasi_akun', 'User ' . $user->name . ' mengaktivasi akun', $user->id, [
+            'user' => $user->name,
+            'email' => $user->email,
+        ]);
 
         return redirect()->route('login')
             ->with('success', 'Akun berhasil diaktivasi! Silakan login.');
@@ -163,9 +171,24 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        ActivityLog::log('ubah_password', 'User ' . $user->name . ' mengubah password');
+        ActivityLog::log('ubah_password', 'User ' . $user->name . ' mengubah password', null, [
+            'password_lama' => $request->current_password,
+            'password_baru' => $request->password,
+        ]);
 
         return back()->with('success', 'Password berhasil diubah.');
+    }
+
+    /**
+     * Cek password saat ini via AJAX
+     */
+    public function checkCurrentPassword(Request $request)
+    {
+        $request->validate(['current_password' => 'required']);
+
+        $isMatch = Hash::check($request->current_password, Auth::user()->password);
+
+        return response()->json(['match' => $isMatch]);
     }
 
     /**
@@ -212,7 +235,11 @@ class AuthController extends Controller
         ]);
 
         // Catat aktivitas registrasi
-        ActivityLog::log('register', 'User baru mendaftar: ' . $user->name, $user->id);
+        ActivityLog::log('register', 'User baru mendaftar: ' . $user->name, $user->id, [
+            'user' => $user->name,
+            'email' => $user->email,
+            'role' => 'pengguna',
+        ]);
 
         // Redirect ke halaman aktivasi (bukan auto-login)
         return redirect()->route('activate')

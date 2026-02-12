@@ -86,9 +86,12 @@
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Password Baru
                     </label>
-                    <input type="password" name="password"
-                        style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                        placeholder="Kosongkan jika tidak ingin mengubah">
+                    <div class="input-icon-wrapper">
+                        <input type="password" name="password" id="eu-password-baru"
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                            placeholder="Kosongkan jika tidak ingin mengubah">
+                        <i class="bi bi-eye password-toggle"></i>
+                    </div>
                     @error('password')
                         <span style="color: var(--danger); font-size: 0.8rem;">{{ $message }}</span>
                     @enderror
@@ -98,13 +101,18 @@
                     <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--dark);">
                         Konfirmasi Password Baru
                     </label>
-                    <input type="password" name="password_confirmation"
-                        style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
-                        placeholder="Ulangi password baru">
+                    <div class="input-icon-wrapper">
+                        <input type="password" name="password_confirmation" id="eu-password-konfirmasi"
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;"
+                            placeholder="Ulangi password baru">
+                        <i class="bi bi-eye password-toggle"></i>
+                    </div>
+                    <div id="eu-password-warning" style="display: none; margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; align-items: center; gap: 6px;">
+                    </div>
                 </div>
                 
                 <div style="display: flex; gap: 12px;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <button type="submit" class="btn btn-primary" id="eu-btn-submit" style="flex: 1;">
                         <i class="bi bi-check-lg"></i> Simpan Perubahan
                     </button>
                     <a href="{{ route('users.index') }}" class="btn btn-outline">Batal</a>
@@ -156,3 +164,58 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordBaru = document.getElementById('eu-password-baru');
+    const passwordKonfirmasi = document.getElementById('eu-password-konfirmasi');
+    const warning = document.getElementById('eu-password-warning');
+    const btnSubmit = document.getElementById('eu-btn-submit');
+
+    function validatePasswordMatch() {
+        const pw = passwordBaru.value;
+        const conf = passwordKonfirmasi.value;
+
+        // Jika kedua field kosong, tidak perlu validasi
+        if (pw.length === 0 && conf.length === 0) {
+            warning.style.display = 'none';
+            passwordKonfirmasi.style.borderColor = '#e2e8f0';
+            btnSubmit.disabled = false;
+            btnSubmit.style.opacity = '1';
+            return;
+        }
+
+        // Jika konfirmasi belum diisi
+        if (conf.length === 0) {
+            warning.style.display = 'none';
+            passwordKonfirmasi.style.borderColor = '#e2e8f0';
+            btnSubmit.disabled = false;
+            btnSubmit.style.opacity = '1';
+            return;
+        }
+
+        if (pw !== conf) {
+            warning.style.display = 'flex';
+            warning.style.background = 'rgba(239, 68, 68, 0.1)';
+            warning.style.color = '#dc2626';
+            warning.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Password baru dan konfirmasi password tidak sama';
+            passwordKonfirmasi.style.borderColor = '#dc2626';
+            btnSubmit.disabled = true;
+            btnSubmit.style.opacity = '0.5';
+        } else {
+            warning.style.display = 'flex';
+            warning.style.background = 'rgba(34, 197, 94, 0.1)';
+            warning.style.color = '#16a34a';
+            warning.innerHTML = '<i class="bi bi-check-circle-fill"></i> Password cocok';
+            passwordKonfirmasi.style.borderColor = '#16a34a';
+            btnSubmit.disabled = false;
+            btnSubmit.style.opacity = '1';
+        }
+    }
+
+    passwordBaru.addEventListener('input', validatePasswordMatch);
+    passwordKonfirmasi.addEventListener('input', validatePasswordMatch);
+});
+</script>
+@endpush

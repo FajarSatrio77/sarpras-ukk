@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     // Change Password
     Route::get('/password/change', [AuthController::class, 'showChangePassword'])->name('password.change');
     Route::post('/password/change', [AuthController::class, 'changePassword'])->name('password.update');
+    Route::post('/password/check-current', [AuthController::class, 'checkCurrentPassword'])->name('password.check-current');
     
     // =============================================
     // Admin Only Routes
@@ -152,7 +153,6 @@ Route::middleware('auth')->group(function () {
         
         // Pengaduan Management (Admin/Petugas - bisa update status)
         Route::patch('/pengaduan/{pengaduan}/status', [PengaduanController::class, 'updateStatus'])->name('pengaduan.update-status');
-        Route::post('/pengaduan/{pengaduan}/catatan', [PengaduanController::class, 'addCatatan'])->name('pengaduan.add-catatan');
 
     });
     
@@ -180,6 +180,7 @@ Route::middleware('auth')->group(function () {
     // =============================================
     Route::get('/pengaduan', [PengaduanController::class, 'index'])->name('pengaduan.index');
     Route::get('/pengaduan/{pengaduan}', [PengaduanController::class, 'show'])->name('pengaduan.show');
+    Route::post('/pengaduan/{pengaduan}/catatan', [PengaduanController::class, 'addCatatan'])->name('pengaduan.add-catatan');
     Route::delete('/pengaduan/{pengaduan}', [PengaduanController::class, 'destroy'])->name('pengaduan.destroy');
     
     // Detail peminjaman (semua role bisa akses)

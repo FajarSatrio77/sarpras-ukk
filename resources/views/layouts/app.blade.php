@@ -1496,6 +1496,30 @@
                 display: none !important;
             }
         }
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            left: auto !important;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 10;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon-wrapper input {
+            padding-right: 48px !important;
+        }
     </style>
     @stack('styles')
 <style>
@@ -2268,6 +2292,20 @@
                         confirmText: this.dataset.confirmBtn || 'Ya, Lanjutkan',
                         onConfirm: () => { if (href) window.location.href = href; }
                     });
+                });
+            });
+
+            // Global Password Toggle
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.classList.replace('bi-eye', 'bi-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        this.classList.replace('bi-eye-slash', 'bi-eye');
+                    }
                 });
             });
         });

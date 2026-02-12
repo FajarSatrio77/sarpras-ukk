@@ -146,6 +146,11 @@ class PengaduanController extends Controller
      */
     public function updateStatus(Request $request, Pengaduan $pengaduan)
     {
+        // Jika sudah selesai atau ditutup, tidak bisa diubah lagi
+        if (in_array($pengaduan->status, ['selesai', 'ditutup'])) {
+            return back()->with('error', 'Pengaduan yang sudah selesai atau ditutup tidak dapat diubah lagi.');
+        }
+
         $request->validate([
             'status' => 'required|in:menunggu,diproses,selesai,ditutup',
             'catatan' => 'required_if:status,diproses,selesai,ditutup|nullable|string',
@@ -174,10 +179,20 @@ class PengaduanController extends Controller
     }
 
     /**
-     * Tambah catatan tindak lanjut (Admin/Petugas only)
+     * Tambah catatan tindak lanjut / Diskusi
      */
     public function addCatatan(Request $request, Pengaduan $pengaduan)
     {
+        // Pengguna hanya bisa tambah catatan di pengaduan miliknya sendiri
+        if (Auth::user()->isPeminjam() && $pengaduan->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Jika sudah selesai atau ditutup, diskusi berhenti
+        if (in_array($pengaduan->status, ['selesai', 'ditutup'])) {
+            return back()->with('error', 'Diskusi telah berakhir karena pengaduan sudah selesai atau ditutup.');
+        }
+
         $request->validate([
             'catatan' => 'required|string',
         ]);
@@ -188,8 +203,8 @@ class PengaduanController extends Controller
             'catatan' => $request->catatan,
         ]);
 
-        return redirect()->route('pengaduan.show', $pengaduan)
-            ->with('success', 'Catatan tindak lanjut berhasil ditambahkan');
+        return redirect()->route('pengaduan.show', $pengaduan->id)
+            ->with('success', 'Pesan berhasil dikirim');
     }
 
     /**
@@ -230,6 +245,8 @@ class PengaduanController extends Controller
     public function restore($id)
     {
         $pengaduan = Pengaduan::onlyTrashed()->findOrFail($id);
+        
+        // Opsional: Tetap izinkan restore, tapi pastikan status terkunci tetap berlaku
         $pengaduan->restore();
 
         return back()->with('success', 'Pengaduan berhasil dipulihkan.');

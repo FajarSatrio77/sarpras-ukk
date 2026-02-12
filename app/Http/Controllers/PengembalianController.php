@@ -19,7 +19,11 @@ class PengembalianController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Pengembalian::with(['peminjaman.user', 'peminjaman.sarpras', 'penerima']);
+        $query = Pengembalian::with(['peminjaman' => function($q) {
+            $q->withTrashed()->with(['user', 'sarpras' => function($sq) {
+                $sq->withTrashed();
+            }]);
+        }, 'penerima']);
 
         // Filter by kondisi
         if ($request->filled('kondisi')) {
@@ -148,6 +152,17 @@ class PengembalianController extends Controller
             'unit_kondisi.required' => 'Kondisi setiap unit wajib dipilih',
         ]);
 
+        // Validasi foto wajib jika ada unit yang hilang atau rusak berat
+        foreach ($request->unit_kondisi as $unitId => $kondisi) {
+            if (in_array($kondisi, ['hilang', 'rusak_berat'])) {
+                if (!$request->hasFile("unit_foto.$unitId") && !$request->hasFile('foto')) {
+                    return back()->withErrors([
+                        'foto' => 'Foto dokumentasi wajib dilampirkan (pada unit terkait atau foto umum) jika ada barang yang hilang atau rusak berat.'
+                    ])->withInput();
+                }
+            }
+        }
+
         DB::beginTransaction();
         try {
             // Handle upload foto
@@ -272,12 +287,13 @@ class PengembalianController extends Controller
             'tgl_pengembalian' => 'required|date',
             'kondisi_alat' => 'required|in:baik,rusak_ringan,rusak_berat,hilang',
             'deskripsi_kerusakan' => 'required_if:kondisi_alat,rusak_ringan,rusak_berat,hilang|nullable|string',
-            'foto' => 'nullable|image|max:2048',
+            'foto' => 'required_if:kondisi_alat,hilang,rusak_berat|nullable|image|max:2048',
             'catatan_petugas' => 'nullable|string',
         ], [
             'kondisi_alat.required' => 'Kondisi alat wajib dipilih',
             'tgl_pengembalian.required' => 'Tanggal pengembalian wajib diisi',
             'deskripsi_kerusakan.required_if' => 'Deskripsi kerusakan wajib diisi jika kondisi alat tidak baik',
+            'foto.required_if' => 'Foto dokumentasi wajib dilampirkan jika barang hilang atau rusak berat',
         ]);
 
         DB::beginTransaction();

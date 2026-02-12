@@ -156,6 +156,24 @@
 
         .input-icon-wrapper .form-input {
             padding-left: 48px;
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            left: auto !important;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 10;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
         }
 
         .btn-activate {
@@ -305,10 +323,28 @@
                         <label class="form-label">Password</label>
                         <div class="input-icon-wrapper">
                             <i class="bi bi-lock"></i>
-                            <input type="password" name="password" class="form-input" 
+                            <input type="password" name="password" id="password" class="form-input" 
                                    placeholder="Masukkan password" required>
+                            <i class="bi bi-eye password-toggle" id="togglePassword"></i>
                         </div>
                     </div>
+
+                    <script>
+                        document.getElementById('togglePassword')?.addEventListener('click', function (e) {
+                            const passwordInput = document.getElementById('password');
+                            const icon = this;
+                            
+                            if (passwordInput.type === 'password') {
+                                passwordInput.type = 'text';
+                                icon.classList.remove('bi-eye');
+                                icon.classList.add('bi-eye-slash');
+                            } else {
+                                passwordInput.type = 'password';
+                                icon.classList.remove('bi-eye-slash');
+                                icon.classList.add('bi-eye');
+                            }
+                        });
+                    </script>
 
                     <button type="submit" class="btn-activate">
                         <i class="bi bi-check-circle"></i> Aktivasi Akun
