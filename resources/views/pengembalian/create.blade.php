@@ -272,6 +272,33 @@
         border-color: #ec4899 !important;
         color: #9d174d !important;
     }
+
+    /* Disabled submit button */
+    .btn-submit-disabled {
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        pointer-events: none;
+        background: #9ca3af !important;
+        border-color: #9ca3af !important;
+    }
+
+    .photo-warning {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        color: #991b1b;
+        font-size: 0.85rem;
+        margin-top: 12px;
+    }
+
+    .photo-warning i {
+        color: #ef4444;
+        font-size: 1.1rem;
+    }
 </style>
 @endpush
 
@@ -426,9 +453,10 @@
                                             <td>
                                                 <div class="unit-photo-upload">
                                                     <input type="file" name="unit_foto[{{ $pu->sarpras_unit_id }}]" 
-                                                           class="form-control" accept="image/*" 
+                                                           class="form-control unit-foto-input" accept="image/*" 
                                                            style="padding: 4px 8px; font-size: 0.75rem;"
-                                                           onchange="previewUnitPhoto(this, '{{ $pu->sarpras_unit_id }}')">
+                                                           data-unit-id="{{ $pu->sarpras_unit_id }}"
+                                                           onchange="previewUnitPhoto(this, '{{ $pu->sarpras_unit_id }}'); updateSubmitButton();">
                                                     <div id="preview-container-{{ $pu->sarpras_unit_id }}" style="margin-top: 5px; display: none;">
                                                         <img id="preview-{{ $pu->sarpras_unit_id }}" src="" alt="Preview" 
                                                              style="width: 100%; max-height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
@@ -523,7 +551,7 @@
                             
                             <div class="form-group" id="legacyPhotoField">
                                 <label class="form-label">Foto Dokumentasi Pengembalian</label>
-                                <input type="file" name="foto" class="form-control" accept="image/*" onchange="previewPhoto(this)">
+                                <input type="file" name="foto" class="form-control" accept="image/*" onchange="previewPhoto(this); updateSubmitButton();">
                                 <small style="color: var(--secondary);">Format: JPG, PNG (max 2MB) - Untuk bukti visual kondisi alat</small>
                                 <div id="photoPreview" style="margin-top: 12px; display: none;">
                                     <img id="previewImg" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
@@ -539,8 +567,13 @@
                         <small style="color: var(--secondary);">Catatan tambahan untuk tindak lanjut (opsional)</small>
                     </div>
                     
+                    <div id="photoWarning" class="photo-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>Foto wajib diunggah untuk kondisi <strong>Rusak Berat</strong>. Silakan unggah foto terlebih dahulu.</span>
+                    </div>
+
                     <div style="display: flex; gap: 12px; margin-top: 24px;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <button type="submit" class="btn btn-primary" id="btnSubmitPengembalian" style="flex: 1;">
                             <i class="bi bi-check-lg"></i> Proses Pengembalian
                         </button>
                         <a href="{{ route('pengembalian.scan') }}" class="btn btn-outline">Batal</a>
@@ -598,24 +631,24 @@
                 if (label) label.innerHTML = 'Foto Dokumentasi Pengembalian (Opsional)';
             }
         }
+
+        // Update submit button state after kondisi change
+        updateSubmitButton();
     }
 
     // New function to check photo visibility for Per-Unit form
     function checkPerUnitPhotoVisibility() {
-        const photoField = document.getElementById('perUnitPhotoField');
-        if (!photoField) return;
-
         const selects = Array.from(document.querySelectorAll('.kondisi-select'));
-        
-        // Check if ANY unit is hilang or rusak_berat (Mandatory)
-        const hasSevere = selects.some(select => ['hilang', 'rusak_berat'].includes(select.value));
+        if (selects.length === 0) {
+            updateSubmitButton();
+            return;
+        }
 
         // Update individual unit photo requirements
         selects.forEach(select => {
             const unitId = select.name.match(/\[(.*?)\]/)[1];
             const unitPhotoInput = document.querySelector(`input[name="unit_foto[${unitId}]"]`);
             if (unitPhotoInput) {
-                const label = unitPhotoInput.previousElementSibling; // If there's a label
                 if (['hilang', 'rusak_berat'].includes(select.value)) {
                     unitPhotoInput.setAttribute('required', 'required');
                     unitPhotoInput.style.borderColor = 'var(--danger)';
@@ -625,6 +658,9 @@
                 }
             }
         });
+
+        // Update submit button state after per-unit change
+        updateSubmitButton();
     }
     
     function previewPhoto(input) {
@@ -669,6 +705,50 @@
             container.style.display = 'none';
         }
     }
+
+    /**
+     * Update submit button state.
+     * Disable when any item has "rusak_berat" condition but no photo uploaded.
+     */
+    function updateSubmitButton() {
+        const btn = document.getElementById('btnSubmitPengembalian');
+        const warning = document.getElementById('photoWarning');
+        if (!btn) return;
+
+        let shouldDisable = false;
+
+        // === Check Legacy Form (single condition radio buttons) ===
+        const checkedKondisi = document.querySelector('input[name="kondisi_alat"]:checked');
+        if (checkedKondisi && checkedKondisi.value === 'rusak_berat') {
+            const legacyPhotoInput = document.querySelector('#legacyPhotoField input[type="file"]');
+            if (legacyPhotoInput && (!legacyPhotoInput.files || legacyPhotoInput.files.length === 0)) {
+                shouldDisable = true;
+            }
+        }
+
+        // === Check Per-Unit Form (select dropdowns) ===
+        const unitSelects = document.querySelectorAll('.kondisi-select');
+        unitSelects.forEach(function(select) {
+            if (select.value === 'rusak_berat') {
+                const unitId = select.name.match(/\[(.*?)\]/)[1];
+                const unitPhotoInput = document.querySelector(`input[name="unit_foto[${unitId}]"]`);
+                if (unitPhotoInput && (!unitPhotoInput.files || unitPhotoInput.files.length === 0)) {
+                    shouldDisable = true;
+                }
+            }
+        });
+
+        // Apply or remove disabled state
+        if (shouldDisable) {
+            btn.disabled = true;
+            btn.classList.add('btn-submit-disabled');
+            if (warning) warning.style.display = 'flex';
+        } else {
+            btn.disabled = false;
+            btn.classList.remove('btn-submit-disabled');
+            if (warning) warning.style.display = 'none';
+        }
+    }
     
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -692,11 +772,14 @@
             checkPerUnitPhotoVisibility();
         }
 
+        // Initial submit button state check
+        updateSubmitButton();
+
         // Simple Form Submit Handler - without any blocking
         const form = document.getElementById('formPengembalian');
         if (form) {
             form.addEventListener('submit', function(e) {
-                const btn = form.querySelector('button[type="submit"]');
+                const btn = form.querySelector('#btnSubmitPengembalian');
                 if (btn) {
                     // Beri delay sedikit agar submit request terkirim sebelum button disabled
                     setTimeout(() => {
